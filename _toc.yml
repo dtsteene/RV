@@ -1,0 +1,19 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: intro
+chapters:
+- file: markdown
+- file: notebooks
+- file: markdown-notebooks
+
+
+## _toc.yml
+#format: jb-book
+#root: content/01_introduction
+#chapters:
+#  - file: content/02_fem_basics
+#  - file: content/03_cardiac_model
+#  - file: content/04_simulation_results
+#  - file: content/05_conclusion

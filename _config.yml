@@ -1,0 +1,40 @@
+# Book settings
+title: 'Computational Modeling of the Right Ventricle'
+author: 'Daniel Steeneveldt'
+logo: figures/uio_logo.png  # Best practice: keep images in a dedicated folder
+
+# --- Execution Settings ---
+execute:
+  execute_notebooks: force  # Re-runs notebooks on each build. Can change to 'cache' for speed.
+
+# --- PDF / LaTeX Build Settings ---
+# This section was incomplete. It needs more details to build the PDF correctly.
+latex:
+  latex_documents:
+    # (targetname, startfile, title, author, theme, toctree_only)
+    # startfile should be the first page of your book defined in _toc.yml
+    - targetname: thesis.tex
+      startfile: intro # IMPORTANT: Replace 'intro' with the filename of your first chapter (without extension)
+      title: 'Computational Modeling of the Right Ventricle'
+      author: 'Daniel Steeneveldt'
+      theme: manual
+      toctree_only: false
+  latex_engine: "pdflatex" # Explicitly set the engine for better control
+
+# --- Bibliography Settings ---
+bibtex_bibfiles:
+  - references.bib
+
+# --- Repository and Website Settings ---
+# IMPORTANT: Remember to update these with your own GitHub repository details
+repository:
+  url: https://github.com/dtsteene/RV.git
+  path_to_book: . # The path to your book, relative to the repo root. Often just '.'
+  branch: main 
+
+# --- HTML Specific Settings ---
+# These add 'Edit on GitHub' and 'Open issue' buttons to your HTML book
+html:
+  use_issues_button: true
+  use_repository_button: true
+  use_edit_page_button: true # Also a useful button to have
