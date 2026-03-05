@@ -1,37 +1,19 @@
 # Myocardial Fiber Architecture
 
-The mechanical function of the heart is heavily dependent on the orientation of its muscle fibers.
+The mechanical anisotropy of the myocardium — its tendency to be much stiffer and to contract more forcefully in the fiber direction than across it — makes the spatial arrangement of fibers one of the most important inputs to the simulation. In the real heart, muscle fibers wrap around the ventricular walls in a complex helical pattern: near the endocardium, fibers run in a right-handed helix when viewed from the apex, while near the epicardium they run in a left-handed helix, with a continuous rotation of the helix angle across the wall thickness. This arrangement is not incidental; it is mechanically essential. The double-helical architecture converts sarcomeric shortening (which occurs along the fiber axis) into the twisting, wringing motion that the ventricle performs during systole, and this torsional deformation significantly enhances stroke volume relative to what pure concentric thickening could produce.
 
-:::{note} Key Concept: Anisotropy
-The myocardium is an **anisotropic material**, meaning its mechanical properties are direction-dependent. It is stiffer and contracts more strongly in the direction of the fibers compared to the transverse direction.
-:::
+Assigning realistic fiber orientations to an idealized mesh requires a systematic method that can work on arbitrary geometries without relying on patient-specific imaging of the fiber structure. The approach used here is the Laplace-Dirichlet Rule-Based (LDRB) algorithm of Bayer et al. {cite}`bayer2012novel`. The core idea is to define a local coordinate system at every point in the myocardium by solving a series of Laplace equations on the mesh with Dirichlet boundary conditions that encode anatomical information. Three coordinate fields are needed: a transmural coordinate $d$ that varies from zero at the endocardium to one at the epicardium, an apico-basal coordinate that runs from apex to base, and a circumferential coordinate orthogonal to the other two. Each of these is obtained as the solution to a Laplace equation with appropriate boundary conditions on the endocardial, epicardial, and basal surfaces of the mesh.
 
-
-
-## The LDRB Algorithm
-
-To assign realistic fiber orientations to our idealized geometry, we use the **Laplace-Dirichlet Rule-Based (LDRB)** algorithm. This method solves a series of potential problems (Laplace equations) on the mesh to define a local coordinate system at every point:
-
-**Transmural Distance ($d$)**
-: A coordinate varying from 0 (Endocardium) to 1 (Epicardium).
-
-**Apico-Basal Distance**
-: A coordinate varying from the apex to the base.
-
-**Circumferential Direction**
-: The direction orthogonal to the other two, following the curvature of the wall.
-
-## Fiber Angles
-
-Using this local coordinate system, the fiber helix angle ($\alpha$) is varied linearly across the wall thickness:
+Once this local coordinate system is established at every integration point, the fiber direction $\mathbf{f}_0$ is determined by rotating the circumferential direction through the helix angle $\alpha$, which varies linearly with the transmural coordinate:
 
 $$
-\alpha = \alpha_{endo} (1 - d) + \alpha_{epi} d
+\alpha(d) = \alpha_\text{endo}(1 - d) + \alpha_\text{epi}\, d.
 $$
 
-Where $d$ is the normalized transmural distance. In our model, we use standard physiological values to recreate the characteristic "double-helical" structure:
+For the left ventricular free wall, we use $\alpha_\text{endo} = +60^\circ$ and $\alpha_\text{epi} = -60^\circ$, values drawn from experimental measurements of fiber orientation in human and canine hearts {cite}`streeter1969fiber`. The resulting variation produces the characteristic double-helical structure: fibers at the endocardium run in a steep right-handed helix, transition to nearly circumferential at mid-wall, and continue to a left-handed helix at the epicardium. This arrangement has been shown in computational studies to maximize torsional deformation and stroke volume for a given amount of contractile force.
 
-* **Endocardium:** $\alpha_{endo} = +60^\circ$ (Right-handed helix)
-* **Epicardium:** $\alpha_{epi} = -60^\circ$ (Left-handed helix)
+The right ventricular free wall has a different architecture. Because the RV wall is much thinner and wraps around the outside of the LV in a crescent shape, the fiber angles tend to be shallower, with less transmural rotation. In our model, we use $\alpha_\text{endo} = +90^\circ$ and $\alpha_\text{epi} = -25^\circ$ for the RV, giving a more nearly transverse fiber orientation at the endocardium that reflects the greater circumferential emphasis of RV fiber geometry.
 
-This linear variation creates the twisting motion (torsion) that is critical for efficient blood ejection.
+In addition to the fiber direction $\mathbf{f}_0$, the constitutive model requires the sheet direction $\mathbf{s}_0$, which is perpendicular to the fiber direction and lies in the plane of the local fiber-sheet laminae. The sheet normal $\mathbf{n}_0 = \mathbf{f}_0 \times \mathbf{s}_0$ completes an orthonormal frame at each point. The LDRB algorithm assigns all three directions simultaneously as part of the same coordinate rotation procedure.
+
+For the finite element simulation, the fiber fields are needed at different levels of spatial resolution for different purposes. The mechanics solver integrates over each element using Gauss quadrature points, so the fiber direction is stored in a sixth-order quadrature function space to provide the accuracy needed for the stress computation. The active tension assignment, which must distinguish between the three anatomical zones, uses a piecewise-constant DG0 representation where a single value per element is sufficient. Visualization of the fiber field, for the purposes of checking that the assignment is geometrically sensible, uses a first-order discontinuous Galerkin DG1 representation. These three representations coexist and are each generated from the same underlying LDRB solution.

@@ -1,37 +1,21 @@
-# Building the Digital Heart
+# The Computational Model
 
-To model the electromechanical behavior of the heart, we rely on a stack of open-source software tools. This project is built upon the FEniCSx ecosystem, a modern, high-performance finite element framework.
+Simulating a beating heart involves at least two distinct levels of physical description that must be reconciled with one another. At the tissue level, the myocardium is a soft biological material undergoing large, anisotropic deformations driven by active contraction of its constituent muscle fibers. Capturing this requires a spatially resolved model that tracks the displacement, stress, and strain at every point in the ventricular wall — the domain of continuum mechanics and the finite element method. At the system level, the heart is a pump embedded in a closed circulatory loop, and its mechanical output is shaped by the pressure and flow conditions imposed by the arteries and veins it is connected to. Capturing this requires a model of the entire cardiovascular circuit, including the four chambers, the valve dynamics, the arterial compliance, and the vascular resistance of both the systemic and pulmonary circulations.
 
-## The Ecosystem
+These two levels of description must be coupled, and the coupling is bi-directional. The hemodynamic load from the circulation determines the pressure boundary conditions that the finite element model must satisfy, while the cavity volume changes computed by the finite element model drive the flow dynamics in the circulation. Neither model can run in isolation and produce physiologically meaningful results: a finite element heart with prescribed volume changes will not develop the right pressures unless the circulation is present to impose the correct load, and the circulation model cannot produce realistic hemodynamics unless it receives accurate cavity volumes from the deforming heart geometry.
 
-Our computational pipeline consists of three primary components created and maintained by my supervisor Henrik Finsberg:
+The framework used in this thesis is built on three open-source software components maintained by Henrik Finsberg at Simula Research Laboratory. The first is `cardiac-geometries` {cite}`cardiac_geometries`, which handles the generation of bi-ventricular meshes and the assignment of myocardial fiber orientations. The second is `fenicsx-pulse` {cite}`fenicsx_pulse`, which implements the finite element mechanics solver: the large-deformation hyperelastic material laws, the active contraction model, the cavity pressure constraints, and the prestressing algorithm. The third is `circulation` {cite}`circulation`, which implements the zero-dimensional lumped-parameter model of the full cardiovascular circuit, including the closed-loop four-chamber formulation of Regazzoni et al. {cite}`regazzoni2022cardiac` with Windkessel representations of the arterial vasculature. Together, these three components form the complete simulation pipeline, implemented within the broader FEniCSx ecosystem {cite}`baratta2023dolfinx` described in the geometry chapter.
 
-`cardiac-geometries`
-: This tool handles the generation of idealized bi-ventricular meshes. It creates the geometry, defines the fiber and sheet orientations (crucial for anisotropic muscle contraction), and tags the relevant subdomains (Left Ventricle, Right Ventricle, Septum, American Heart Assiciation segments) {cite}`cardiac_geometries`.
+The following sections describe each element of the model in turn. We begin with the geometry and the software infrastructure, since the spatial domain and computational environment determine everything downstream. We then describe the fiber architecture that gives the myocardium its mechanical anisotropy, followed by the constitutive laws governing the passive elastic response of the tissue and the active contraction that drives the heart's pumping function. Finally, we describe the zero-dimensional circulation model and the numerical strategy used to couple it to the three-dimensional finite element solver.
 
-`fenicsx-pulse`
-: This library provides the physics solvers. It implements the large-deformation mechanics (finite elasticity), the active contraction models, and the coupling to the 0D circulation. It is designed specifically for cardiac mechanics {cite}`fenicsx_pulse`.
+## The Simulation in Practice
 
-`circulation`
-: This module simulates the 0D "plumbing" of the cardiovascular system. It models the blood flow in and out of the heart using lumped-parameter (Windkessel) models, representing the resistance and compliance of the systemic and pulmonary arteries {cite}`circulation`.
+The components described in the subsequent sections come together in a single simulation script that drives the complete cardiac cycle. Understanding the overall structure of this script is useful context for the implementation challenges described in Chapter 3, which can otherwise appear as isolated difficulties rather than problems that arise at specific points in a well-defined pipeline.
 
-## The Workflow
+The simulation begins with geometry loading and fiber assignment. The biventricular mesh is generated or read from disk, scaled to meters, and oriented with the base normal along the $x$-axis. The LDRB algorithm then solves the Laplace equations and assigns the fiber, sheet, and sheet-normal directions at every quadrature point, storing the result in three function spaces of different resolution as described in the following section.
 
-The modeling process follows a linear pipeline. In the following chapters, we will explore each of these steps in detail, starting with the geometry.
+Before the coupled simulation begins, the circulation model is run alone for ten beats from an initial state determined by the mesh end-diastolic volumes. This pre-run brings the 0D model to a hemodynamically periodic steady state and produces the end-diastolic pressures and volumes that will initialize the coupled simulation. A volume scaling ratio is computed from this result: the ratio of the mesh end-diastolic volume to the steady-state 0D volume provides a multiplicative factor that converts every subsequent volume request from the circulation model into the geometric frame of the finite element mesh. This ratio coupling, described in detail in the 0D circulation section, decouples the anatomical scale of the mesh from the hemodynamic calibration of the circulation parameters.
 
-```{mermaid}
-graph LR
-    A[Geometry Generation] --> B[Physics Definition];
-    B --> C[Coupling];
-    C --> D[Simulation];
-    
-    click A "Start here: Creating the mesh"
-```
+The prestressing phase runs next. The backward displacement method applies the end-diastolic pressures from the 0D pre-run and iterates toward the stress-free reference configuration that, when inflated to those pressures, reproduces the original mesh geometry. Once this reference configuration is established, the mesh coordinates are updated and the fiber fields are remapped to the new reference. An inflation ramp then deforms the mesh back from the reference to the end-diastolic target volumes, ensuring that the starting state of the coupled simulation is mechanically consistent.
 
-1. Geometry Generation Create the mesh and assign fibers.
-
-2. Physics Definition Define material properties (Holzapfel-Ogden) and active stress models.
-
-3. Coupling Connect the 3D heart model to the 0D circulation model.
-
-4. Simulation Solve the coupled system over multiple cardiac cycles.
+The main coupled loop is driven by the circulation model's time integration. At each time step, the circulation solver calls a callback function that receives the target cavity volumes and returns the corresponding cavity pressures. Inside the callback, the active tension array is updated according to the Blanco waveform, the finite element problem is solved for the displacement that achieves mechanical equilibrium at the prescribed volumes, and the cavity pressures are extracted from the Lagrange multipliers of the cavity constraints. The metrics calculator, which holds the accumulated work integrals and tracks the stress and strain fields, records its quantities at every call. Checkpoint files are written to disk periodically so that the results are preserved even if the simulation terminates early.
