@@ -26,6 +26,8 @@ jobs:
         run: npm install -g mystmd
       - name: Build site
         run: myst build --html
+        env:
+          BASE_URL: /RV
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
