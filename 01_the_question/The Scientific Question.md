@@ -1,4 +1,4 @@
-# The Scientific Question
+# The Scientific Question 
 
 The standard approach to quantifying ventricular mechanical work relies on the pressure-volume relationship. Over a complete cardiac cycle, the area enclosed by the pressure-volume loop gives the net external work done by the ventricle on the blood it ejects:
 

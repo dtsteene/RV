@@ -45,7 +45,7 @@ execute:
 
 # BibTeX configuration
 bibtex_bibfiles:
-  - refrences.bib
+  - references.bib
 
 # Sphinx configuration (needed for citations)
 sphinx:

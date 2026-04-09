@@ -1,36 +1,130 @@
 # Three-Dimensional Continuum Mechanics
 
-The heart wall undergoes deformations that are too large to describe with the small-strain linearized elasticity familiar from structural engineering. Peak fiber strains in the myocardium reach 15–25% during systole, and the theory of linear elasticity, which assumes displacements are infinitesimally small relative to the body's dimensions, loses its validity well before that regime. The appropriate framework is finite hyperelasticity, which allows for arbitrarily large deformations and defines stress through the derivative of a stored energy function with respect to strain — an approach that automatically guarantees thermodynamic consistency and objectivity under rigid-body rotation {cite}`holzapfel2000nonlinear`.
+When the heart beats, its walls undergo a complex sequence of mechanical events. During systole, the muscle fibers shorten by 15–25%, the wall thickens transmurally, and the entire ventricle twists around its long axis — a wringing motion that squeezes blood out of the cavity. During diastole, the process reverses: the muscle relaxes, the wall thins, and blood flows back in. At every instant, the tissue is being stretched, compressed, and sheared in different directions simultaneously, and the forces that arise internally — the stresses — depend on how much the tissue has deformed, in which direction, and what material it is made of.
+
+To predict these forces and deformations quantitatively, we need a mathematical framework that can describe how a solid body changes shape under applied loads. For small deformations — a steel beam bending by a fraction of a percent — the linearized theory of elasticity is sufficient. But the heart wall deforms by tens of percent, far beyond the regime where linear approximations are valid. The appropriate framework is finite hyperelasticity, which allows for arbitrarily large deformations and defines stress through the derivative of a stored energy function with respect to strain — an approach that automatically guarantees thermodynamic consistency and objectivity under rigid-body rotation {cite}`holzapfel2000nonlinear`.
 
 ## Kinematics
 
-The deformation of the body is described by a smooth mapping from a reference configuration $\mathcal{B}_0$, representing the tissue in some chosen stress-free state, to the current configuration $\mathcal{B}_t$ at time $t$. A material point initially at position $\mathbf{X}$ moves to position $\mathbf{x} = \boldsymbol{\varphi}(\mathbf{X}, t)$, and the deformation gradient $\mathbf{F}$ captures how infinitesimal line elements are stretched and rotated by this mapping:
+The first question in any mechanics problem is: how do we describe the motion of the body? For a rigid object, a translation vector and a rotation matrix suffice. For a deformable solid like the myocardium, the description must be richer — every material point in the body can move independently, and we need a field that tracks the position of every point as a function of time.
+
+The deformation is described by a smooth mapping from a reference configuration $\mathcal{B}_0$, representing the tissue in some chosen stress-free state, to the current configuration $\mathcal{B}_t$ at time $t$. A material point initially at position $\mathbf{X}$ moves to position $\mathbf{x} = \boldsymbol{\varphi}(\mathbf{X}, t)$, and the deformation gradient $\mathbf{F}$ captures how infinitesimal line elements are stretched and rotated by this mapping:
 
 $$
 \mathbf{F} = \frac{\partial \mathbf{x}}{\partial \mathbf{X}} = \mathbf{I} + \nabla_\mathbf{X} \mathbf{u},
 $$
 
-where $\mathbf{u} = \mathbf{x} - \mathbf{X}$ is the displacement field and $\mathbf{I}$ is the identity tensor. The scalar $J = \det \mathbf{F}$ measures the local volume change: $J > 1$ means the material has expanded, $J < 1$ that it has compressed, and $J = 1$ corresponds to isochoric (volume-preserving) deformation.
+where $\mathbf{u} = \mathbf{x} - \mathbf{X}$ is the displacement field and $\mathbf{I}$ is the identity tensor. Physically, $\mathbf{F}$ is a $3 \times 3$ matrix that tells you, for any small line segment in the original body, what that segment looks like after deformation: how much it has been stretched and in which direction it has been rotated. If the body has not deformed at all, $\mathbf{F} = \mathbf{I}$; if a fiber originally pointing in the $\mathbf{f}_0$ direction has been stretched to twice its length, the magnitude $|\mathbf{F}\mathbf{f}_0| = 2$.
 
-Rather than working directly with $\mathbf{F}$, it is more convenient to use the right Cauchy-Green deformation tensor $\mathbf{C} = \mathbf{F}^\top \mathbf{F}$, which is symmetric, positive definite, and invariant to rigid-body rotation. The Green-Lagrange strain tensor
+The scalar $J = \det \mathbf{F}$ measures the local volume change: $J > 1$ means the material has expanded, $J < 1$ that it has compressed, and $J = 1$ corresponds to isochoric (volume-preserving) deformation. For the nearly incompressible myocardium, $J$ stays close to 1 throughout the cardiac cycle.
+
+Rather than working directly with $\mathbf{F}$, it is more convenient to use the right Cauchy-Green deformation tensor $\mathbf{C} = \mathbf{F}^\top \mathbf{F}$, which is symmetric, positive definite, and invariant to rigid-body rotation. The physical content of $\mathbf{C}$ is the same as $\mathbf{F}$ — it encodes how much the material has been stretched in every direction — but it strips out the rotation, leaving only the pure stretch information. This is desirable because a rigid rotation of the heart (picking it up and turning it) should not generate any internal stress; by formulating the constitutive law in terms of $\mathbf{C}$ rather than $\mathbf{F}$, this invariance is guaranteed automatically.
+
+The Green-Lagrange strain tensor
 
 $$
 \mathbf{E} = \frac{1}{2}(\mathbf{C} - \mathbf{I})
 $$
 
-vanishes when the body undergoes pure rigid motion and is positive when material elements are stretched. Both $\mathbf{C}$ and $\mathbf{E}$ are defined relative to the reference configuration, making them natural objects for a material-frame description of deformation.
+is a measure of how far the current deformation is from the undeformed state. It vanishes when the body undergoes pure rigid motion and is positive when material elements are stretched. The factor of $\frac{1}{2}$ is a convention that makes $\mathbf{E}$ reduce to the familiar engineering strain $\varepsilon = \Delta L / L$ in the limit of small deformations. Both $\mathbf{C}$ and $\mathbf{E}$ are defined relative to the reference configuration, making them natural objects for a material-frame description of deformation.
 
-## The Strain Energy Function and Stress
+## Stress, Energy, and Thermodynamic Consistency
 
-In hyperelasticity, the mechanical response of the material is encoded in a scalar strain energy function $\Psi(\mathbf{C})$ that gives the elastic energy stored per unit reference volume. The stress arising from this deformation is then recovered by differentiation:
+Strain describes how a body has deformed. Stress describes the internal forces that arise as a consequence of that deformation — the forces that neighboring material elements exert on each other. If you imagine cutting the heart wall along an internal surface, stress is the force per unit area that you would need to apply to the cut faces to hold them in place. It is a tensor, not a scalar, because the force on a surface depends on the orientation of that surface: the force per unit area on a surface facing radially (through the wall thickness) is different from the force on a surface facing circumferentially (along the fiber direction).
+
+This distinction matters for the central question of this thesis. The cavity pressure $P$ is the force per unit area on the endocardial surface — the inner wall of the ventricle. It is a single number that acts in the direction perpendicular to the wall (the transmural direction). The internal stress $\mathbf{S}$, by contrast, is a full $3 \times 3$ tensor that describes forces in all directions simultaneously: the fiber-direction stress $S_{ff}$ represents the tension along the muscle fibers, the transmural stress $S_{nn}$ represents compression through the wall thickness, and the off-diagonal components represent shearing forces. Cavity pressure determines the transmural stress at the boundary ($\sigma_{nn}|_\text{endo} = -P$), but the fiber stress, which is what drives contraction and dominates the mechanical work, is related to $P$ only indirectly through the equilibrium equations and the geometry of the wall. This indirect relationship — between a scalar boundary condition and a tensorial internal field — is what makes the pressure-strain proxy an approximation rather than an identity, and it is what we quantify in the results.
+
+### The stress power and energy conjugacy
+
+The concept of mechanical work — stress times strain rate, integrated over the body — is central to this thesis, and the relationship between stress, strain, and work follows from the mechanical power balance. For a body $\mathcal{B}$ with surface tractions $\mathbf{t}$ and no body forces, the total rate of work done by external forces on the body is
 
 $$
-\mathbf{S} = 2 \frac{\partial \Psi}{\partial \mathbf{C}},
+\mathcal{P}_\text{ext} = \int_{\partial\mathcal{B}} \mathbf{t} \cdot \dot{\mathbf{x}} \, dA,
 $$
 
-where $\mathbf{S}$ is the second Piola-Kirchhoff stress tensor — a quantity defined in the reference configuration that describes the force per unit reference area acting on an oriented surface element. When results need to be interpreted in the current configuration, the Cauchy stress $\boldsymbol{\sigma} = J^{-1} \mathbf{F} \mathbf{S} \mathbf{F}^\top$ is used instead. The Piola-Kirchhoff framework is more natural for computation because the reference domain does not change shape during the simulation, simplifying the formulation of the governing equations.
+where $\dot{\mathbf{x}}$ is the velocity of a material point on the surface. By the divergence theorem and the balance of linear momentum ($\text{div}\,\boldsymbol{\sigma} = \mathbf{0}$ in quasi-statics), this external power equals the internal power:
+
+$$
+\mathcal{P}_\text{int} = \int_{\mathcal{B}} \boldsymbol{\sigma} : \mathbf{d} \, dv,
+$$
+
+where $\mathbf{d} = \frac{1}{2}(\nabla\dot{\mathbf{x}} + \nabla\dot{\mathbf{x}}^\top)$ is the rate of deformation tensor (the symmetric part of the spatial velocity gradient) and $dv$ is the current volume element. The product $\boldsymbol{\sigma} : \mathbf{d}$ is the stress power per unit current volume — the rate at which mechanical energy is being stored or dissipated at each point in the body.
+
+This expression is correct but inconvenient for computation, because the integral is over the current (deformed) configuration, which changes at every time step. We can pull it back to the fixed reference configuration using the identity $dv = J \, dV$ and the kinematic relation between the spatial rate of deformation and the material time derivative of the Green-Lagrange strain:
+
+$$
+\boldsymbol{\sigma} : \mathbf{d} = \frac{1}{J} \mathbf{S} : \dot{\mathbf{E}}.
+$$
+
+This is a fundamental result in continuum mechanics, and it is worth seeing where it comes from. The velocity gradient in the current configuration is $\mathbf{l} = \dot{\mathbf{F}}\mathbf{F}^{-1}$, and its symmetric part is $\mathbf{d} = \frac{1}{2}(\mathbf{l} + \mathbf{l}^\top)$. The Cauchy stress is related to the second Piola-Kirchhoff stress by $\boldsymbol{\sigma} = J^{-1}\mathbf{F}\mathbf{S}\mathbf{F}^\top$. Substituting both into the stress power and using the fact that the time derivative of the Green-Lagrange strain is $\dot{\mathbf{E}} = \frac{1}{2}(\dot{\mathbf{F}}^\top\mathbf{F} + \mathbf{F}^\top\dot{\mathbf{F}}) = \mathbf{F}^\top\mathbf{d}\,\mathbf{F}$, one obtains
+
+$$
+\boldsymbol{\sigma} : \mathbf{d} = J^{-1}\mathbf{F}\mathbf{S}\mathbf{F}^\top : \mathbf{d} = J^{-1}\mathbf{S} : (\mathbf{F}^\top\mathbf{d}\,\mathbf{F}) = J^{-1}\mathbf{S} : \dot{\mathbf{E}},
+$$
+
+where the second equality uses the trace identity $(\mathbf{F}\mathbf{A}\mathbf{F}^\top) : \mathbf{B} = \mathbf{A} : (\mathbf{F}^\top\mathbf{B}\,\mathbf{F})$ for symmetric tensors. The internal power over the whole body then becomes
+
+$$
+\mathcal{P}_\text{int} = \int_{\mathcal{B}} \boldsymbol{\sigma} : \mathbf{d} \, dv = \int_{\mathcal{B}_0} \frac{1}{J}\mathbf{S} : \dot{\mathbf{E}} \cdot J \, dV = \int_{\mathcal{B}_0} \mathbf{S} : \dot{\mathbf{E}} \, dV.
+$$
+
+The factors of $J$ cancel, and we arrive at the result that the total mechanical power in the body is $\int_{\mathcal{B}_0} \mathbf{S} : \dot{\mathbf{E}} \, dV$ — an integral over the fixed reference configuration with no $J$ factors, no deformed geometry, and no ambiguity about which configuration the integration is performed over.
+
+This is the precise sense in which $\mathbf{S}$ and $\mathbf{E}$ are **energy conjugate**: their double contraction $\mathbf{S} : \dot{\mathbf{E}}$ gives the stress power per unit reference volume. Other stress-strain pairs are also energy conjugate — the Cauchy stress $\boldsymbol{\sigma}$ with the rate of deformation $\mathbf{d}$, for instance — but the pair $(\mathbf{S}, \mathbf{E})$ is the most natural for a Lagrangian (reference-frame) formulation because both quantities are defined on the reference configuration. When we compute the total mechanical work over a cardiac cycle as
+
+$$
+W = \int_0^T \int_{\mathcal{B}_0} \mathbf{S} : \dot{\mathbf{E}} \, dV \, dt,
+$$
+
+we are computing the exact thermodynamic work — not an approximation, not a proxy, but the complete energy input to the material. This is what makes $\mathbf{S} : \dot{\mathbf{E}}$ the ground truth against which all pressure-strain proxies are compared in this thesis.
+
+### The Clausius-Duhem inequality and hyperelasticity
+
+The relationship between the strain energy function and the stress tensor is not an arbitrary modeling choice — it is forced by thermodynamics. The second law of thermodynamics, expressed locally for a continuum, takes the form of the Clausius-Duhem inequality. For a purely mechanical process (no heat conduction, no temperature changes), it reduces to
+
+$$
+\mathbf{S} : \dot{\mathbf{E}} - \dot{\Psi} \geq 0,
+$$
+
+which states that the stress power must be at least as large as the rate of change of stored energy — the difference being the dissipation, which cannot be negative. For a hyperelastic material, which by definition stores all mechanical energy without dissipation, the inequality becomes an equality:
+
+$$
+\mathbf{S} : \dot{\mathbf{E}} = \dot{\Psi}.
+$$
+
+This is the constitutive constraint. Since $\Psi = \Psi(\mathbf{C})$ depends on the deformation only through $\mathbf{C}$, the chain rule gives
+
+$$
+\dot{\Psi} = \frac{\partial \Psi}{\partial \mathbf{C}} : \dot{\mathbf{C}} = 2\frac{\partial \Psi}{\partial \mathbf{C}} : \dot{\mathbf{E}},
+$$
+
+where the factor of 2 comes from $\dot{\mathbf{C}} = 2\dot{\mathbf{E}}$ (since $\mathbf{E} = \frac{1}{2}(\mathbf{C} - \mathbf{I})$ and $\mathbf{I}$ is constant). Substituting into the energy balance:
+
+$$
+\mathbf{S} : \dot{\mathbf{E}} = 2\frac{\partial \Psi}{\partial \mathbf{C}} : \dot{\mathbf{E}}.
+$$
+
+Since this must hold for every possible motion — every $\dot{\mathbf{E}}$ — the tensors multiplying $\dot{\mathbf{E}}$ must be equal:
+
+$$
+\mathbf{S} = 2 \frac{\partial \Psi}{\partial \mathbf{C}}.
+$$
+
+This is the constitutive law of hyperelasticity. It is not a postulate but a consequence: the only way for a non-dissipative elastic material to satisfy the second law of thermodynamics at every point and for every deformation is for the stress to be the derivative of a stored energy function with respect to the strain. The entire mechanical behavior of the material — how stiff it is, how it responds to stretching in different directions, how it stores and releases energy — is encoded in the single scalar function $\Psi(\mathbf{C})$.
+
+### Stress measures and their physical meaning
+
+The second Piola-Kirchhoff stress $\mathbf{S}$ is a reference-configuration quantity: it describes forces referred to the undeformed geometry. While mathematically convenient, it does not have the immediate physical interpretation of "force per unit area as measured right now." That role belongs to the Cauchy stress:
+
+$$
+\boldsymbol{\sigma} = J^{-1} \mathbf{F} \mathbf{S} \mathbf{F}^\top.
+$$
+
+The Cauchy stress is what an embedded pressure sensor would measure — force per unit deformed area, in the current configuration. The transformation $\boldsymbol{\sigma} = J^{-1}\mathbf{F}\mathbf{S}\mathbf{F}^\top$ accounts for two things: the rotation and stretch of the surface on which the force acts (through $\mathbf{F}$), and the change in area of that surface (through $J^{-1}$). The two stress measures contain the same physical information but are referred to different configurations: $\mathbf{S}$ "lives" on the reference body, $\boldsymbol{\sigma}$ on the deformed body. The Piola-Kirchhoff framework is more natural for computation because the reference domain does not change shape during the simulation, and the energy conjugacy $\mathbf{S} : \dot{\mathbf{E}}$ provides the cleanest path to work integration.
 
 ## The Holzapfel-Ogden Constitutive Model
+
+The thermodynamic framework above tells us that all we need to fully specify the passive mechanics of the myocardium is a single scalar function $\Psi(\mathbf{C})$. Everything else — the stress, the tangent stiffness, the stored energy, the work — follows by differentiation. The challenge is choosing a $\Psi$ that captures the mechanical behavior of cardiac tissue: its pronounced anisotropy (much stiffer along muscle fibers than across them), its exponential stiffening at large strains, and its near-incompressibility.
 
 The myocardium is an anisotropic material: it is stiffer and stronger along the direction of its muscle fibers than perpendicular to them, and this directional dependence is essential to reproduce the characteristic twisting deformation of the heart during systole. We model the passive mechanical behavior of the myocardium using the Holzapfel-Ogden constitutive law {cite}`holzapfel2009constitutive`, a structurally motivated model that decomposes the strain energy into contributions from the isotropic ground matrix, the muscle fibers, and the cross-fiber sheet direction {cite}`finsberg2019assessment`:
 
@@ -44,7 +138,7 @@ $$
 \Psi_\text{iso} = \frac{a}{2b}\left(e^{b(I_1 - 3)} - 1\right),
 $$
 
-where $I_1 = \text{tr}\,\mathbf{C}$ is the first invariant of the right Cauchy-Green tensor, encoding the isotropic stretch of the material, and $a$ and $b$ are positive material parameters. The exponential form stiffens the response at large strains, which is characteristic of biological soft tissues.
+where $I_1 = \text{tr}\,\mathbf{C}$ is the first invariant of the right Cauchy-Green tensor, encoding the isotropic stretch of the material, and $a$ and $b$ are positive material parameters. The exponential form is the defining feature of biological soft tissue mechanics: unlike a metal spring, which responds linearly (double the stretch, double the force), the myocardium becomes dramatically stiffer as it is stretched further. At small strains the tissue is compliant, allowing the ventricle to fill easily during diastole; at large strains the exponential kicks in and the tissue stiffens rapidly, protecting it from overstretch. The parameter $a$ sets the overall stiffness scale (in kPa), while $b$ controls how quickly the stiffening occurs — a larger $b$ means the tissue transitions from compliant to stiff over a narrower range of strain.
 
 The anisotropic term adds contributions from the fiber direction $\mathbf{f}_0$ and the sheet direction $\mathbf{s}_0$, defined in the reference configuration by the fiber architecture assigned to the mesh. Using the pseudo-invariants $I_{4f} = \mathbf{f}_0 \cdot (\mathbf{C}\mathbf{f}_0)$ and $I_{4s} = \mathbf{s}_0 \cdot (\mathbf{C}\mathbf{s}_0)$, which measure the squared stretch along each structural direction, the anisotropic energy is
 
@@ -92,13 +186,13 @@ where $\mathbf{N}$ is the outward unit normal in the reference configuration and
 
 The basal plane $\Gamma_\text{base}$ is constrained by a Dirichlet condition that prevents out-of-plane translation while allowing in-plane displacement, eliminating rigid-body modes without artificially constraining the deformation of the base.
 
-The epicardial surface $\Gamma_\text{epi}$ and the base carry Robin-type spring conditions that model the pericardial constraint and surrounding tissue:
+The epicardial surface $\Gamma_\text{epi}$ and the base carry Robin-type spring conditions that model the pericardial constraint and surrounding tissue. The spring resists displacement in the direction normal to the deformed surface, using the same Nanson mapping as the pressure traction to track the current surface orientation:
 
 $$
-\mathbf{T}_\text{robin} = -k \, \mathbf{u} \quad \text{on } \Gamma_\text{epi} \cup \Gamma_\text{base},
+\mathbf{T}_\text{robin} = -k \, (\mathbf{u} \cdot \mathbf{n}) \, \mathbf{n} \quad \text{on } \Gamma_\text{epi} \cup \Gamma_\text{base},
 $$
 
-with spring stiffnesses $k_\text{epi} = 10^5$ Pa/m and $k_\text{base} = 10^6$ Pa/m. These springs absorb some elastic energy at the boundaries; the implications of this are discussed in the context of the energy budget in Chapter 5. In the weak form, the Robin terms contribute a bilinear boundary integral $\int_\Gamma k \, \mathbf{u} \cdot \delta\mathbf{u} \, dA$ that enters the residual alongside the internal and pressure terms.
+where $\mathbf{n} = J\mathbf{F}^{-\top}\mathbf{N} / |J\mathbf{F}^{-\top}\mathbf{N}|$ is the unit outward normal in the current configuration. The spring stiffnesses are $k_\text{epi} = 10^5$ Pa/m and $k_\text{base} = 10^6$ Pa/m. Because the spring acts only in the normal direction, tangential sliding of the epicardium is unresisted — a physically reasonable model of the pericardial constraint, which restricts outward motion of the heart surface but allows it to slide freely within the pericardial sac. The surface integral is evaluated over the deformed area element $|J\mathbf{F}^{-\top}\mathbf{N}| \, dS_0$ rather than the reference element $dS_0$, consistent with the formulation used for the pressure traction. These springs absorb some elastic energy at the boundaries; the implications of this are discussed in the context of the energy budget in Chapter 5.
 
 ## Linearization and Newton's Method
 
@@ -126,6 +220,6 @@ $$
 
 where the residual vector $\mathbf{R}$ assembles the element-level contributions from the internal stress, the pressure tractions, and the Robin springs. The Newton update at each iteration solves the tangent system $\mathbf{K}\,\Delta\mathbf{d} = -\mathbf{R}$, where $\mathbf{K} = \partial\mathbf{R}/\partial\mathbf{d}$ is the assembled tangent stiffness matrix.
 
-The mesh uses first-order tetrahedral elements (P1), which are the simplest conforming elements for three-dimensional elasticity. At the element level, the displacement gradient is constant, which means that each element produces a single strain state — a property that limits the resolution of transmural stress gradients but is adequate at the mesh densities used here (characteristic length 5 mm, approximately 40,000–50,000 elements). The integrals in the weak form are evaluated by Gauss quadrature over each element, and the assembly over all elements is handled by DOLFINx. The tangent system is solved by a sparse direct solver (MUMPS) accessed through PETSc, which provides robust convergence even for the ill-conditioned systems that arise when the bulk modulus $\kappa$ is large relative to the shear stiffness.
+The mesh uses second-order tetrahedral elements (P2), in which the displacement field is represented by quadratic polynomials with ten nodes per element — four at the vertices and six at the edge midpoints. Quadratic elements provide substantially better accuracy per degree of freedom than linear elements for problems involving bending and large deformations, because the displacement gradient varies linearly within each element rather than being piecewise constant. This means that each element can represent a linearly varying strain field, which is important for resolving the transmural stress gradients that arise when the wall is loaded by cavity pressure on one side and a Robin spring on the other. At the mesh densities used here (characteristic length 5 mm, approximately 40,000–50,000 elements), the P2 discretization produces smooth stress and strain fields across the wall thickness. The integrals in the weak form are evaluated by Gauss quadrature over each element, and the assembly over all elements is handled by DOLFINx. The tangent system is solved by a sparse direct solver (MUMPS) accessed through PETSc, which provides robust convergence even for the ill-conditioned systems that arise when the bulk modulus $\kappa$ is large relative to the shear stiffness.
 
 In the UFL implementation, the entire derivation above — the strain energy, the stress, the residual, and its linearization — is expressed symbolically. The form compiler FFCx differentiates the energy automatically to produce the residual and tangent forms, which are then compiled into optimized C kernels. This means that changes to the constitutive model (for instance, modifying the Holzapfel-Ogden parameters or switching to a different strain energy function) require only editing the UFL expression for $\Psi$; the linearization, assembly, and solution infrastructure remain untouched.
