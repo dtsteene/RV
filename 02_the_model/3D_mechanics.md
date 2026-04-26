@@ -2,7 +2,7 @@
 
 When the heart beats, its walls undergo a complex sequence of mechanical events. During systole, the muscle fibers shorten by 15–25%, the wall thickens transmurally, and the entire ventricle twists around its long axis — a wringing motion that squeezes blood out of the cavity. During diastole, the process reverses: the muscle relaxes, the wall thins, and blood flows back in. At every instant, the tissue is being stretched, compressed, and sheared in different directions simultaneously, and the forces that arise internally — the stresses — depend on how much the tissue has deformed, in which direction, and what material it is made of.
 
-To predict these forces and deformations quantitatively, we need a mathematical framework that can describe how a solid body changes shape under applied loads. For small deformations — a steel beam bending by a fraction of a percent — the linearized theory of elasticity is sufficient. But the heart wall deforms by tens of percent, far beyond the regime where linear approximations are valid. The appropriate framework is finite hyperelasticity, which allows for arbitrarily large deformations and defines stress through the derivative of a stored energy function with respect to strain — an approach that automatically guarantees thermodynamic consistency and objectivity under rigid-body rotation {cite}`holzapfel2000nonlinear`.
+To predict these forces and deformations quantitatively, we need a mathematical framework that can describe how a solid body changes shape under applied loads. For small deformations — a steel beam bending by a fraction of a percent — the linearized theory of elasticity is sufficient. But the heart wall deforms by tens of percent, far beyond the regime where linear approximations are valid. The appropriate framework is finite hyperelasticity, which allows for arbitrarily large deformations and defines stress through the derivative of a stored energy function with respect to strain — an approach that automatically guarantees thermodynamic consistency and objectivity under rigid-body rotation.
 
 ## Kinematics
 
@@ -32,7 +32,7 @@ is a measure of how far the current deformation is from the undeformed state. It
 
 Strain describes how a body has deformed. Stress describes the internal forces that arise as a consequence of that deformation — the forces that neighboring material elements exert on each other. If you imagine cutting the heart wall along an internal surface, stress is the force per unit area that you would need to apply to the cut faces to hold them in place. It is a tensor, not a scalar, because the force on a surface depends on the orientation of that surface: the force per unit area on a surface facing radially (through the wall thickness) is different from the force on a surface facing circumferentially (along the fiber direction).
 
-This distinction matters for the central question of this thesis. The cavity pressure $P$ is the force per unit area on the endocardial surface — the inner wall of the ventricle. It is a single number that acts in the direction perpendicular to the wall (the transmural direction). The internal stress $\mathbf{S}$, by contrast, is a full $3 \times 3$ tensor that describes forces in all directions simultaneously: the fiber-direction stress $S_{ff}$ represents the tension along the muscle fibers, the transmural stress $S_{nn}$ represents compression through the wall thickness, and the off-diagonal components represent shearing forces. Cavity pressure determines the transmural stress at the boundary ($\sigma_{nn}|_\text{endo} = -P$), but the fiber stress, which is what drives contraction and dominates the mechanical work, is related to $P$ only indirectly through the equilibrium equations and the geometry of the wall. This indirect relationship — between a scalar boundary condition and a tensorial internal field — is what makes the pressure-strain proxy an approximation rather than an identity, and it is what we quantify in the results.
+This distinction matters for the central question of this thesis. The cavity pressure $P$ is the force per unit area on the endocardial surface — the inner wall of the ventricle. It is a single number that acts in the direction perpendicular to the wall (the transmural direction). The internal stress $\mathbf{S}$, by contrast, is a full $3 \times 3$ tensor that describes forces in all directions simultaneously: the fiber-direction stress $S_{ff}$ represents tension along the muscle fibers, the transmural stress $S_{nn}$ represents compression through the wall thickness, and the off-diagonal components represent shearing forces. Cavity pressure determines the normal stress at the endocardial boundary ($\sigma_{nn}|_\text{endo} = -P$), but it does not directly determine the fiber stress or the shear stresses inside the wall. Those internal stresses follow from equilibrium, geometry, material anisotropy, active contraction, and the constraints imposed by the rest of the heart. This indirect relationship — between a scalar boundary pressure and a tensorial internal field — is what makes the pressure-strain proxy an approximation rather than an identity, and it is what we quantify in the results.
 
 ### The stress power and energy conjugacy
 
@@ -76,7 +76,7 @@ $$
 W = \int_0^T \int_{\mathcal{B}_0} \mathbf{S} : \dot{\mathbf{E}} \, dV \, dt,
 $$
 
-we are computing the exact thermodynamic work — not an approximation, not a proxy, but the complete energy input to the material. This is what makes $\mathbf{S} : \dot{\mathbf{E}}$ the ground truth against which all pressure-strain proxies are compared in this thesis.
+we are computing the mechanical work implied by this continuum model. This is still a model output, not a direct biological measurement. Its role in this thesis is simpler: it is the tensor work computed from the finite element stress and strain fields. For regional pressure-strain comparisons, this tensor work is divided by the relevant regional reference volume so that the clinical-style pressure-strain index is compared with a tensor work density.
 
 ### The Clausius-Duhem inequality and hyperelasticity
 
@@ -126,7 +126,7 @@ The Cauchy stress is what an embedded pressure sensor would measure — force pe
 
 The thermodynamic framework above tells us that all we need to fully specify the passive mechanics of the myocardium is a single scalar function $\Psi(\mathbf{C})$. Everything else — the stress, the tangent stiffness, the stored energy, the work — follows by differentiation. The challenge is choosing a $\Psi$ that captures the mechanical behavior of cardiac tissue: its pronounced anisotropy (much stiffer along muscle fibers than across them), its exponential stiffening at large strains, and its near-incompressibility.
 
-The myocardium is an anisotropic material: it is stiffer and stronger along the direction of its muscle fibers than perpendicular to them, and this directional dependence is essential to reproduce the characteristic twisting deformation of the heart during systole. We model the passive mechanical behavior of the myocardium using the Holzapfel-Ogden constitutive law {cite}`holzapfel2009constitutive`, a structurally motivated model that decomposes the strain energy into contributions from the isotropic ground matrix, the muscle fibers, and the cross-fiber sheet direction {cite}`finsberg2019assessment`:
+The myocardium is an anisotropic material: it is stiffer and stronger along the direction of its muscle fibers than perpendicular to them, and this directional dependence is essential to reproduce the characteristic twisting deformation of the heart during systole. We model the passive mechanical behavior of the myocardium using the Holzapfel-Ogden constitutive law {cite}`holzapfel2009constitutive`, a structurally motivated model that can decompose the strain energy into contributions from the isotropic ground matrix, the muscle fibers, the cross-fiber sheet direction, and fibre-sheet coupling {cite}`finsberg2019assessment`. In the simulations reported here, the transversely isotropic parameter set in `fenicsx-pulse` is used, so the passive anisotropy comes from the fibre term while the sheet and fibre-sheet coefficients are set to zero:
 
 $$
 \Psi = \Psi_\text{iso} + \Psi_\text{aniso} + \Psi_\text{vol}.
@@ -140,21 +140,30 @@ $$
 
 where $I_1 = \text{tr}\,\mathbf{C}$ is the first invariant of the right Cauchy-Green tensor, encoding the isotropic stretch of the material, and $a$ and $b$ are positive material parameters. The exponential form is the defining feature of biological soft tissue mechanics: unlike a metal spring, which responds linearly (double the stretch, double the force), the myocardium becomes dramatically stiffer as it is stretched further. At small strains the tissue is compliant, allowing the ventricle to fill easily during diastole; at large strains the exponential kicks in and the tissue stiffens rapidly, protecting it from overstretch. The parameter $a$ sets the overall stiffness scale (in kPa), while $b$ controls how quickly the stiffening occurs — a larger $b$ means the tissue transitions from compliant to stiff over a narrower range of strain.
 
-The anisotropic term adds contributions from the fiber direction $\mathbf{f}_0$ and the sheet direction $\mathbf{s}_0$, defined in the reference configuration by the fiber architecture assigned to the mesh. Using the pseudo-invariants $I_{4f} = \mathbf{f}_0 \cdot (\mathbf{C}\mathbf{f}_0)$ and $I_{4s} = \mathbf{s}_0 \cdot (\mathbf{C}\mathbf{s}_0)$, which measure the squared stretch along each structural direction, the anisotropic energy is
+The general Holzapfel-Ogden anisotropic term can add contributions from the fiber direction $\mathbf{f}_0$, the sheet direction $\mathbf{s}_0$, and fibre-sheet shear, all defined in the reference configuration by the local architecture assigned to the mesh. Using the pseudo-invariants $I_{4f} = \mathbf{f}_0 \cdot (\mathbf{C}\mathbf{f}_0)$ and $I_{4s} = \mathbf{s}_0 \cdot (\mathbf{C}\mathbf{s}_0)$, which measure the squared stretch along each structural direction, the anisotropic energy is
 
 $$
 \Psi_\text{aniso} = \frac{a_f}{2b_f}\left(e^{b_f(I_{4f}-1)^2} - 1\right) + \frac{a_s}{2b_s}\left(e^{b_s(I_{4s}-1)^2} - 1\right) + \frac{a_{fs}}{2b_{fs}}\left(e^{b_{fs} I_{8fs}^2} - 1\right),
 $$
 
-where $I_{8fs} = \mathbf{f}_0 \cdot (\mathbf{C}\mathbf{s}_0)$ captures the coupling between the fiber and sheet directions, and $a_f$, $b_f$, $a_s$, $b_s$, $a_{fs}$, $b_{fs}$ are additional material parameters. The fiber and sheet terms activate only in extension — their integrands vanish when $I_{4f} \leq 1$ or $I_{4s} \leq 1$, reflecting the observation that muscle fibers and collagen sheets offer little resistance to compression along their length.
+where $I_{8fs} = \mathbf{f}_0 \cdot (\mathbf{C}\mathbf{s}_0)$ captures the coupling between the fiber and sheet directions, and $a_f$, $b_f$, $a_s$, $b_s$, $a_{fs}$, $b_{fs}$ are additional material parameters. The fiber and sheet terms activate only in extension — their integrands vanish when $I_{4f} \leq 1$ or $I_{4s} \leq 1$, reflecting the observation that muscle fibers and collagen sheets offer little resistance to compression along their length. For the transversely isotropic parameter set used here, $a_s = a_{fs} = 0$, so the sheet and fibre-sheet terms vanish and the passive directional stiffening is fibre-dominated.
 
 The volumetric term penalizes deviations from the incompressible limit:
 
 $$
-\Psi_\text{vol} = \frac{\kappa}{2}(J-1)^2,
+\Psi_\text{vol} = \frac{\kappa}{4}\left(J^2 - 1 - 2\ln J\right),
 $$
 
-where $\kappa$ is the bulk modulus. The myocardium is very nearly incompressible — its fluid content prevents substantial volume change — but enforcing strict incompressibility requires a mixed finite element formulation that, while accurate, is more complex to implement and can suffer from numerical locking depending on the element choice. We use the nearly incompressible compressible formulation with $\kappa = 10$ kPa, which is large relative to the shear stiffness parameters and drives $J$ close to unity without imposing it exactly. The material parameters used throughout this study are $a = 0.33$ kPa, $b = 8.0$, $a_f = 0.876$ kPa, $b_f = 7.46$, $a_s = 0.485$ kPa, $b_s = 8.41$, $a_{fs} = 0.216$ kPa, and $b_{fs} = 5.98$.
+where $\kappa$ is the bulk modulus. The myocardium is very nearly incompressible — its fluid content prevents substantial volume change — but enforcing strict incompressibility requires a mixed finite element formulation that, while accurate, is more complex to implement and can suffer from numerical locking depending on the element choice. We use the nearly incompressible compressible formulation with $\kappa = 1000$ kPa, which is large relative to the shear stiffness parameters and drives $J$ close to unity without imposing it exactly. The material parameters used throughout this study are the `fenicsx-pulse` transversely isotropic Holzapfel-Ogden defaults: $a = 2.280$ kPa, $b = 9.726$, $a_f = 1.685$ kPa, $b_f = 15.779$, with $a_s = b_s = a_{fs} = b_{fs} = 0$.
+
+{numref}`fig-holzapfel-ogden` shows the resulting stress–stretch response for an isochoric uniaxial stretch applied along the fiber direction and along a transverse direction, computed by differentiating the strain energy function at the parameters used in the simulations. The isotropic background term gives a soft, gradually stiffening response. Adding the fibre anisotropic term produces the much stiffer exponential response above $\lambda = 1$. The asymmetry between extension and compression is visible in the curves: below $\lambda = 1$ the fibre contribution vanishes, while above $\lambda = 1$ it rapidly dominates the response.
+
+```{figure} ../figures/fig_2_7_holzapfel_ogden.png
+:name: fig-holzapfel-ogden
+:width: 75%
+
+Stress–stretch response of the transversely isotropic Holzapfel-Ogden constitutive law used throughout this study. The engineering stress $\partial \Psi / \partial \lambda$ is computed numerically from the closed-form strain energy under isochoric uniaxial loading. Loading along the fibre direction (red) recruits the fibre anisotropic term and produces a stiff exponential response above $\lambda = 1$; loading transverse to the fibres (grey) shows the isotropic ground-matrix response. Below $\lambda = 1$ the fibre contribution vanishes, so both curves collapse onto the isotropic response.
+```
 
 ## The Equilibrium Problem
 
@@ -184,7 +193,7 @@ $$
 
 where $\mathbf{N}$ is the outward unit normal in the reference configuration and the factor $J\mathbf{F}^{-\top}\mathbf{N}$ maps it to the current configuration via Nanson's formula. This is a follower load: the traction direction changes as the body deforms, which makes the pressure contribution to the tangent stiffness nonsymmetric.
 
-The basal plane $\Gamma_\text{base}$ is constrained by a Dirichlet condition that prevents out-of-plane translation while allowing in-plane displacement, eliminating rigid-body modes without artificially constraining the deformation of the base.
+The basal plane $\Gamma_\text{base}$ is constrained by a partial Dirichlet condition. In the mesh orientation used here, the base-normal direction is the $x$ direction, and only the basal $x$-displacement is fixed; the remaining displacement components are allowed to move. This removes the rigid-body mode associated with base-normal translation without fully clamping the basal surface.
 
 The epicardial surface $\Gamma_\text{epi}$ and the base carry Robin-type spring conditions that model the pericardial constraint and surrounding tissue. The spring resists displacement in the direction normal to the deformed surface, using the same Nanson mapping as the pressure traction to track the current surface orientation:
 
@@ -192,7 +201,14 @@ $$
 \mathbf{T}_\text{robin} = -k \, (\mathbf{u} \cdot \mathbf{n}) \, \mathbf{n} \quad \text{on } \Gamma_\text{epi} \cup \Gamma_\text{base},
 $$
 
-where $\mathbf{n} = J\mathbf{F}^{-\top}\mathbf{N} / |J\mathbf{F}^{-\top}\mathbf{N}|$ is the unit outward normal in the current configuration. The spring stiffnesses are $k_\text{epi} = 10^5$ Pa/m and $k_\text{base} = 10^6$ Pa/m. Because the spring acts only in the normal direction, tangential sliding of the epicardium is unresisted — a physically reasonable model of the pericardial constraint, which restricts outward motion of the heart surface but allows it to slide freely within the pericardial sac. The surface integral is evaluated over the deformed area element $|J\mathbf{F}^{-\top}\mathbf{N}| \, dS_0$ rather than the reference element $dS_0$, consistent with the formulation used for the pressure traction. These springs absorb some elastic energy at the boundaries; the implications of this are discussed in the context of the energy budget in Chapter 5.
+where $\mathbf{n} = J\mathbf{F}^{-\top}\mathbf{N} / |J\mathbf{F}^{-\top}\mathbf{N}|$ is the unit outward normal in the current configuration. The spring stiffnesses are $k_\text{epi} = 10^5$ Pa/m and $k_\text{base} = 10^6$ Pa/m. Because the spring acts only in the normal direction, tangential sliding of the epicardium is unresisted — a physically reasonable model of the pericardial constraint, which restricts outward motion of the heart surface but allows it to slide freely within the pericardial sac. The surface integral is evaluated over the deformed area element $|J\mathbf{F}^{-\top}\mathbf{N}| \, dS_0$ rather than the reference element $dS_0$, consistent with the formulation used for the pressure traction. These springs absorb some elastic energy at the boundaries; the implications of this are discussed in the context of the energy budget in the results chapter. {numref}`fig-bc-schematic` summarises the four boundary regions and the conditions imposed on each.
+
+```{figure} ../figures/fig_2_8_boundary_conditions.png
+:name: fig-bc-schematic
+:width: 80%
+
+Boundary conditions on the biventricular reference mesh. The LV and RV endocardial surfaces $\Gamma_\text{LV}, \Gamma_\text{RV}$ carry follower-pressure tractions supplied by the coupled circulation model. The basal plane $\Gamma_\text{base}$ has only its base-normal displacement component constrained by a Dirichlet condition and is also supported by stiff Robin springs. The epicardial surface $\Gamma_\text{epi}$ is supported by softer Robin springs acting along the deformed surface normal, modelling the pericardial constraint while allowing tangential sliding.
+```
 
 ## Linearization and Newton's Method
 

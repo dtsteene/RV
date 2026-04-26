@@ -1,8 +1,8 @@
 """Generate the energy-balance validation figure for Chapter 1.
 
 Extracts Panel 5 of `plot_loops.plot_engineering_debug` into a standalone figure
-showing that the tensor stress power integral equals the sum of cavity PV-work
-and Robin boundary work to machine precision.
+showing that the tensor stress power integral matches the sum of cavity PV-work
+and Robin boundary work to numerical precision.
 
 Usage:
     python make_energy_balance_figure.py
@@ -61,41 +61,17 @@ def main() -> None:
     balance_err_J = float(E_internal[-1] - E_external[-1])
     balance_err_rel = balance_err_J / max(abs(E_internal[-1]), 1e-30)
 
-    fig, ax = plt.subplots(figsize=(9, 5.5))
-    ax.plot(
-        time,
-        E_internal,
-        color="#c0392b",
-        lw=3,
-        label=r"$\int_0^t\!\int_\Omega \mathbf{S}:\dot{\mathbf{E}}\,d\mathbf{X}\,dt'$ (internal)",
-    )
-    ax.plot(
-        time,
-        E_external,
-        color="black",
-        lw=1.8,
-        ls="--",
-        label=r"$\int_0^t\!\left(P_{\mathrm{LV}}\dot V_{\mathrm{LV}} + P_{\mathrm{RV}}\dot V_{\mathrm{RV}}\right)dt' + W_{\mathrm{Robin}}(t)$",
-    )
-    ax.plot(time, E_boundary, color="#1f77b4", lw=1, alpha=0.55, label=r"cavity $P\dot V$ only")
-    ax.plot(time, E_robin, color="#2ca02c", lw=1, alpha=0.55, label=r"Robin boundary work")
+    fig, ax = plt.subplots(figsize=(6.5, 3.8))
+    ax.plot(time, E_internal, color="#c0392b", lw=2.4, label="tensor work")
+    ax.plot(time, E_external, color="black", lw=1.4, ls="--", label="boundary + Robin")
 
     ax.set_xlabel("time (s)")
     ax.set_ylabel("cumulative work (J)")
-    ax.grid(True, alpha=0.3)
-    ax.legend(fontsize=9, loc="best")
+    ax.legend(frameon=False, fontsize=10, loc="upper right")
 
-    ax.text(
-        0.98,
-        0.04,
-        f"final-time residual: {balance_err_J:.2e} J\n"
-        f"(relative: {balance_err_rel:.2e})",
-        transform=ax.transAxes,
-        ha="right",
-        va="bottom",
-        fontsize=9,
-        bbox=dict(facecolor="white", edgecolor="0.7", alpha=0.95),
-    )
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    ax.tick_params(direction="out", length=3)
 
     fig.tight_layout()
     png = OUT_DIR / "fig_energy_balance_validation.png"

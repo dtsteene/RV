@@ -2,8 +2,8 @@
 version: 1
 project:
   id: c5b76a7e-0b48-4131-8e7e-837e5a0d79b3
-  title: "Pressure Proxies for Septal Mechanical Work: A Biventricular Finite Element Study"
-  description: Trying to anwser questions on right ventricular and left ventricular interaction using finite element models. A fenicsx-pulse project.
+  title: "Pressure Proxies for Biventricular Myocardial Work: A Finite Element Study"
+  description: A finite-element study of pressure-strain proxies for biventricular myocardial work.
   keywords: [
     "cardiac mechanics",
     "finite element method",
@@ -23,15 +23,17 @@ project:
     - file: intro.md
     - file: 01_the_question/The Scientific Question.md
     - file: 02_the_model/overview.md
-    - file: 02_the_model/geometry.md
-    - file: 02_the_model/fibers.md
-    - file: 02_the_model/3D_mechanics.md
-    - file: 02_the_model/active_contraction.md
-    - file: 02_the_model/0D_circulation.md
+      children:
+        - file: 02_the_model/geometry.md
+        - file: 02_the_model/fibers.md
+        - file: 02_the_model/3D_mechanics.md
+        - file: 02_the_model/active_contraction.md
+        - file: 02_the_model/0D_circulation.md
     - file: 03_implementation/implementation.md
     - file: 04_tuning/tuning.md
     - file: 05_results/results.md
     - file: 06_discussion/discussion.md
+    - file: 07_conclusion/conclusion.md
 
 site:
   template: book-theme
