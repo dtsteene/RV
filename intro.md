@@ -10,7 +10,7 @@ The interventricular septum is mechanically ambiguous: it is simultaneously a wa
 
 The heart is, at the most reductive level, a mechanical pump. Each beat displaces roughly 70 mL of blood against an arterial pressure near 100 mmHg, which amounts to about one joule of mechanical work per stroke. Multiply by a resting heart rate and the ventricle does something on the order of $10^5$ J of work over the course of a day, continuously, for a lifetime. Understanding how that work is produced, how much of it there is, and how it is distributed across the muscle that produces it is therefore not a peripheral question about cardiac function. It is close to the centre of what the heart, as an organ, is doing.
 
-The basic pump calculation is pressure-volume work. Pressure-volume diagrams have been used since Clapeyron's graphical treatment of thermodynamic cycles, where the area enclosed by a closed pressure-volume curve represents mechanical work {cite}`clapeyron1834memoire`. For a ventricle, the corresponding quantity is the area enclosed by the cavity pressure-volume loop,
+The basic pump calculation is pressure-volume work. Pressure-volume diagrams have been used since Clapeyron's graphical treatment of thermodynamic cycles, where the area enclosed by a closed pressure-volume curve represents mechanical work; Otto Frank later brought the same framework into cardiac physiology through his volume-pressure description of ventricular work {cite}`clapeyron1834memoire,frank1899grundform,lohff1999first`. For a ventricle, the corresponding quantity is the area enclosed by the cavity pressure-volume loop,
 
 $$
 W_\text{ext} = -\oint P\,dV,
