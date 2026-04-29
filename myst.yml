@@ -29,6 +29,7 @@ project:
         - file: 02_the_model/3D_mechanics.md
         - file: 02_the_model/active_contraction.md
         - file: 02_the_model/0D_circulation.md
+        - file: 02_the_model/software.md
     - file: 03_implementation/implementation.md
     - file: 04_tuning/tuning.md
     - file: 05_results/results.md

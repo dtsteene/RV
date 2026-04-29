@@ -6,14 +6,16 @@ This appendix collects the numerical checks that support the main pressure-strai
 
 The production simulations use the compressible biventricular mechanics formulation, second-order tetrahedral displacement elements, a characteristic mesh length of 5 mm, and six coupled beats. Regional tensor work density is computed offline from the saved displacement checkpoints over the final beat. The current stress is evaluated from the UFL constitutive expression at quadrature points, previous stress and strain states are stored in a degree-six quadrature space, and DG0 test functions are used only to extract cellwise integrals from the quadrature-level work density.
 
-The basal support combines Robin springs on the epicardium and base with a partial basal Dirichlet condition that fixes only the base-normal displacement component. It is not a full basal clamp. The remaining two displacement components on the basal surface are free to slide.
+The basal support combines Robin springs on the epicardium and base with a partial basal Dirichlet condition that fixes only the base-normal/global-x displacement component. It is not a full basal clamp. The remaining two displacement components on the basal surface are free to slide.
 
 ## Energy-Consistent Postprocessing
 
 The model-resolved reference quantity is the tensor work density
 
 $$
-w_\mathrm{int} = \frac{1}{V}\int_0^T\int_{\Omega_0}\mathbf{S}:\dot{\mathbf{E}}\,dV\,dt.
+w_\mathrm{int}[\Omega_j] =
+\frac{1}{|\Omega_{j,0}|}
+\int_0^T\int_{\Omega_{j,0}}\mathbf{S}:\dot{\mathbf{E}}\,dV_0\,dt.
 $$
 
 Early postprocessing attempts projected stress and strain into low-order discontinuous Galerkin spaces before integrating this quantity. That was useful for visualization, but it was not reliable enough for the work integral. In particular, low-order projected fields produced large energy-budget discrepancies: smooth-looking stress and strain fields could still give work totals that were far too small compared with the boundary work. This was one of the main reasons the final pipeline moved to quadrature-level stress evaluation.
@@ -28,17 +30,17 @@ The mesh-convergence study repeated three representative pressure cases, sPAP22,
 
 At the production 5 mm resolution, hemodynamic quantities differed from the 3.75 mm reference by less than 0.8%. Free-wall work-density ratios were also stable, with differences below about 3%. Septal quantities were more mesh-sensitive, especially at high RV pressure. At 5 mm, septal tensor work differed from the 3.75 mm reference by about 0.2% in sPAP22, 3.8% in sPAP60, and 5.7% in sPAP95; the largest septal longitudinal-proxy discrepancy was about 6.6%. The 10 mm mesh was clearly too coarse for septal quantities in the high-pressure case, with errors up to about 18%.
 
-The interpretation is therefore targeted: the 5 mm production mesh is sufficient for the qualitative pressure-choice conclusions, but absolute high-pressure septal values should be read with an approximate 5-7% mesh uncertainty.
+The interpretation is therefore targeted: the 5 mm production mesh is sufficient for the qualitative pressure-choice conclusions tested here, while absolute high-pressure septal values should be read with the observed 5-7% difference between the 5 mm and 3.75 mm meshes in mind. This is a practical finest-mesh comparison, not a formal mesh-uncertainty estimate.
 
 ## Basal Boundary Condition
 
-The production basal condition fixes only the base-normal displacement component. This choice was checked in two ways.
+The production basal condition fixes only the base-normal/global-x displacement component. This choice was checked in two ways.
 
-First, the saved displacement fields were audited directly. In the completed 16-case pressure sweep, the constrained basal displacement component was zero to saved precision at the checked time points. The other two basal displacement components retained millimetre-scale motion, with maximum tangential basal motion ranging from about 4 to 16 mm across the sweep. This confirms that the final results used the intended partial constraint rather than a full basal clamp.
+First, the saved displacement fields were audited directly. In the completed 16-case pressure sweep, the constrained basal displacement component was zero to saved precision at the checked time points, while the other two basal displacement components retained millimetre-scale sliding motion. This confirms that the final results used the intended partial constraint rather than a full basal clamp. The audit should be treated as a kinematic implementation check rather than a separate boundary-condition sensitivity study.
 
-Second, the no-Dirichlet variant was tested by removing the basal displacement constraint while keeping the same Robin springs and the 5 mm production mesh. The sPAP22, sPAP60, and sPAP95 variants all reached the reference-configuration step but failed during end-diastolic inflation with linear solver non-convergence. A previous coarse one-beat Robin-only test had converged, but that result did not carry over to the production mesh and pressure cases. The retained basal condition is therefore best interpreted as the minimal stabilizing constraint needed to remove the remaining rigid-body mode, not as a physiological claim about the base being fixed in space.
+Second, the no-Dirichlet variant was tested by removing the basal displacement constraint while keeping the same Robin springs and the 5 mm production mesh. The sPAP22, sPAP60, and sPAP95 variants all reached the reference-configuration step but failed during end-diastolic inflation with linear solver non-convergence. A previous coarse one-beat Robin-only test had converged, but that result did not carry over to the production mesh and pressure cases. The retained basal condition is therefore best interpreted as a stabilizing constraint needed in this production setup, not as a physiological claim about the base being fixed in space.
 
-The energetic effect of the Robin support was small compared with the cavity work. In the checked endpoint cases, the signed net Robin work was below about 0.2% of the cavity boundary work, while the absolute spring exchange over the beat was about 4-7.5% of the absolute cavity boundary exchange.
+The energetic effect of the Robin support was small compared with the cavity work in the cycle-integrated balance. In the checked endpoint cases, the signed net Robin work was below about 0.2% of the cavity boundary work.
 
 ## Postprocessing Space Sensitivity
 
