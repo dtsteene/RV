@@ -34,6 +34,7 @@ project:
     - file: 05_results/results.md
     - file: 06_discussion/discussion.md
     - file: 07_conclusion/conclusion.md
+    - file: 08_appendix/numerical_robustness.md
 
 site:
   template: book-theme
