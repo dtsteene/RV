@@ -28,6 +28,13 @@ $$
 
 is a measure of how far the current deformation is from the undeformed state. It vanishes when the body undergoes pure rigid motion and is positive when material elements are stretched. The factor of $\frac{1}{2}$ is a convention that makes $\mathbf{E}$ reduce to the familiar engineering strain $\varepsilon = \Delta L / L$ in the limit of small deformations. Both $\mathbf{C}$ and $\mathbf{E}$ are defined relative to the reference configuration, making them natural objects for a material-frame description of deformation.
 
+```{figure} ../figures/fig_intro_reference_current_configuration.png
+:name: fig-reference-current-configuration
+:width: 85%
+
+Reference and current descriptions of the same deformation. Cauchy stress power, $\boldsymbol{\sigma}:\mathbf{d}$, is written on the deformed body, while $\mathbf{S}:\dot{\mathbf{E}}$ is the same mechanical power pulled back to the fixed reference mesh used by the finite-element model.
+```
+
 ## Stress, Energy, and Thermodynamic Consistency
 
 Strain describes how a body has deformed. Stress describes the internal forces that arise as a consequence of that deformation — the forces that neighboring material elements exert on each other. If you imagine cutting the heart wall along an internal surface, stress is the force per unit area that you would need to apply to the cut faces to hold them in place. It is a tensor, not a scalar, because the force on a surface depends on the orientation of that surface: the force per unit area on a surface facing radially (through the wall thickness) is different from the force on a surface facing circumferentially (along the fiber direction).
