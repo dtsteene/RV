@@ -58,6 +58,90 @@ This is a working note for the thesis writing session on 2026-04-25. It is not i
      - septal lambda scan.
    - Avoid adding many dense correlation heatmaps unless the text needs them. The story is clearer when the figures answer one question each.
 
+## Diagnostic Plot Sweep, 2026-04-26
+
+This was a triage of older and per-run diagnostic plots under
+`cardiac-work/results/sims/*/analysis` and
+`cardiac-work/results/comparisons/presentation`.
+
+### Engineering debug dashboards
+
+Representative files:
+
+```text
+/home/dtsteene/D1/cardiac-work/results/sims/2026-04-23/UKB_6beats_run_1047450/analysis/last_beat/engineering_debug.png
+/home/dtsteene/D1/cardiac-work/results/sims/2026-04-23/UKB_6beats_run_1047450/analysis/all_beats/engineering_debug.png
+/home/dtsteene/D1/cardiac-work/results/sims/2026-04-23/UKB_6beats_run_1047457/analysis/last_beat/engineering_debug.png
+```
+
+Verdict: excellent quality-control material, too busy for the main thesis.
+
+The useful thesis idea is not the whole five-panel dashboard. It is the trimmed
+validation message:
+
+> The quadrature-level internal work overlaps the exact boundary-plus-Robin
+> work, while passive elastic work returns close to zero over a cycle.
+
+If a figure is needed in the implementation chapter or appendix, remake it as
+one or two clean panels rather than reusing the dashboard:
+
+- cumulative internal work versus exact boundary + Robin work;
+- optional active/passive/compressible split as a numerical sanity check.
+
+Do not use the dashboard's "Clinical PV vs Exact Boundary Work" panel directly
+from the corrected n=16 runs. In the saved all-beat and last-beat diagnostics,
+the 0D clinical volume/pressure histories are not a reliable last-beat signal
+for that plot, so the blue clinical-PV curve can appear flat or misleading.
+The solver pressure, FEM volume-change, and exact boundary work are the relevant
+quantities for the implementation validation.
+
+### Old stress-pressure plots
+
+Representative files:
+
+```text
+/home/dtsteene/D1/cardiac-work/results/comparisons/presentation/ukb_spectrum/stress_strain_spectrum.png
+/home/dtsteene/D1/cardiac-work/results/comparisons/presentation/ukb_spectrum/stress_components_spectrum.png
+/home/dtsteene/D1/cardiac-work/results/comparisons/presentation/patient_healthy_vs_pah/pressure_vs_transmural_stress.png
+/home/dtsteene/D1/cardiac-work/results/comparisons/presentation/patient_healthy_vs_pah/stress_loops.png
+```
+
+Verdict: good exploratory ideas, but do not reuse as final result figures unless
+they are regenerated from the corrected pipeline.
+
+The strongest conceptual point is:
+
+> Cavity pressure is a scalar boundary load, while myocardial stress is a local
+> tensor field. Pressure can be a useful stress scale in free walls, but it is
+> not identical to fibre, sheet, normal, or shear stress inside the myocardium.
+
+The corrected n=16 quick check supports this caution: peak septal fibre stress
+tracks peak transmural pressure strongly in the corrected sweep
+(`r = +0.968`), but that is a peak-stress statement, not a work-density proxy
+statement. It should not be used to override the ratio results, where two-sided
+pressure choices preserve septal work-density magnitudes better than
+transmural pressure.
+
+Per-run `stress_analysis.png` files from April are not useful as final figures:
+the stress curves are essentially blank in the inspected runs, likely because
+the old Cauchy-stress metric keys are absent or renamed. Treat those plots as a
+retired diagnostic path.
+
+### Abandoned figure ideas
+
+- `proxy_validation.png` is too crowded and uses rate-like scatter comparisons
+  that are harder to explain than the current ratio/correlation figures.
+- `loops.png` is pedagogically useful, but the existing cascade-loop figure is
+  a better place to show how information is lost through simplification.
+- `work_redistribution_spectrum.png` is superseded by the current regional
+  ratio analysis and the new work-component breakdown.
+- `stress_components_spectrum.png` is visually interesting and supports the
+  "tensor work contains more than fibre work" point, but the cleaner final
+  version is the corrected n=16 component figure already added to Results.
+- The RV Lakatos bridge is worth keeping: it directly connects the RV free-wall
+  result to clinical pressure-strain validation, while still using model-resolved
+  tensor work as the thesis target.
+
 ## Possible Extra Analyses
 
 1. Recompute septal directional decomposition as a publication-quality figure.

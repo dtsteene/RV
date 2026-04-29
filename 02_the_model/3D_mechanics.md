@@ -42,7 +42,7 @@ $$
 \mathcal{P}_\text{ext} = \int_{\partial\mathcal{B}} \mathbf{t} \cdot \dot{\mathbf{x}} \, dA,
 $$
 
-where $\dot{\mathbf{x}}$ is the velocity of a material point on the surface. By the divergence theorem and the balance of linear momentum ($\text{div}\,\boldsymbol{\sigma} = \mathbf{0}$ in quasi-statics), this external power equals the internal power:
+where $\dot{\mathbf{x}}$ is the velocity of a material point on the surface. Here "external" means external to the solid body: it is the power of tractions acting on the myocardium. For a pressure-loaded cavity, this is the opposite sign to the hydraulic pump work done by the myocardium on the blood. By the divergence theorem and the balance of linear momentum ($\text{div}\,\boldsymbol{\sigma} = \mathbf{0}$ in quasi-statics), this boundary power equals the internal stress power:
 
 $$
 \mathcal{P}_\text{int} = \int_{\mathcal{B}} \boldsymbol{\sigma} : \mathbf{d} \, dv,

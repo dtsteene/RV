@@ -61,17 +61,43 @@ def main() -> None:
     balance_err_J = float(E_internal[-1] - E_external[-1])
     balance_err_rel = balance_err_J / max(abs(E_internal[-1]), 1e-30)
 
-    fig, ax = plt.subplots(figsize=(6.5, 3.8))
-    ax.plot(time, E_internal, color="#c0392b", lw=2.4, label="tensor work")
-    ax.plot(time, E_external, color="black", lw=1.4, ls="--", label="boundary + Robin")
+    # mJ for nicer numbers
+    Eint_mJ  = E_internal * 1e3
+    Ebnd_mJ  = E_boundary * 1e3
+    Eext_mJ  = E_external * 1e3
+    Erob_mJ  = E_robin   * 1e3
 
-    ax.set_xlabel("time (s)")
-    ax.set_ylabel("cumulative work (J)")
-    ax.legend(frameon=False, fontsize=10, loc="upper right")
+    fig, (axL, axR) = plt.subplots(
+        1, 2, figsize=(8.6, 3.8),
+        gridspec_kw={"width_ratios": [3.2, 1.0]},
+    )
 
+    # --- Panel A: identity closure -------------------------------------------
+    axL.plot(time, Eint_mJ,  color="#c0392b", lw=2.6, label=r"tensor $\int_\Omega \mathbf{S}:\dot{\mathbf{E}}\,dV$")
+    axL.plot(time, Ebnd_mJ,  color="#1f77b4", lw=1.4, label=r"cavity $\oint P\,dV$")
+    axL.plot(time, Eext_mJ,  color="black",   lw=1.2, ls="--", label="cavity + Robin")
+    axL.set_xlabel("time (s)")
+    axL.set_ylabel("cumulative work (mJ)")
+    axL.legend(frameon=False, fontsize=9, loc="upper right")
     for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    ax.tick_params(direction="out", length=3)
+        axL.spines[side].set_visible(False)
+    axL.tick_params(direction="out", length=3)
+
+    # --- Panel B: Robin work alone, magnified --------------------------------
+    axR.axhline(0, color="lightgray", lw=0.6)
+    axR.plot(time, Erob_mJ, color="#444444", lw=1.6, label=r"$W_\text{Robin}(t)$")
+    axR.set_xlabel("time (s)")
+    axR.set_ylabel(r"$W_\text{Robin}$ (mJ)")
+    axR.legend(frameon=False, fontsize=9, loc="upper left")
+    for side in ("top", "right"):
+        axR.spines[side].set_visible(False)
+    axR.tick_params(direction="out", length=3)
+
+    # Panel B y-limits give the Robin curve plenty of room AND make
+    # the horizontal-zero a visible reference.
+    rob_max = max(abs(Erob_mJ.min()), abs(Erob_mJ.max()))
+    pad = max(0.02, 0.25 * rob_max)
+    axR.set_ylim(-pad, rob_max + pad)
 
     fig.tight_layout()
     png = OUT_DIR / "fig_energy_balance_validation.png"
@@ -81,6 +107,8 @@ def main() -> None:
     print(f"wrote {png}")
     print(f"wrote {pdf}")
     print(f"balance_err = {balance_err_J:.3e} J  ({balance_err_rel:.3e} relative)")
+    print(f"end-of-cycle: tensor={Eint_mJ[-1]:+.3f} mJ  cavity={Ebnd_mJ[-1]:+.3f} mJ  "
+          f"Robin={Erob_mJ[-1]:+.3f} mJ  (Robin/|tensor|={abs(Erob_mJ[-1])/abs(Eint_mJ[-1])*100:.3f}%)")
 
 
 if __name__ == "__main__":
