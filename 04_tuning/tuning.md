@@ -45,35 +45,69 @@ Cardiac index is used rather than absolute cardiac output because the ESC/ERS ri
 
 An earlier exploratory target table varied several left-sided and systemic quantities across the RV pressure spectrum: LV end-systolic pressure declined from 118 to 90 mmHg, LV end-diastolic pressure from 8 to 4 mmHg, aortic diastolic pressure from 80 to 60 mmHg, mean left atrial pressure from 8 to 7 mmHg, and the LV ejection-fraction floor from 55% to 20%. The source audit found no primary-source support for those ramps. They were therefore removed from the corrected sweep.
 
-The correction matters mechanically. A declining LV pressure target does part of the work of reducing the septal transmural pressure $p_\text{LV,ES}-p_\text{RV,ES}$. With LV pressure held stable, the transmural reduction is driven mainly by the imposed RV pressure rise. The old simulations are still useful, but only as a loading-path sensitivity check: they show that a septal correlation ranking can change when the LV pressure path changes. The main results use the corrected 16-case sweep.
+The correction matters mechanically. A declining LV pressure target does part of the work of reducing the septal transmural pressure $p_\text{LV,ES}-p_\text{RV,ES}$. With LV pressure held stable, the transmural reduction is driven mainly by the imposed RV pressure rise. The earlier exploratory simulations are still useful, but only as a loading-path sensitivity check: they show that a septal correlation ranking can change when the LV pressure path changes. The main results use the corrected 16-case sweep.
 
 Even after correction, the optimizer must balance the RV pressure target against the geometric requirement that the cavity volumes match the mesh. The UKB mean RV cavity is approximately 77 mL, and defending that volume can push the lowest-pressure case above the ideal Kovacs-normal systolic pulmonary pressure. The thesis therefore reports achieved pressures directly rather than hiding residual mismatch behind the nominal target label.
 
-## Decoupling EDP and EDV: A Nonlinear EDPVR
+## Decoupling EDP and EDV for FEM Coupling: A Nonlinear EDPVR
 
-One structural limitation of the standard Regazzoni formulation had to be resolved before the target set could be matched. The published model uses a linear time-varying elastance,
+One useful modification to the standard Regazzoni formulation was introduced to give the calibration more freedom at end diastole. The published model uses a linear time-varying elastance,
 
 $$
 p(\mathcal{V}, t) = \mathcal{E}(t) (\mathcal{V} - \mathcal{V}_0), \qquad \mathcal{E}(t) = \mathcal{E}_B + (\mathcal{E}_A - \mathcal{E}_B) a(t),
 $$
 
-where $\mathcal{E}_A$ is the active systolic elastance, $\mathcal{E}_B$ is the passive diastolic elastance, and $a(t)$ is the activation waveform. In this formulation the end-diastolic pressure and end-diastolic volume are controlled by the same parameter $\mathcal{E}_B$: once the unstressed volume $\mathcal{V}_0$ is fixed, the diastolic operating point is pinned to the single line $p_\text{ED}=\mathcal{E}_B(\mathcal{V}_\text{ED}-\mathcal{V}_0)$. For a mesh whose geometric cavity volumes are small relative to population averages, this coupling makes it hard to match both physiological EDP and the mesh EDV without distorting the rest of the loop.
+where $\mathcal{E}_A$ is the active systolic elastance, $\mathcal{E}_B$ is the passive diastolic elastance, and $a(t)$ is the activation waveform. In this formulation the end-diastolic pressure and end-diastolic volume are controlled by the same parameter $\mathcal{E}_B$: once the unstressed volume $\mathcal{V}_0$ is fixed, the diastolic operating point is pinned to the single line $p_\text{ED}=\mathcal{E}_B(\mathcal{V}_\text{ED}-\mathcal{V}_0)$. This is not only a cosmetic fitting issue. The 0D model has to provide volume requests that the finite-element heart can realize at plausible filling pressures. For a fixed mesh whose geometric cavity volumes are small relative to population averages, the linear law can make it difficult to match both physiological EDP and the mesh-compatible EDV without distorting the rest of the loop.
 
-The fix was to replace the passive ventricular pressure law with an exponential pressure-volume relationship, following the Klotz EDPVR framework {cite}`klotz2006single`:
+The modification was to replace the passive ventricular pressure law with a Klotz-style exponential pressure-volume relationship {cite}`klotz2006single`:
 
 $$
 p(\mathcal{V}, t) = (\mathcal{E}_A - \mathcal{E}_B) a(t) (\mathcal{V} - \mathcal{V}_0) + \frac{\mathcal{E}_B}{k_E} \bigl(e^{k_E (\mathcal{V} - \mathcal{V}_0)} - 1\bigr).
 $$
 
-The new parameter $k_E$ has units of inverse volume and controls how quickly the chamber stiffens as it approaches its distensibility limit. In the limit $k_E \to 0$, the expression reduces to the original linear model. Near $\mathcal{V}_0$ the passive pressure grows approximately as $\mathcal{E}_B(\mathcal{V}-\mathcal{V}_0)$, while at larger volumes the exponential term dominates and prevents overfilling. This separates the low-pressure filling slope from the high-volume stiffening scale, allowing EDP and EDV to be matched more independently. The modification was applied to the LV and RV chambers only; the thin-walled atria remained linear.
+The new parameter $k_E$ has units of inverse volume and controls how quickly the chamber stiffens as it approaches its distensibility limit. In the limit $k_E \to 0$, the expression reduces to the original linear model. Near $\mathcal{V}_0$ the passive pressure grows approximately as $\mathcal{E}_B(\mathcal{V}-\mathcal{V}_0)$, while at larger volumes the exponential term dominates and penalizes overfilling. This separates the low-pressure filling slope from the high-volume stiffening scale, allowing EDP and EDV to be matched more independently. The modification was applied to the LV and RV chambers only; the thin-walled atria remained linear.
 
-The decision to introduce $k_E$ was empirical. Early calibration runs with the linear elastance repeatedly failed to satisfy pressure targets and mesh-volume constraints at the same time. Introducing the Klotz-style exponential term resolved these practical failure modes. It should therefore be read as a calibration device that gives the closed-loop model enough diastolic flexibility to match the mesh volumes and pressure targets, not as a claim that fitted $k_E$ values are direct measurements of patient myocardial stiffness.
+The decision to retain $k_E$ was empirical and coupling-driven. The comparison supports a modest practical improvement, not a categorical superiority claim. In standalone 0D optimization, both variants reached the pressure targets to similar accuracy; in the coupled eight-case FEM handover, both variants completed and had nearly identical last-beat 0D--FEM pressure drift. However, the nonlinear variant reduced the worst end-diastolic volume mismatch in the corrected 0D calibration and slightly reduced the worst RV systolic pressure miss after FEM coupling. Because these improvements occurred in the coupling-related quantities that motivated the modification, the nonlinear EDPVR was kept for the final 16-case sweep. The fitted $k_E$ values are therefore interpreted as calibration parameters, not as direct measurements of patient myocardial stiffness.
+
+```{list-table} Linear and nonlinear EDPVR audit from the saved 0D calibrations and coupled FEM handover runs.
+:name: tab-edpvr-ab-audit
+:header-rows: 1
+
+* - Check
+  - Linear EDPVR
+  - Klotz-style nonlinear EDPVR
+  - Interpretation
+* - Early 9-case standalone 0D A/B: mean absolute pressure-target error
+  - 1.46 mmHg
+  - 2.04 mmHg
+  - No nonlinear advantage in this check
+* - Corrected 8-case standalone 0D calibration: mean absolute pressure-target error
+  - 1.25 mmHg
+  - 1.22 mmHg
+  - Essentially identical
+* - Corrected 8-case standalone 0D calibration: mean / worst EDV mismatch
+  - 3.67% / 16.9%
+  - 3.28% / 8.6%
+  - Nonlinear reduced the worst volume mismatch
+* - Corrected 8-case coupled FEM handover: completed cases
+  - 8/8
+  - 8/8
+  - Both coupled successfully
+* - Corrected 8-case coupled FEM handover: mean / worst RV systolic pressure miss
+  - 4.61 / 11.4 mmHg
+  - 4.55 / 8.8 mmHg
+  - Only a small nonlinear advantage
+* - Corrected 8-case coupled FEM handover: mean LV / RV pressure drift
+  - 0.35 / 0.17 mmHg
+  - 0.35 / 0.17 mmHg
+  - No meaningful difference in pressure consistency
+```
 
 ```{figure} ../figures/fig_2_13_klotz_edpvr.png
 :name: fig-klotz-edpvr
 :width: 95%
 
-The Klotz nonlinear end-diastolic pressure-volume relationship for the healthy LV and RV calibrations, compared with the linear law that the standard Regazzoni model uses. With $k_E=0$, the slope at $\mathcal{V}_0$ pins both the low-pressure filling response and the end-diastolic operating point onto a single line; the exponential term frees them. The filled markers show the achieved end-diastolic operating points $(\mathcal{V}_\text{ED}, p_\text{ED})$ for the healthy calibration, which sit on the compliant portion of the Klotz curve.
+Klotz-style nonlinear end-diastolic pressure-volume relationship for the healthy LV and RV calibrations, compared with the linear law that the standard Regazzoni model uses. With $k_E=0$, the slope at $\mathcal{V}_0$ pins both the low-pressure filling response and the end-diastolic operating point onto a single line; the exponential term frees them. The filled markers show the achieved end-diastolic operating points $(\mathcal{V}_\text{ED}, p_\text{ED})$ for the healthy calibration, which sit on the compliant portion of the exponential curve.
 ```
 
 ## Optimization Procedure
