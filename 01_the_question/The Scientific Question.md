@@ -1,6 +1,8 @@
 # Mechanical Work and the Scientific Question
 
-Before asking whether pressure-strain work is a good proxy, we need to say what it is a proxy for. In this thesis the answer is local mechanical work density in the myocardial wall, defined within the continuum-mechanics model from stress and strain. This is not the same question usually answered by clinical validation studies, which compare pressure-strain indices with things such as contractility, oxygen demand, or prognosis. Those endpoints are important, but they are not direct measurements of the hidden stress-strain work inside the tissue. The purpose of the model is therefore more specific: it gives access to the mechanical quantity that motivates interpreting a pressure-strain loop as work, but that cannot normally be measured inside a patient.
+Before asking whether pressure-strain work is a good proxy, we need to say what it is a proxy for. The target here is local mechanical work density: work per volume of myocardium. This unit matters because the model and the clinical index handle volume differently. The finite-element calculation integrates stress-strain work through a tissue region, so it naturally returns total regional work in joules. A pressure-strain loop has no regional volume in it; pressure times dimensionless strain has pressure units, which are equivalent to energy per volume. For that reason, this thesis compares pressure-strain loops with finite-element work divided by regional volume.
+
+This is not the same question usually answered by clinical validation studies, which compare pressure-strain indices with things such as contractility, oxygen demand, or prognosis. Those endpoints are important, but they are not direct measurements of the hidden stress-strain work inside the tissue. The purpose of the model is therefore more specific: it gives access to the mechanical quantity that motivates interpreting a pressure-strain loop as work, but that cannot normally be measured inside a patient.
 
 ## Model-Resolved Tensor Work
 
@@ -17,6 +19,8 @@ W_\text{int}[\Omega_j] \approx \sum_{i=1}^{N} \int_{\Omega_j} \bar{\mathbf{S}}(t
 $$
 
 with $\bar{\mathbf{S}}(t_i) = \tfrac{1}{2}(\mathbf{S}(t_i) + \mathbf{S}(t_{i-1}))$ the average stress and $d\mathbf{E}(t_i) = \mathbf{E}(t_i) - \mathbf{E}(t_{i-1})$ the strain increment at step $i$.
+
+The volume integral is important. The local product $\bar{\mathbf{S}}:d\mathbf{E}$ has work-density units because stress has units of energy per unit volume and strain is dimensionless. After integration over $\Omega_j$, however, $W_\text{int}[\Omega_j]$ is a total regional work in joules. The conversion back to density is done later by dividing by the reference volume of the region.
 
 ## Whole-Heart Energy Balance
 
@@ -56,7 +60,7 @@ $$
 \int_0^T \!\! \int_\Omega \mathbf{S}:\dot{\mathbf{E}}\,d\mathbf{X}\,dt \;=\; \oint P_\text{LV}\,dV_\text{LV} \;+\; \oint P_\text{RV}\,dV_\text{RV}.
 $$
 
-In the actual simulation the support terms are small but included. {numref}`fig-energy-balance` shows the identity closing in practice on the UKB synthetic baseline: the tensor integral and the sum of cavity work and Robin boundary work overlap throughout the cycle. At the final time, the residual was $4.76 \times 10^{-5}$ J, or $0.0476$ mJ. The relative error reported here is this residual divided by the magnitude of the final tensor work, $|W_\text{tensor}(T)| = 0.6806$ J, giving $7.0 \times 10^{-5}$, or $0.007\%$. This residual is the discretization noise floor of the trapezoidal accumulation rather than a physical discrepancy.
+In the actual simulation the support terms are small but included. {numref}`fig-energy-balance` shows the identity closing in practice on the UKB synthetic baseline: the tensor integral and the sum of cavity work and Robin boundary work overlap throughout the cycle, with a final-time residual of $4.76 \times 10^{-5}$ J, or $0.0476$ mJ ($7.0 \times 10^{-5}$ relative to $|W_\text{tensor}(T)| = 0.6806$ J). This residual is the discretization noise floor of the trapezoidal accumulation rather than a physical discrepancy.
 
 For the reference beat in {numref}`fig-energy-balance`, the final tensor work is $-680.59$ mJ, the cavity work is $-680.73$ mJ, and the Robin work is $+0.091$ mJ, about $0.013\%$ of the tensor total. The whole-heart energy budget is therefore dominated by the $P\,\dot V$ exchange between the wall and the blood. The Robin term is a small stabilization cost, not a meaningful store of physiological energy in this run.
 
@@ -69,11 +73,11 @@ Numerical verification of the energy-balance identity. The cumulative tensor wor
 
 This is why tensor work is not just a number the code happens to produce. The model is idealized, but the quantity itself is not invented by the model. It is the standard way that continuum mechanics writes stress doing work through deformation. Integrated over the whole biventricular myocardium, $\mathbf{S}:\dot{\mathbf{E}}$ recovers the pressure-volume work at the cavities, up to the small support terms. It is therefore the model's internal mechanical work measure: local stress-strain power whose spatial integral accounts for the pump work.
 
-That statement is global. It validates tensor stress-strain work as the model's whole-heart mechanical work measure, but it does not turn a septal or free-wall subregion into a small ventricle with its own exact pressure-volume loop. A subregion exchanges forces with neighbouring tissue across internal material interfaces, so its stress-strain work is not, in general, the pressure-volume work of a single chamber. A regional pressure-strain loop is therefore a proxy for local work density, not a local pressure-volume identity.
+The useful consequence is therefore not that every region has its own exact pressure-volume identity. It is that tensor stress-strain work is a local quantity whose integral gives the whole-heart mechanical work. This makes it a natural reference for regional decomposition: the model can integrate the same work density over the LV free wall, RV free wall, and septum. The clinical pressure-strain index is then tested as a measurable approximation to that regional tensor-work density, replacing local stress with chamber pressure and full tensor strain with longitudinal strain.
 
 ## Work Density and the Clinical Proxy
 
-That distinction fixes the units of the comparison. Clinical echocardiographic work indices do not first estimate regional myocardial volume and then compute energy in joules. They accumulate pressure times strain, so the result has units of pressure, or equivalently energy per unit volume. The finite-element model does know the regional reference volume exactly. To compare like with like, this thesis compares the clinical pressure-strain index with volume-normalized tensor work,
+The comparison must also keep the units aligned. The finite-element integral $W_\text{int}$ is a regional energy because the local stress-strain density has been integrated through the wall. The clinical pressure-strain index is different: it does not include a regional myocardial volume. It accumulates pressure times a regional strain curve; because pressure has units of energy per volume and strain is dimensionless, the loop area is already a density-like quantity. The finite-element reference is therefore converted to the same units by dividing by the region volume,
 
 $$
 w_\text{int}[\Omega_j] = \frac{W_\text{int}[\Omega_j]}{V_j},
@@ -82,8 +86,6 @@ V_j = \int_{\Omega_j} d\mathbf{X}.
 $$
 
 This keeps the volume information on the finite-element side of the comparison. In the model, $V_j$ is the exact reference volume of the integration region. The clinical-style pressure-strain quantity remains what it is in practice: pressure times strain accumulated around a loop, not an independently measured regional energy in joules.
-
-The clinical shortcut removes two pieces of information. First, it uses chamber pressure where a mechanical work calculation would use local myocardial stress. Second, it uses one image-based strain component where a mechanical work calculation would use the full strain tensor. This is not a flaw in clinical imaging; it is the price of measuring something useful in a patient. The stress tensor inside the wall is not measurable in routine care, and the full strain tensor is not routinely available either. What clinicians can often obtain is a pressure scale and a longitudinal strain curve.
 
 That is the lineage of pressure-length and pressure-strain work. A pressure-length loop combines chamber pressure with the changing length of a myocardial segment. Early experiments could measure that length using sonomicrometry, in which implanted ultrasonic crystals record distances inside the tissue. This is invasive, but it gave a way to test whether a pressure-length loop behaved like a segmental work index. Pressure-strain loops keep the same idea but replace absolute segment length with strain, a dimensionless deformation measure that can be obtained from imaging. Urheim et al. used longitudinal strain from strain Doppler, and Russell et al. made the method clinically practical by combining speckle-tracking strain with an estimated LV pressure curve {cite}`urheim2005regional,russell2012novel`.
 
