@@ -8,6 +8,8 @@ Unless stated otherwise, the results below use the high-resolution corrected pre
 
 The chapter follows five steps. It first defines the density and ratio metrics, then asks what the model-resolved tensor work contains. It next tests the free walls, where each wall has one adjacent pressure. It then turns to the septum, where pressure assignment and strain direction are both ambiguous. Finally, it summarizes the numerical checks that support the interpretation.
 
+The comparisons should be read as tests of simplification. The finite-element tensor work is the model-side reference, not patient-level ground truth. The question is how much of that reference survives when regional mechanics are reduced first to a scalar pressure scale and then to one longitudinal strain component.
+
 The ratio tests use simple formulas. For two regions $A$ and $B$, the model-resolved ratio is
 
 $$

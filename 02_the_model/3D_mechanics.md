@@ -4,6 +4,8 @@ When the heart beats, its walls undergo a complex sequence of mechanical events.
 
 To predict these forces and deformations quantitatively, we need a mathematical framework that can describe how a solid body changes shape under applied loads. For small deformations — a steel beam bending by a fraction of a percent — the linearized theory of elasticity is sufficient. But the heart wall deforms by tens of percent, far beyond the regime where linear approximations are valid. The appropriate framework is finite hyperelasticity, which allows for large deformations and defines stress through the derivative of an objective stored-energy function {cite}`holzapfel2000nonlinear`.
 
+In the hierarchy introduced earlier, this chapter is the step beyond Laplace-type wall-stress estimates. Laplace reasoning is useful because it shows that pressure, curvature, and thickness set a wall-stress scale. It is not enough for the present question because myocardial work depends on a local tensor stress and a local tensor strain, not on one membrane-stress number. The formulation below describes how those tensor fields are computed in the finite-element model.
+
 ## Kinematics
 
 The first question in any mechanics problem is: how do we describe the motion of the body? For a rigid object, a translation vector and a rotation matrix suffice. For a deformable solid like the myocardium, the description must be richer — every material point in the body can move independently, and we need a field that tracks the position of every point as a function of time.
@@ -57,7 +59,7 @@ $$
 
 where $\mathbf{d} = \frac{1}{2}(\nabla\dot{\mathbf{x}} + \nabla\dot{\mathbf{x}}^\top)$ is the rate of deformation tensor (the symmetric part of the spatial velocity gradient) and $dv$ is the current volume element. The product $\boldsymbol{\sigma} : \mathbf{d}$ is the stress power per unit current volume — the rate at which mechanical energy is being stored or dissipated at each point in the body.
 
-This expression is correct but inconvenient for computation, because the integral is over the current (deformed) configuration, which changes at every time step. We can pull it back to the fixed reference configuration using the identity $dv = J \, dV_0$ and the kinematic relation between the spatial rate of deformation and the material time derivative of the Green-Lagrange strain {cite}`holzapfel2000nonlinear`:
+This expression is the direct physics statement: local work is stress acting through deformation. The remaining derivation is bookkeeping for the finite-element formulation. It rewrites the same stress power on the fixed reference mesh, because integrating over the current deformed configuration would change the domain at every time step. We can pull it back using the identity $dv = J \, dV_0$ and the kinematic relation between the spatial rate of deformation and the material time derivative of the Green-Lagrange strain {cite}`holzapfel2000nonlinear`:
 
 $$
 \boldsymbol{\sigma} : \mathbf{d} = \frac{1}{J} \mathbf{S} : \dot{\mathbf{E}}.
@@ -77,7 +79,7 @@ $$
 
 The factors of $J$ cancel, and we arrive at the result that the total mechanical power in the body is $\int_{\mathcal{B}_0} \mathbf{S} : \dot{\mathbf{E}} \, dV_0$ — an integral over the fixed reference configuration with no $J$ factors, no deformed geometry, and no ambiguity about which configuration the integration is performed over.
 
-This is the precise sense in which $\mathbf{S}$ and $\mathbf{E}$ are **energy conjugate**: their double contraction $\mathbf{S} : \dot{\mathbf{E}}$ gives the stress power per unit reference volume. Other stress-strain pairs are also energy conjugate — the Cauchy stress $\boldsymbol{\sigma}$ with the rate of deformation $\mathbf{d}$, for instance — but the pair $(\mathbf{S}, \mathbf{E})$ is the most natural for a Lagrangian (reference-frame) formulation because both quantities are defined on the reference configuration. When we compute the total mechanical work over a cardiac cycle as
+This is the precise sense in which $\mathbf{S}$ and $\mathbf{E}$ are **energy conjugate**: their double contraction $\mathbf{S} : \dot{\mathbf{E}}$ gives the same stress power per unit reference volume that $\boldsymbol{\sigma}:\mathbf{d}$ gives per unit current volume. Other stress-strain pairs are also energy conjugate, but the pair $(\mathbf{S}, \mathbf{E})$ is the most natural for a Lagrangian (reference-frame) formulation because both quantities are defined on the reference configuration. When we compute the total mechanical work over a cardiac cycle as
 
 $$
 W = \int_0^T \int_{\mathcal{B}_0} \mathbf{S} : \dot{\mathbf{E}} \, dV_0 \, dt,
