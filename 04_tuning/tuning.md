@@ -6,7 +6,7 @@ The calibration in this chapter tunes the 0D Regazzoni circulation and chamber p
 
 The sweep is therefore a controlled mechanical loading experiment, not a simulated PAH disease trajectory. The nominal case labels identify pressure-loading scenarios. They should not be read as clinical severity classes, because contemporary PAH risk models are not organized by systolic pulmonary pressure alone {cite}`humbert2022esc,benza2010reveal`. The achieved pressures and volumes from the coupled simulations, not the nominal labels, are the quantities used in the results chapter.
 
-The inverse problem is still difficult. Raising pulmonary resistance lifts RV pressure, but it also changes stroke volume, venous return, ventricular filling, atrial pressures, and the next beat's operating point. In a closed-loop circulation these changes return to their origin over several beats, so adjusting one parameter to fix one target often breaks another target that was previously acceptable. A further complication is that the model distributes a fixed total blood volume across compliant compartments; ventricular filling pressures emerge from that distribution rather than being prescribed directly. There is no simple "set LV preload" knob.
+The inverse problem is still coupled. Raising pulmonary resistance lifts RV pressure, but it also changes stroke volume, venous return, filling pressures, atrial pressures, and the next beat's operating point. Because the model distributes a fixed total blood volume across compliant compartments, there is no simple "set LV preload" knob; the target state has to emerge from the closed-loop circulation.
 
 ## What Is Fixed and What Varies
 
@@ -15,16 +15,17 @@ The calibration separates the mechanical question from the circulation-fitting p
 | Quantity | Treatment in the sweep | Reason |
 |---|---|---|
 | Mesh geometry and cavity volumes | Fixed to the UKB mean biventricular mesh | Isolates pressure loading from geometry sensitivity |
-| 3D passive material, fibres, activation, and peak active tension | Fixed | Keeps stress-strain changes attributable to loading and deformation, not retuned mechanics |
+| 3D passive material, fibres, activation waveform, and peak active tension | Fixed | Keeps stress-strain changes attributable to loading and deformation, not retuned mechanics |
+| Heart rate and ventricular activation timing | Fixed at 75 bpm with a 0.8 s cycle; coupled runs use $t_C=0$, $T_C=0.25$ s, and $T_R=0.40$ s | Keeps timing and cardiac-output scaling comparable across cases |
 | Basal support and cavity coupling | Fixed | Keeps the boundary-value problem comparable across cases |
-| 0D circulation and chamber parameters | Recalibrated per pressure case | Generates compatible pressure-volume histories for each loading scenario |
+| 0D vascular and chamber elastance/volume parameters | Recalibrated per pressure case | Generates compatible pressure-volume histories for each loading scenario |
 | Independent loading axis | Achieved RV systolic pressure | Provides the pressure range used in the proxy tests |
 
-This distinction is important for interpreting the thesis. The calibrated 0D parameters are effective engineering constants, not direct measurements of vascular structure, myocardial stiffness, or contractile state in a specific patient. Their role is to provide plausible macroscopic boundary data for a fixed-geometry mechanics experiment.
+This distinction is important for interpreting the thesis. The calibrated 0D parameters are effective engineering constants, not direct measurements of vascular structure, myocardial stiffness, or contractile state in a specific patient. Their role is to provide plausible macroscopic boundary data for a fixed-geometry mechanics experiment. If a standalone 0D parameter file contains fitted ventricular timing values, those are not used as variable mechanics timings in the coupled sweep; the coupled solver reapplies the fixed ventricular clock before solving the finite-element problem.
 
 ## Target Set
 
-Every target used by the corrected sweep was audited against a specific literature source or marked as an interpolation between sourced anchors. The full row-by-row audit is archived in `cardiac-work/results/docs/target_grounding_audit.md`; the operational target set is summarized here.
+Every target used by the corrected sweep was audited against a literature source or marked as an interpolation between sourced anchors. The operational target set is summarized here; the full audit is archived in `cardiac-work/results/docs/target_grounding_audit.md`.
 
 | Target | Value or rule | Role in the sweep |
 |---|---|---|
@@ -36,38 +37,28 @@ Every target used by the corrected sweep was audited against a specific literatu
 | RV end-diastolic pressure | Banded using ESC/ERS right-atrial-pressure risk strata {cite}`humbert2022esc` | Filling-pressure guardrail |
 | RV ejection fraction and cardiac index | Soft targets or guardrails based on ESC/ERS risk bands {cite}`humbert2022esc` | Prevents pressure targets from producing implausible forward-flow states |
 | LV ejection fraction | Held near a normal lower bound rather than forced to decline | Avoids imposing unsupported LV systolic failure; CMR meta-analysis does not support LV EF as an independent PAH prognostic marker {cite}`baggen2016cmr` |
-| LV and RV end-diastolic volumes | Matched to the fixed mesh cavity volumes | Makes the 0D state compatible with the 3D geometry |
+| LV and RV end-diastolic volumes | Used as mesh-compatibility targets rather than exact constraints | Reduces the volume-ratio correction needed at the 3D--0D interface |
 | LV-RV stroke-volume balance | Penalized directly | Enforces closed-loop mass consistency |
 
-Cardiac index is used rather than absolute cardiac output because the ESC/ERS risk table reports CI. For the UKB mean mesh we use a representative adult body surface area of $1.75\,\mathrm{m}^2$; for patient-specific calibrations outside the main thesis sweep, the patient's own anthropometric record can be used.
+Cardiac index is used rather than absolute cardiac output because the ESC/ERS risk table reports CI. For the UKB mean mesh, a representative adult body surface area of $1.75\,\mathrm{m}^2$ is used.
 
 ## Target Provenance and Correction of the Sweep
 
-An earlier exploratory target table varied several left-sided and systemic quantities across the RV pressure spectrum: LV end-systolic pressure declined from 118 to 90 mmHg, LV end-diastolic pressure from 8 to 4 mmHg, aortic diastolic pressure from 80 to 60 mmHg, mean left atrial pressure from 8 to 7 mmHg, and the LV ejection-fraction floor from 55% to 20%. The source audit found no primary-source support for those ramps. They were therefore removed from the corrected sweep.
+An earlier exploratory target table varied several left-sided and systemic quantities across the RV pressure spectrum, including declining LV systolic pressure, LV filling pressure, aortic diastolic pressure, and LV ejection-fraction floor. The source audit found no primary-source support for those ramps, so they were removed from the corrected sweep.
 
 The correction matters mechanically. A declining LV pressure target does part of the work of reducing the septal transmural pressure $p_\text{LV,ES}-p_\text{RV,ES}$. With LV pressure held stable, the transmural reduction is driven mainly by the imposed RV pressure rise. The earlier exploratory simulations are still useful, but only as a loading-path sensitivity check: they show that a septal correlation ranking can change when the LV pressure path changes. The main results use the corrected 16-case sweep.
 
-Even after correction, the optimizer must balance the RV pressure target against the geometric requirement that the cavity volumes match the mesh. The UKB mean RV cavity is approximately 77 mL, and defending that volume can push the lowest-pressure case above the ideal Kovacs-normal systolic pulmonary pressure. The thesis therefore reports achieved pressures directly rather than hiding residual mismatch behind the nominal target label.
+Even after correction, the optimizer must balance the RV pressure target against the geometric requirement that the cavity volumes match the mesh. The UKB mean RV cavity is approximately 77 mL, and defending that volume can push the lowest-pressure case above the ideal Kovacs-normal systolic pulmonary pressure. The thesis therefore reports achieved pressures directly rather than relying on the nominal target label.
 
-## Decoupling EDP and EDV for FEM Coupling: A Nonlinear EDPVR
+## Passive EDPVR Choice
 
-One useful modification to the standard Regazzoni formulation was introduced to give the calibration more freedom at end diastole. The published model uses a linear time-varying elastance,
-
-$$
-p(\mathcal{V}, t) = \mathcal{E}(t) (\mathcal{V} - \mathcal{V}_0), \qquad \mathcal{E}(t) = \mathcal{E}_B + (\mathcal{E}_A - \mathcal{E}_B) a(t),
-$$
-
-where $\mathcal{E}_A$ is the active systolic elastance, $\mathcal{E}_B$ is the passive diastolic elastance, and $a(t)$ is the activation waveform. In this formulation the end-diastolic pressure and end-diastolic volume are controlled by the same parameter $\mathcal{E}_B$: once the unstressed volume $\mathcal{V}_0$ is fixed, the diastolic operating point is pinned to the single line $p_\text{ED}=\mathcal{E}_B(\mathcal{V}_\text{ED}-\mathcal{V}_0)$. This is not only a cosmetic fitting issue. The 0D model has to provide volume requests that the finite-element heart can realize at plausible filling pressures. For a fixed mesh whose geometric cavity volumes are small relative to population averages, the linear law can make it difficult to match both physiological EDP and the mesh-compatible EDV without distorting the rest of the loop.
-
-The modification was to replace the passive ventricular pressure law with a Klotz-style exponential pressure-volume relationship {cite}`klotz2006single`:
+The standard Regazzoni chamber model uses a linear passive end-diastolic pressure-volume relation. For the fixed UKB mesh, this tied the end-diastolic pressure and end-diastolic volume too tightly during calibration: once the unstressed volume was chosen, changing the passive slope moved both the filling pressure and the mesh-compatible filling volume together. The final calibration therefore allowed the LV and RV passive terms to use a Klotz-style exponential pressure-volume relation {cite}`klotz2006single`,
 
 $$
 p(\mathcal{V}, t) = (\mathcal{E}_A - \mathcal{E}_B) a(t) (\mathcal{V} - \mathcal{V}_0) + \frac{\mathcal{E}_B}{k_E} \bigl(e^{k_E (\mathcal{V} - \mathcal{V}_0)} - 1\bigr).
 $$
 
-The new parameter $k_E$ has units of inverse volume and controls how quickly the chamber stiffens as it approaches its distensibility limit. In the limit $k_E \to 0$, the expression reduces to the original linear model. Near $\mathcal{V}_0$ the passive pressure grows approximately as $\mathcal{E}_B(\mathcal{V}-\mathcal{V}_0)$, while at larger volumes the exponential term dominates and penalizes overfilling. This separates the low-pressure filling slope from the high-volume stiffening scale, allowing EDP and EDV to be matched more independently. The modification was applied to the LV and RV chambers only; the thin-walled atria remained linear.
-
-The decision to retain $k_E$ was empirical and coupling-driven. The comparison supports a modest practical improvement, not a categorical superiority claim. In standalone 0D optimization, both variants reached the pressure targets to similar accuracy; in the coupled eight-case FEM handover, both variants completed and had nearly identical last-beat 0D--FEM pressure drift. However, the nonlinear variant reduced the worst end-diastolic volume mismatch in the corrected 0D calibration and slightly reduced the worst RV systolic pressure miss after FEM coupling. Because these improvements occurred in the coupling-related quantities that motivated the modification, the nonlinear EDPVR was kept for the final 16-case sweep. The fitted $k_E$ values are therefore interpreted as calibration parameters, not as direct measurements of patient myocardial stiffness.
+Here $k_E$ controls the curvature of the passive filling response; as $k_E \to 0$, the expression reduces to the linear passive law. This was used as a calibration degree of freedom, not as a patient-specific stiffness measurement. The evidence for retaining it was modest and practical: linear and nonlinear variants produced similar pressure-target errors and nearly identical 0D--FEM pressure drift, but the nonlinear variant reduced the worst end-diastolic volume mismatch and slightly reduced the worst coupled RV systolic pressure miss. Because all proxy analyses use the achieved coupled pressures and volumes, the EDPVR choice enters the thesis only through the calibrated loading path, not as an interpreted myocardial material result.
 
 ```{list-table} Linear and nonlinear EDPVR audit from the saved 0D calibrations and coupled FEM handover runs.
 :name: tab-edpvr-ab-audit
@@ -77,10 +68,6 @@ The decision to retain $k_E$ was empirical and coupling-driven. The comparison s
   - Linear EDPVR
   - Klotz-style nonlinear EDPVR
   - Interpretation
-* - Early 9-case standalone 0D A/B: mean absolute pressure-target error
-  - 1.46 mmHg
-  - 2.04 mmHg
-  - No nonlinear advantage in this check
 * - Corrected 8-case standalone 0D calibration: mean absolute pressure-target error
   - 1.25 mmHg
   - 1.22 mmHg
@@ -89,10 +76,6 @@ The decision to retain $k_E$ was empirical and coupling-driven. The comparison s
   - 3.67% / 16.9%
   - 3.28% / 8.6%
   - Nonlinear reduced the worst volume mismatch
-* - Corrected 8-case coupled FEM handover: completed cases
-  - 8/8
-  - 8/8
-  - Both coupled successfully
 * - Corrected 8-case coupled FEM handover: mean / worst RV systolic pressure miss
   - 4.61 / 11.4 mmHg
   - 4.55 / 8.8 mmHg
@@ -103,31 +86,11 @@ The decision to retain $k_E$ was empirical and coupling-driven. The comparison s
   - No meaningful difference in pressure consistency
 ```
 
-```{figure} ../figures/fig_2_13_klotz_edpvr.png
-:name: fig-klotz-edpvr
-:width: 95%
-
-Klotz-style nonlinear end-diastolic pressure-volume relationship for the healthy LV and RV calibrations, compared with the linear law that the standard Regazzoni model uses. With $k_E=0$, the slope at $\mathcal{V}_0$ pins both the low-pressure filling response and the end-diastolic operating point onto a single line; the exponential term frees them. The filled markers show the achieved end-diastolic operating points $(\mathcal{V}_\text{ED}, p_\text{ED})$ for the healthy calibration, which sit on the compliant portion of the exponential curve.
-```
-
 ## Optimization Procedure
 
-Each optimizer trial runs the 0D model to periodic steady state and extracts last-beat metrics: peak and end-diastolic pressures, aortic diastolic pressure, mean left atrial pressure, end-diastolic volumes, ejection fractions, cardiac index, and LV-RV stroke-volume imbalance. The cost is a weighted sum of relative errors, with target weights relaxed once a quantity is already close to its desired value:
+Each optimizer trial runs the 0D model to periodic steady state and extracts last-beat metrics: pressures, end-diastolic volumes, ejection fractions, cardiac index, and LV-RV stroke-volume imbalance. The cost function is a weighted sum of relative errors. The largest weights are assigned to the quantities that define the mechanical loading path: ventricular systolic pressures, mesh-compatible end-diastolic volumes, filling pressures, and stroke-volume balance. RV ejection fraction and cardiac index are used as guardrails so the optimizer cannot reach a pressure target by producing an implausible low-flow state.
 
-$$
-\omega_\text{eff}(\theta) =
-\begin{cases}
-\omega_\text{base} \cdot (|\text{err}|/\tau), & |\text{err}| < \tau, \\
-\omega_\text{base}, & \text{otherwise},
-\end{cases}
-\qquad \tau = 5\%.
-$$
-
-The base priorities follow the mechanical role of each target. Ventricular end-systolic pressures define the loading path and the septal pressure environment. End-diastolic volumes are weighted strongly because they connect the 0D circulation to the fixed 3D mesh. End-diastolic pressures and left atrial pressure enforce plausible filling and a pre-capillary phenotype. Stroke-volume balance prevents closed-loop mass drift. RV ejection fraction and cardiac index act as soft physiological guardrails, so that the optimizer cannot reach a pressure target by producing an implausible low-flow state. Infeasible trials receive graded penalties rather than a single hard failure value, giving the optimizer information about the boundary of the feasible region.
-
-The final search used CMA-ES through Optuna rather than the Tree-structured Parzen Estimator sampler {cite}`akiba2019optuna,hansen2001completely`. TPE was useful for early exploration, but it treats parameters largely coordinate-wise and struggled with the correlated directions of the closed-loop circulation. CMA-ES adapts a full covariance matrix and therefore learns parameter combinations such as pulmonary resistance and compliance moving together. This was especially important at high RV pressure, where feasible solutions lie on narrow correlated ridges.
-
-Neighbouring pressure cases were warm-started from one another. A converged lower-pressure case provides a better initial point for the next pressure case than a random initialization, because the target hemodynamics change smoothly along the spectrum. Final parameter sets were re-solved for fifty beats before being written to disk and coupled to the mechanics model.
+The final search used CMA-ES through Optuna {cite}`akiba2019optuna,hansen2001completely`. This was chosen because the feasible circulation parameters are strongly correlated: for example, pulmonary resistance, compliance, chamber elastance, and blood-volume distribution must move together at high RV pressure. Neighbouring pressure cases were warm-started from one another, and the final parameter sets were re-solved for fifty beats before being written to disk and coupled to the mechanics model.
 
 ## Calibration Achievements and Limits
 
@@ -142,6 +105,4 @@ The clearest summary of this calibration is the pressure-volume loop family in {
 Pressure-volume loops from the corrected pressure-loading spectrum, using the FEM cavity pressures returned by the volume-constrained mechanics solve. The RV loop rises from near-normal pressure toward systemic pressure, while the LV loop remains comparatively preserved. The visualized loops are more important for the proxy analysis than the nominal severity labels: all results use the achieved pressures and volumes from these coupled simulations.
 ```
 
-It is worth being explicit about the limit of the calibration. The circulation model is a lumped-parameter abstraction, and its parameters are effective constants with no direct anatomical counterpart. A calibrated pulmonary resistance several times the healthy value does not measure any particular small vessel in any particular lung. It says that an effective resistance of that magnitude, embedded in this Windkessel circulation and coupled to this finite-element heart, produces the desired macroscopic pressure loading. The calibration is therefore not a diagnostic statement about disease severity. It provides pressure and volume boundary conditions for a controlled mechanics experiment.
-
-Patient-specific healthy and PAH meshes are available in the wider project and motivated the calibration machinery. They are not used as the primary evidence here because the present results already show that pressure-choice conclusions can depend on the loading path. Adding patient-specific geometry without measured and well-constrained hemodynamics would change wall thickness, cavity volume, curvature, stiffness, contractility, and pressure at the same time. That extension is valuable, but it belongs as a geometry-sensitivity or patient-specific validation study rather than as a simple continuation of the fixed-geometry sweep.
+It is worth being explicit about the limit of the calibration. The circulation model is a lumped-parameter abstraction, and its parameters are effective constants with no direct anatomical counterpart. A calibrated pulmonary resistance several times the healthy value does not measure any particular small vessel in any particular lung. It says that an effective resistance of that magnitude, embedded in this Windkessel circulation and coupled to this finite-element heart, produces the desired macroscopic pressure loading. The calibration is therefore not a diagnostic statement about disease severity; it provides pressure and volume boundary conditions for a controlled mechanics experiment.

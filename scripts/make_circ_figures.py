@@ -111,11 +111,9 @@ def replay_all() -> dict[str, CaseTrace]:
 # Figure 2.9 — Blanco activation waveform
 # ---------------------------------------------------------------------------
 def fig_blanco_activation(case: CaseTrace) -> None:
-    """Plot the Blanco activation function for the LV chamber."""
-    lv = case.params["chambers"]["LV"]
-    EA, EB = lv["EA"], lv["EB"]
-    TC, TR, tC = lv["TC"], lv["TR"], lv["tC"]
-    T = 1.0 / case.HR
+    """Plot the Blanco activation function used in the coupled mechanics runs."""
+    TC, TR, tC = 0.25, 0.40, 0.0
+    T = 0.8
     t = np.linspace(0, 2 * T, 1000)
 
     def activation(ti):
@@ -142,7 +140,7 @@ def fig_blanco_activation(case: CaseTrace) -> None:
     ax.set_xlim(0, 2 * T)
     ax.set_ylim(-0.05, 1.10)
     ax.legend(loc="upper right", framealpha=0.95)
-    ax.set_title("Blanco activation function (healthy LV calibration)")
+    ax.set_title("Blanco activation function (production timing)")
     save(fig, FIG_DIR / "fig_2_9_blanco_activation")
     plt.close(fig)
 

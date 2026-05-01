@@ -2,9 +2,11 @@
 
 The results are easiest to understand if two questions are kept separate. First: does the pressure-strain proxy get the size of regional differences right? Second: when the circulation is changed while geometry is held fixed, does the proxy rank loading cases in the same order as model-resolved tensor work density? These are both useful questions, but they are not the same. A proxy can rank a pressure sweep well and still give the wrong regional balance in a single patient.
 
-For that reason this chapter starts with the regional ratio analysis. This is the cleaner mechanics test. It does not require treating the pressure sweep as a real disease trajectory, and it does not depend on whether the hemodynamic axis chosen for the sweep is clinically typical. It asks only whether the pressure-strain construction preserves relative work-density magnitudes in a fixed model state. The pressure sweep is then used as a sensitivity experiment, showing how proxy rankings change when the loading path changes.
+For that reason this chapter starts with the regional ratio analysis. This is the cleaner mechanics test. It does not require treating the pressure sweep as a real disease trajectory, and it does not depend on whether the hemodynamic axis chosen for the sweep is clinically typical. It asks only whether the pressure-strain construction preserves relative work-density magnitudes in a fixed model state. The pressure sweep is then used as a controlled loading experiment, asking whether the same proxies rank loading cases in the same order as model-resolved tensor work.
 
-Unless stated otherwise, the results below use the high-resolution corrected pressure-loading sweep described in the calibration chapter. This sweep was rerun at 5 mm characteristic mesh length; 15 of the 16 cases completed and are used in the final high-resolution tables, with the missing `sPAP35` case lying inside the already sampled low-pressure range. In that sweep the biventricular geometry, material parameters, boundary conditions, and activation waveform are held fixed, while the circulation parameters are changed to raise RV pressure over a controlled range. Case names such as `sPAP55` are nominal calibration labels; pressure axes, correlations, and proxy calculations use the achieved pressures and volumes from the coupled finite-element/circulation simulations. An earlier exploratory sweep is used only as a loading-path sensitivity check. All pressure-strain proxies use the solver cavity pressures returned by the volume-constrained mechanics problem, not the standalone 0D elastance pressures.
+Unless stated otherwise, the results below use the high-resolution corrected pressure-loading sweep described in the calibration chapter. This sweep was rerun at 5 mm characteristic mesh length, and all 16 cases completed canonical postprocessing. In that sweep the biventricular geometry, material parameters, boundary conditions, and activation waveform are held fixed, while the circulation parameters are changed to raise RV pressure over a controlled range. Case names such as `sPAP55` are nominal calibration labels; pressure axes, correlations, and proxy calculations use the achieved pressures and volumes from the coupled finite-element/circulation simulations. All pressure-strain proxies use the solver cavity pressures returned by the volume-constrained mechanics problem, not the standalone 0D elastance pressures.
+
+The chapter follows five steps. It first defines the density and ratio metrics, then asks what the model-resolved tensor work contains. It next tests the free walls, where each wall has one adjacent pressure. It then turns to the septum, where pressure assignment and strain direction are both ambiguous. Finally, it summarizes the numerical checks that support the interpretation.
 
 The ratio tests use simple formulas. For two regions $A$ and $B$, the model-resolved ratio is
 
@@ -56,7 +58,7 @@ The septum was less one-dimensional. Fibre work was still the largest component,
 :name: fig-work-components
 :width: 95%
 
-Component breakdown of model-resolved tensor work density across the high-resolution pressure-loading sweep. Work density is decomposed in the local fibre-sheet-normal basis. Fibre work dominates the free-wall trends, while the septum has a larger sheet-normal and cross-axis contribution.
+Component breakdown of model-resolved tensor work density across the high-resolution pressure-loading sweep. Work density is decomposed in the local fibre-sheet-normal basis. Fibre work dominates the free-wall trends, while the septum has a larger sheet-normal and cross-axis contribution. This is the first warning that a one-direction pressure-strain proxy is mechanically cleaner in the free walls than in the septum.
 ```
 
 ## Free Walls
@@ -72,7 +74,7 @@ For the single healthy UKB baseline, the model-resolved tensor work density in t
 Free-wall LV/RV work-density ratio in the single healthy UKB baseline. The black line is the model-resolved tensor-work-density ratio. For the longitudinal-strain proxy, adjacent cavity pressure gives the closest ratio; using one pressure everywhere or removing pressure magnitude loses the LV/RV work-density balance.
 ```
 
-The same pattern holds across the high-resolution pressure-loading sweep. The mean absolute error in the free-wall LV/RV ratio was 0.31 for the adjacent-pressure longitudinal proxy, compared with 0.56 for LV pressure everywhere, 0.80 for RV pressure everywhere, and 0.73 for the pressure-normalized waveform-only index. The sweep result is shown in {numref}`fig-freewall-spectrum`. The absolute errors are somewhat larger than in the original 10 mm sweep, but the ordering is unchanged: adjacent cavity pressure remains the best of the tested longitudinal pressure assignments for the free-wall ratio.
+The same pattern holds across the high-resolution pressure-loading sweep. The mean absolute error in the free-wall LV/RV ratio was 0.33 for the adjacent-pressure longitudinal proxy, compared with 0.58 for LV pressure everywhere, 0.82 for RV pressure everywhere, and 0.76 for the pressure-normalized waveform-only index. The sweep result is shown in {numref}`fig-freewall-spectrum`. Adjacent cavity pressure remains the best of the tested longitudinal pressure assignments for the free-wall ratio.
 
 ```{figure} ../figures/fig_5_2_freewall_ratio_spectrum.png
 :name: fig-freewall-spectrum
@@ -94,7 +96,7 @@ The free-wall ratio test asks whether the proxy preserves regional magnitudes. T
 
 This RV free-wall ranking result connects the model to the recent clinical validation by Lakatos et al. {cite}`lakatos2024right`. Their endpoint was invasive RV contractility, whereas the endpoint here is model-resolved RV free-wall tensor work density, so the comparison is not a reproduction of their pressure-volume analysis. It is instead the finite-element analogue of the same pressure-correction idea.
 
-Across the high-resolution sweep, the RV pressure-longitudinal-strain index correlated strongly with RV free-wall tensor work density ($r=0.986$). Peak RV longitudinal shortening alone did not: it correlated negatively with tensor work density ($r=-0.563$), and an RV ejection-fraction-like FEM volume metric also correlated negatively ($r=-0.325$). RV systolic pressure alone correlated less strongly ($r=0.832$), and using LV pressure with RV strain was weaker still ($r=0.688$). In this fixed-geometry sweep, pressure-strain tracks RV free-wall tensor work better than strain alone, pressure alone, or an arbitrary cavity-pressure pairing.
+Across the high-resolution sweep, the RV pressure-longitudinal-strain index correlated strongly with RV free-wall tensor work density ($r=0.986$). Peak RV longitudinal shortening alone did not: it correlated negatively with tensor work density ($r=-0.569$), and an RV ejection-fraction-like FEM volume metric also correlated negatively ($r=-0.331$). RV systolic pressure alone correlated less strongly ($r=0.832$), and using LV pressure with RV strain was weaker still ($r=0.629$). In this fixed-geometry sweep, pressure-strain tracks RV free-wall tensor work better than strain alone, pressure alone, or an arbitrary cavity-pressure pairing.
 
 ```{figure} ../figures/fig_5_2b_rv_lakatos_bridge.png
 :name: fig-rv-lakatos-bridge
@@ -113,26 +115,26 @@ The distinction matters because pressure difference and tissue loading are not t
 
 To test this directly, the septal pressure choices for the longitudinal pressure-strain proxy were compared in two ways. First, their correlations with septal tensor work density were computed across the pressure sweep. Second, their ability to preserve septum/free-wall work-density ratios was measured. The ratio test is the more direct magnitude test: it asks whether the proxy gives the correct amount of septal work density relative to the LV and RV free walls in the same simulation.
 
-In the high-resolution sweep, the longitudinal-strain proxy using transmural pressure correlated most strongly with septal tensor work density, with $r=0.960$. LV pressure was close behind, with $r=0.945$, while the mean-pressure proxy gave $r=0.733$. If the only question is case ordering along this particular loading path, the best scalar pressure is therefore not sharply identified: transmural and LV pressure both rank the high-resolution sweep well.
+In the high-resolution sweep, the longitudinal-strain proxy using transmural pressure correlated most strongly with septal tensor work density, with $r=0.964$. LV pressure was close behind, with $r=0.955$, while the mean-pressure proxy gave $r=0.779$. If the only question is case ordering along this particular loading path, the best scalar pressure is therefore not sharply identified: transmural and LV pressure both rank the high-resolution sweep well.
 
-The magnitude result is different. The lowest septum/free-wall ratio errors were obtained by lower-pressure or two-sided choices: nearest-side pressure gave a mean absolute log error of 0.34, RV pressure 0.35, through-wall weighted pressure 0.35, and mean pressure 0.36. LV pressure gave 0.48 and transmural pressure gave 0.61. RV pressure alone had almost no correlation with septal tensor work, but one of the better magnitude errors, which is a useful warning that correlation and magnitude preservation are different tests.
+The magnitude result is different. The lowest septum/free-wall ratio errors were obtained by lower-pressure or two-sided choices: nearest-side pressure gave a mean absolute log error of 0.33, through-wall weighted pressure 0.34, mean pressure 0.34, and RV pressure 0.35. LV pressure gave 0.46 and transmural pressure gave 0.60. RV pressure alone had almost no correlation with septal tensor work, but one of the better magnitude errors, which is a useful warning that correlation and magnitude preservation are different tests.
 
 Here "through-wall weighted" means that each septal cell receives a pressure between $p_\text{LV}$ and $p_\text{RV}$ according to its transventricular position, with LV-side cells closer to $p_\text{LV}$ and RV-side cells closer to $p_\text{RV}$. A related "nearest-side" diagnostic assigns each septal cell the pressure of the closest cavity side.
 
 These results are summarized in {numref}`tab-septum-proxies`. The table is restricted to the longitudinal-strain proxy, because this is the clinical pressure-strain quantity tested by the thesis. A fibre-aligned diagnostic was also computed as a model-side check. It gave the same qualitative conclusion for septal magnitude: transmural pressure was not the best scalar for regional work-density ratios, while lower-pressure or two-sided pressure choices were closer. That diagnostic is useful for interpreting the mechanics, but it is not treated as a competing clinical proxy.
 
-```{table} Septal longitudinal pressure-strain proxy performance in the high-resolution pressure-loading sweep. Correlations are Pearson correlations with model-resolved septal tensor work density. Ratio error is the mean absolute log error in septum/free-wall work-density ratios.
+```{table} Septal longitudinal pressure-strain proxy performance in the high-resolution pressure-loading sweep. Correlation tests case ranking across the sweep; ratio error tests preservation of septum/free-wall magnitude within each case. The two metrics do not select the same pressure choice.
 :name: tab-septum-proxies
 :align: left
 
-| Pressure choice | Correlation | Ratio error |
+| Pressure choice | Ranking correlation $r$ | Magnitude ratio error |
 |---|---:|---:|
-| $p_\text{LV}$ | 0.945 | 0.482 |
-| $p_\text{RV}$ | -0.038 | 0.345 |
-| $p_\text{LV}-p_\text{RV}$ | 0.960 | 0.607 |
-| Mean pressure | 0.733 | 0.360 |
-| Nearest-side pressure | 0.569 | 0.340 |
-| Through-wall weighted pressure | 0.724 | 0.353 |
+| $p_\text{LV}$ | 0.955 | 0.462 |
+| $p_\text{RV}$ | 0.034 | 0.353 |
+| $p_\text{LV}-p_\text{RV}$ | 0.964 | 0.605 |
+| Mean pressure | 0.779 | 0.344 |
+| Nearest-side pressure | 0.639 | 0.332 |
+| Through-wall weighted pressure | 0.772 | 0.338 |
 ```
 
 The correlation part of the table is shown as scatter plots in {numref}`fig-septum-correlation-scatter`. The plot makes two points visible. First, the transmural and LV-pressure proxies both rank the high-resolution cases well. Second, the lower-correlation pressure choices are not simply noisy copies of the same relationship; they follow different trends because they weight the RV-pressure contribution differently.
@@ -141,12 +143,12 @@ The correlation part of the table is shown as scatter plots in {numref}`fig-sept
 :name: fig-septum-correlation-scatter
 :width: 95%
 
-Septal pressure-choice correlations in the high-resolution sweep. Each panel compares a longitudinal pressure-strain proxy with model-resolved septal tensor work density. The solid line is a least-squares regression and colour denotes achieved RV systolic pressure. These panels supplement the correlation coefficients by showing the scatter, slope, and endpoint influence behind each number.
+Septal pressure-choice correlations in the high-resolution sweep. Each panel compares a longitudinal pressure-strain proxy with model-resolved septal tensor work density. The solid line is a least-squares regression and colour denotes achieved RV systolic pressure. These panels show why a high correlation should be read as good case ranking, not necessarily good regional magnitude preservation.
 ```
 
 The table shows the central septal result of the thesis in its most useful form. There is no single septal pressure that is best for every task. Transmural and LV pressure order the high-resolution longitudinal-strain sweep well, but neither preserves septal density magnitudes as well as the lower-pressure or two-sided diagnostics. Transmural pressure captures a real mechanical idea, the pressure difference across the septum, but it remains a poor proxy for septal work-density magnitude in these data. The high-resolution rerun therefore strengthens, rather than weakens, the central conclusion: the septum is shared tissue, and "best pressure" depends on the metric.
 
-The fibre-aligned diagnostic helps separate pressure-choice error from strain-direction error. When the same pressure choices were combined with the model-side fibre strain $E_{ff}$, correlations with septal tensor work became high for a wider set of pressure choices: $r=0.998$ for LV pressure, $r=0.990$ for mean pressure, $r=0.972$ for nearest-side pressure, and $r=0.989$ for through-wall weighted pressure. The magnitude test improved too: for mean pressure, the septum/free-wall mean absolute log-ratio error fell from 0.360 with longitudinal strain to 0.107 with fibre strain; nearest-side and through-wall weighted pressure showed similar improvements. Transmural pressure remained a poor magnitude proxy even with fibre strain. This suggests that part of the septal difficulty is a strain-direction limitation of longitudinal strain, not only a pressure-assignment limitation.
+The fibre-aligned diagnostic helps separate pressure-choice error from strain-direction error. When the same pressure choices were combined with the model-side fibre strain $E_{ff}$, correlations with septal tensor work became high for a wider set of pressure choices: $r=0.999$ for LV pressure, $r=0.991$ for mean pressure, $r=0.976$ for nearest-side pressure, and $r=0.990$ for through-wall weighted pressure. The magnitude test improved too: for mean pressure, the septum/free-wall mean absolute log-ratio error fell from 0.344 with longitudinal strain to 0.102 with fibre strain; nearest-side and through-wall weighted pressure showed similar improvements. Transmural pressure remained a poor magnitude proxy even with fibre strain. This suggests that part of the septal difficulty is a strain-direction limitation of longitudinal strain, not only a pressure-assignment limitation.
 
 ```{figure} ../figures/fig_5_3b_septum_strain_direction_diagnostic.png
 :name: fig-septum-strain-direction-diagnostic
@@ -163,30 +165,6 @@ A through-wall layer diagnostic gives a complementary view of the same issue. Th
 
 Diagnostic through-wall septal layer summary in the high-resolution sweep. Layers are defined by the LV-to-RV scalar and should be read as coarse LV-side, middle, and RV-side summaries. The septum does not behave as a uniform one-pressure wall: tensor work density and the relative fibre and sheet-normal contributions vary across the wall and across loading cases.
 ```
-
-## Loading-Path Sensitivity
-
-The primary results above use the corrected sweep, where LV pressure remains comparatively stable while RV pressure rises. An earlier exploratory sweep used a different loading path: LV pressure fell systematically as RV pressure rose. That difference is useful as a sensitivity check, because it changed the septal correlation rankings. Under the exploratory loading path, subtracting the RV-pressure proxy removed a component that was anti-correlated with septal work density, so the transmural proxy won the correlation table.
-
-Under the corrected preserved-systemic-pressure path, the RV-pressure contribution no longer has the same sign effect. In the original 10 mm corrected sweep, LV pressure gave the highest septal longitudinal correlation; in the 5 mm rerun, transmural and LV pressure were close, with transmural slightly higher. This is a warning about the metric, not a reason to distrust the mechanics: septal correlation rankings depend on the hemodynamic path and on the resolved septal definition used to generate the cases.
-
-```{figure} ../figures/fig_5_3b_old_new_pressure_path.png
-:name: fig-old-new-pressure-path
-:width: 95%
-
-Achieved pressure paths in the exploratory and corrected pressure-loading sweeps. In the exploratory sweep, LV peak pressure drifted downward at high RV pressure. In the corrected sweep, LV peak pressure is much more stable while RV pressure rises. This difference in the loading path explains why a correlation ranking can change even when the same model and proxy definitions are used.
-```
-
-The ratio analysis is more stable. In both sweeps, transmural pressure was poor at preserving septum/free-wall work-density magnitudes, while lower-pressure or two-sided pressure choices were better. For longitudinal strain, the exploratory sweep gave ratio errors of 0.76 for transmural pressure and about 0.26 for mean or through-wall weighted pressure. In the high-resolution corrected sweep, transmural pressure still had the largest error among the main candidates, 0.61, while nearest-side, RV, mean, and through-wall weighted pressure choices were lower, between 0.34 and 0.36. {numref}`fig-septum-old-new` shows the original loading-path comparison; the high-resolution rerun preserves its main lesson.
-
-```{figure} ../figures/fig_5_3_septum_old_new_ratio_error.png
-:name: fig-septum-old-new
-:width: 95%
-
-Septum/free-wall ratio error for fixed longitudinal-strain septal pressure choices in the exploratory and corrected sweeps. The transmural proxy gave the strongest correlation in the exploratory sweep, but it did not preserve regional work-density magnitudes in either dataset. Mean and through-wall weighted pressure were more stable for the magnitude question.
-```
-
-This is the clearest role for the exploratory sweep. It is not an additional physiological result; it is a sensitivity experiment showing that correlation-based rankings can change when the pressure path changes. The robust finding is not that transmural pressure always wins or always loses. The robust finding is that the septum is not a one-pressure free wall, and that the question being asked matters.
 
 ## Pressure Mixtures As A Diagnostic
 
@@ -211,24 +189,37 @@ The mixture scan supports the same conclusion as the fixed candidates. If the go
 
 ## Numerical Robustness Checks
 
-Four numerical checks were performed to test whether the main conclusions depended on mesh resolution, postprocessing space, or the basal support condition. The detailed checks are collected in the numerical-robustness appendix; only the implications for the results are summarized here.
+Several numerical checks were performed to test whether the main conclusions depended on mesh resolution, postprocessing space, or the basal support condition. The detailed checks are collected in the numerical-robustness appendix; only the implications for the results are summarized here.
 
-The original corrected sweep was generated at 10 mm resolution and then rerun at 5 mm resolution. Across the 15 completed paired cases, achieved pressures changed little: the maximum h=10-to-h=5 difference was 1.8% for LV end-systolic pressure and 1.1% for RV end-systolic pressure. Free-wall ratios shifted more, but not enough to change the qualitative result: the model-resolved LV/RV tensor ratio changed by at most 5.4%, and the adjacent-pressure longitudinal proxy ratio by at most 8.3%. These shifts are summarized in {numref}`fig-h10-h5-shift`.
+```{table} Numerical checks used to defend the high-resolution result interpretation. The purpose is not to remove all numerical uncertainty, but to identify which conclusions are stable and which quantities should be read with caution.
+:name: tab-results-numerical-defence
+:align: left
+
+| Check | What was tested | Main observation | Interpretation |
+|---|---|---|---|
+| h=10 to h=5 sweep rerun | 16 paired corrected-sweep cases | Pressures shifted by at most 1.8%; free-wall ratios shifted by a few percent | Free-wall conclusions are not a coarse-mesh artifact |
+| h=5 to h=3.75 endpoint convergence | sPAP22, sPAP60, sPAP95 | Hemodynamics and free-wall ratios were stable; severe-case septal values shifted about 5--7% | Septal magnitudes are the most mesh-sensitive quantities |
+| Postprocessing space | Quadrature6, DG1, DG0 replay | DG1 stayed close to Quadrature6; DG0 suppressed high-pressure septal work | DG1 is adequate for integrated regional totals in this check; DG0 is too crude for septal work; Quadrature6 remains the conservative production path |
+| Basal support | x-only basal constraint versus no-Dirichlet variants | Production runs use only a partial constraint; no-Dirichlet variants did not converge | The retained constraint is a stabilizing modelling choice, not a full basal clamp |
+| Robin work | Boundary work budget in checked cases | Net Robin work was below 0.2% of cavity boundary work | Robin springs are not driving the work-density results |
+```
+
+The corrected sweep was first generated at 10 mm resolution and then rerun at 5 mm resolution. Across the 16 paired cases, achieved pressures changed little: the maximum h=10-to-h=5 difference was 1.8% for LV end-systolic pressure and 1.1% for RV end-systolic pressure. Free-wall ratios shifted more, but not enough to change the qualitative result: the model-resolved LV/RV tensor ratio changed by at most 5.4%, and the adjacent-pressure longitudinal proxy ratio by at most 8.3%. These shifts are summarized in {numref}`fig-h10-h5-shift`.
 
 ```{figure} ../figures/fig_5_5_h10_to_h5_nonseptal_shift.png
 :name: fig-h10-h5-shift
 :width: 88%
 
-Observed shift from the original 10 mm corrected sweep to the 5 mm rerun for quantities that can be compared directly. Hemodynamic pressures changed by about 1-2% or less, while free-wall LV/RV ratios changed by a few percent. Septal h=10-to-h=5 differences are not shown here because the original 10 mm corrected sweep used a non-canonical geometric septum mask.
+Observed shift from the 10 mm corrected sweep to the 5 mm rerun for quantities that can be compared directly. Hemodynamic pressures changed by about 1-2% or less, while free-wall LV/RV ratios changed by a few percent. Septal h=10-to-h=5 differences are not shown here because the 10 mm corrected sweep used a non-canonical geometric septum mask.
 ```
 
-The mesh-convergence endpoints give the finer-resolution reference. Against the 3.75 mm mesh, peak pressures and end-diastolic volumes differed by less than 0.8% at 5 mm, and free-wall work-density ratios differed by less than about 3%. Septal quantities were more sensitive, especially at high RV pressure: the observed difference between the 5 mm and 3.75 mm meshes was about 5-7% for severe-case septal tensor work and septal longitudinal-proxy quantities. The old 10 mm septal results are not used as a direct mesh-error estimate for the final sweep because the old geometric septum mask covered only part of the canonical/tagged septum in several cases. The 5 mm rerun fixes this: the completed 5 mm cases have geometric septum volumes matching the tag-3 septum.
+The mesh-convergence endpoints give the finer-resolution reference. Against the 3.75 mm mesh, peak pressures and end-diastolic volumes differed by less than 0.8% at 5 mm, and free-wall work-density ratios differed by less than about 3%. Septal quantities were more sensitive, especially at high RV pressure: the observed difference between the 5 mm and 3.75 mm meshes was about 5-7% for severe-case septal tensor work and septal longitudinal-proxy quantities. The 10 mm septal comparison is not used as a direct mesh-error estimate for the final sweep because that earlier geometric septum mask covered only part of the canonical/tagged septum in several cases. The 5 mm rerun fixes this: the completed 5 mm cases have geometric septum volumes matching the tag-3 septum.
 
 In postprocessing-only replay tests, DG1 state storage changed integrated regional tensor work by at most about 1.2% relative to Quadrature6, whereas DG0 suppressed high-pressure septal work. The basal support should be read as a stabilizing modelling choice: the production setup fixes only the base-normal/global-x displacement component, tangential sliding remains, and the no-Dirichlet variants did not converge during end-diastolic inflation. Net Robin work was below 0.2% of cavity boundary work in the checked endpoint cases. These checks support the main regional conclusions, with the septum appropriately treated as the numerically more sensitive region.
 
 ## What This Establishes
 
-The results support three claims. First, for the LV and RV free walls, adjacent cavity pressure is a reasonable regional stress scale for preserving work-density ratios and tracking the sweep trend. Second, the septum cannot be treated as either LV free wall or RV free wall. It is a shared wall, and the "best" septal pressure depends on the metric: transmural and LV pressure rank the high-resolution longitudinal-strain sweep well, while lower-pressure or two-sided choices better preserve septal work-density magnitudes. The fibre diagnostic adds that part of the septal difficulty is also a strain-direction issue: fibre-aligned strain makes several two-sided pressure choices much more faithful, but this remains a model-side diagnostic rather than a clinical replacement. Third, pressure-sweep correlations are conditional on the chosen loading path and numerical definition of the septal region. They are useful for sensitivity testing, but they should not be interpreted as universal clinical rankings.
+The results support three claims. First, for the LV and RV free walls, adjacent cavity pressure is a reasonable regional stress scale for preserving work-density ratios and tracking the sweep trend. Second, the septum cannot be treated as either LV free wall or RV free wall. It is a shared wall, and the "best" septal pressure depends on the metric: transmural and LV pressure rank the high-resolution longitudinal-strain sweep well, while lower-pressure or two-sided choices better preserve septal work-density magnitudes. The fibre diagnostic adds that part of the septal difficulty is also a strain-direction issue: fibre-aligned strain makes several two-sided pressure choices much more faithful, but this remains a model-side diagnostic rather than a clinical replacement. Third, pressure-sweep correlations are conditional on the achieved hemodynamic path, the chosen metric, and the numerical definition of the septal region. They are useful for sensitivity testing, but they should not be interpreted as universal clinical rankings.
 
 The fixed-geometry pressure sweep should therefore be read carefully. It is not a simulation of PAH progression in a patient. Real PAH changes pressure, volume, wall thickness, curvature, stiffness, activation, and contractility together. The sweep isolates one part of that system by changing the circulation while holding the anatomy and material model fixed. That isolation is useful, because it exposes how pressure choices for the longitudinal proxy respond to loading changes. It is not the same as a clinical cohort.
 
