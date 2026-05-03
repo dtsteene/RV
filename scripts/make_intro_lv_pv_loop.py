@@ -41,32 +41,46 @@ def main() -> None:
     history = model.solve(num_beats=10)
     beat = last_beat(history, float(model.parameters["HR"]))
 
-    volume = np.asarray(history["V_LV"], dtype=float)[beat]
-    pressure = np.asarray(history["p_LV"], dtype=float)[beat]
+    v_lv = np.asarray(history["V_LV"], dtype=float)[beat]
+    p_lv = np.asarray(history["p_LV"], dtype=float)[beat]
+    v_rv = np.asarray(history["V_RV"], dtype=float)[beat]
+    p_rv = np.asarray(history["p_RV"], dtype=float)[beat]
 
-    pump_work = -np.trapezoid(pressure, volume) * MMHG_ML_TO_J
-    edv = float(volume.max())
-    esv = float(volume.min())
-    sv = edv - esv
-    ef = 100.0 * sv / edv
+    fig, (ax_lv, ax_rv) = plt.subplots(1, 2, sharey=True, figsize=(8.6, 3.7))
 
-    fig, ax = plt.subplots(figsize=(5.2, 3.7))
-    color = "#1f6f9f"
+    panels = (
+        (ax_lv, v_lv, p_lv, "#1f6f9f", "Left ventricle"),
+        (ax_rv, v_rv, p_rv, "#b04a3a", "Right ventricle"),
+    )
 
-    ax.fill(volume, pressure, color=color, alpha=0.10, lw=0)
-    ax.plot(volume, pressure, color=color, lw=2.0)
-    add_arrow(ax, volume, pressure, 0.55, color)
+    for ax, v, p, color, title in panels:
+        ax.fill(v, p, color=color, alpha=0.10, lw=0)
+        ax.plot(v, p, color=color, lw=2.0)
+        add_arrow(ax, v, p, 0.55, color)
+        ax.set_title(title)
+        ax.set_xlabel("Volume (mL)")
+        ax.text(
+            float(np.mean(v)), float(np.mean(p)), "stroke work",
+            ha="center", va="center", fontsize=10, color="#24475a",
+        )
+        ax.grid(False)
 
-    ax.text(0.50, 0.43, "stroke work", transform=ax.transAxes, ha="center", va="center", fontsize=10, color="#24475a")
+    ax_lv.set_ylabel("Pressure (mmHg)")
+    ax_lv.set_ylim(0, max(p_lv.max(), p_rv.max()) + 12)
 
-    ax.set_xlabel("LV volume (mL)")
-    ax.set_ylabel("LV pressure (mmHg)")
-    ax.set_xlim(esv - 12, edv + 12)
-    ax.set_ylim(0, max(pressure) + 12)
-    ax.grid(False)
+    v_min = min(v_lv.min(), v_rv.min()) - 12
+    v_max = max(v_lv.max(), v_rv.max()) + 12
+    for ax in (ax_lv, ax_rv):
+        ax.set_xlim(v_min, v_max)
 
-    save(fig, FIGURES / "fig_1_0_lv_pv_loop_regazzoni_default")
-    print(f"LV EDV={edv:.1f} mL, ESV={esv:.1f} mL, SV={sv:.1f} mL, EF={ef:.1f}%, work={pump_work:.3f} J")
+    save(fig, FIGURES / "fig_1_0_pv_loops_regazzoni_default")
+
+    sw_lv = -np.trapezoid(p_lv, v_lv) * MMHG_ML_TO_J
+    sw_rv = -np.trapezoid(p_rv, v_rv) * MMHG_ML_TO_J
+    print(f"LV: SW={sw_lv:.3f} J, peak P={p_lv.max():.0f} mmHg, "
+          f"EDV={v_lv.max():.0f} mL, ESV={v_lv.min():.0f} mL")
+    print(f"RV: SW={sw_rv:.3f} J, peak P={p_rv.max():.0f} mmHg, "
+          f"EDV={v_rv.max():.0f} mL, ESV={v_rv.min():.0f} mL")
 
 
 if __name__ == "__main__":
