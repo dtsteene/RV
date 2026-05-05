@@ -90,25 +90,23 @@ adjacent-pressure proxy works well.
 Single healthy free-wall case:
 
 ```text
-model-resolved tensor work LV/RV: 3.97
+model-resolved tensor work LV/RV: 4.03
 
 longitudinal strain:
-P_LV everywhere:      1.75
-P_RV everywhere:      1.14
-adjacent pressure:    4.79
-waveform only:        1.16
-P x geometry:         5.57
+P_LV everywhere:      1.95
+P_RV everywhere:      1.11
+adjacent pressure:    4.11
+waveform only:        1.24
 ```
 
 Corrected n=16 sweep, mean absolute LV/RV ratio error:
 
 ```text
 longitudinal strain:
-adjacent pressure:    0.21   best
-P x geometry:         0.29
-P_LV everywhere:      0.64
-P_RV everywhere:      0.89
-waveform only:        0.84
+adjacent pressure:    0.12   best
+P_LV everywhere:      0.72
+P_RV everywhere:      0.96
+waveform only:        0.89
 ```
 
 Interpretation:
@@ -136,23 +134,10 @@ Script:
 The earlier tau-split LV/RV ratio included septal tissue. That made the regional
 comparison harder because the septum is not cleanly LV wall or RV wall.
 
-Laplace tau split, single case:
-
-```text
-model-resolved tensor work LV/RV: 2.53
-
-fiber strain:
-P_LV everywhere:        1.78
-P_RV everywhere:        1.28
-adjacent pressure:      5.28
-adjacent waveform only: 1.28
-
-longitudinal strain:
-P_LV everywhere:        1.69
-P_RV everywhere:        1.15
-adjacent pressure:      4.71
-adjacent waveform only: 1.14
-```
+Legacy Laplace tau split, single case. This is kept as framing context, not as
+one of the final h=5 canonical-septum results. The old numerical block is
+omitted here to avoid mixing the legacy tau-split values with the final
+canonical-septum tables in the thesis.
 
 Interpretation:
 

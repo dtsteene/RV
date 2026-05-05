@@ -14,6 +14,8 @@ To avoid this, an unloaded reference was estimated with the backward displacemen
 
 The coupled simulation then starts from the estimated unloaded reference, inflates to the image-derived end-diastolic state, and proceeds through the cardiac cycle. This makes the stress-strain history a history relative to the constitutive reference state, rather than relative to an already loaded image frame.
 
+A late sensitivity check clarified the interpretation of this step. Using the image-derived end-diastolic mesh as the loaded target is the correct inverse-unloading construction for a single image frame: the algorithm asks which reference shape, when pressurized to the specified end-diastolic pressures, reproduces that measured end-diastolic geometry. The limitation is not that the target should have been the unloaded mesh. The limitation is that the main pressure sweep uses the same UKB baseline geometry and passive material parameters even for severe RV pressure loading. At high RV end-diastolic pressure, the unloading algorithm must explain the added RV load without RV hypertrophy, curvature change, or regional passive remodelling. It can therefore infer an unrealistically small RV unloaded cavity in the severe cases. This reference-state sensitivity does not change the pressure-strain bookkeeping below, but it matters for interpreting absolute high-pressure RV and RV-side septal stress-strain magnitudes.
+
 ## Field-Level Stress Check
 
 The most consequential code issue in the project was a stress error in the compressible material path of `fenicsx-pulse`. The Holzapfel-Ogden law depends on the finite-strain state through $\mathbf{C}$ and $J$, equivalently through the full Green-Lagrange strain tensor $\mathbf{E}$. In the problematic implementation, the stress routine received only the deviatoric part of the strain state, so the volumetric contribution was dropped.
@@ -52,7 +54,7 @@ with solver cavity pressure converted to SI units and $\Delta\mathcal{V}_i$ take
 
 ## 0D-3D Pressure Bookkeeping
 
-The coupled simulation contains two pressure-like quantities. The 0D circulation has an elastance pressure, while the 3D mechanics solve has a cavity-pressure Lagrange multiplier that enforces the cavity volume constraint. These are related, but they are not interchangeable.
+The coupled simulation contains two pressure-like quantities during development and postprocessing. The standalone 0D circulation can compute ventricular pressure from its elastance law, while the coupled 3D mechanics solve computes the cavity-pressure Lagrange multiplier that enforces the finite-element cavity-volume constraint. In the coupled run, the mechanics pressure is the pressure that acts on the 3D boundary and is passed back to the circulation update. The two records are therefore expected to be close in a converged coupled calculation, but they are not interchangeable for work accounting.
 
 This distinction became visible during checkpoint postprocessing. When boundary work was recomputed offline using the 0D pressure history, the energy balance showed a large discrepancy. During the live solve, where the boundary work used the Lagrange multiplier pressure, the same calculation closed tightly. The fix was to save the solver pressure multiplier at each time step together with the displacement checkpoint.
 

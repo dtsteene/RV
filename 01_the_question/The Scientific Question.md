@@ -1,51 +1,14 @@
 # Mechanical Work and the Scientific Question
 
-This thesis compares a clinically measurable pressure-strain index with a model-resolved stress-strain work density. That comparison only makes sense if the hierarchy of mechanical descriptions is clear. A pressure-volume loop, a pressure-strain loop, a simple wall-stress estimate, and a finite-element tensor-work calculation are related, but they are not interchangeable. Each keeps some mechanics and discards other mechanics.
+This chapter writes down the two work quantities that the thesis compares — the regional tensor work density $w_\text{int}[\Omega_j]$ and the pressure-longitudinal-strain proxy $w_{\text{PS},ll}[\Omega_j]$ — and verifies that the finite-element implementation reproduces the underlying energy identity. The introduction set out why these quantities are not interchangeable: pressure is a boundary load rather than a local stress, longitudinal strain is one component of the full deformation state, and the septum is biventricular tissue for which no single cavity pressure is unambiguous. What remains is to formalise the comparison and to check that the numerical work matches the boundary work to within discretization tolerance, before the proxy is tested against the model in the results chapter.
 
-The finite-element model is useful here for a specific reason. Pressure-strain indices make regional statements about myocardial work, and regional work depends on mechanics that pressure, longitudinal strain, and simple wall-stress formulas do not resolve. The model gives a controlled setting in which those hidden variables are known, so the pressure-strain reduction can be tested rather than assumed.
+## Local Work and the Pressure-Strain Proxy
 
-The operational quantities are the regional tensor work density $w_\text{int}[\Omega_j]$ and the pressure-longitudinal-strain proxy $w_{\text{PS},ll}[\Omega_j]$. The continuum-mechanics discussion below explains why stress power is the local work quantity. The energy-balance section checks that the numerical implementation computes that quantity consistently with the boundary work implied by the solved model.
+Thick-wall ventricular analyses already showed that pressure cannot stand in for an internal stress field as an identity: stresses vary through the wall, and a useful mean wall-stress estimate is not the same thing as a resolved local stress {cite}`mirsky1969left`. Computing local work density rather than a wall-stress scale therefore needs the local stress and strain fields, which is the step into continuum mechanics.
 
-## Building Up To A Local Work Model
+The local rate of mechanical work in a deforming material is the tensor contraction $\mathbf{S}:\dot{\mathbf{E}}$, where $\mathbf{S}$ is the second Piola-Kirchhoff stress and $\dot{\mathbf{E}}$ is the rate of the Green-Lagrange strain. Both are evaluated on the fixed reference mesh used by the finite-element solver, which is the natural pair for the work-density calculation in the reference configuration {cite}`holzapfel2000nonlinear`. This is the local work-rate density used throughout the thesis.
 
-This chapter moves in two directions. First, it asks what mechanical information must be added to estimate local myocardial work inside a model. Then it asks what is lost when those layers are removed until only the clinical pressure-longitudinal-strain proxy remains. The first direction explains why the model is needed. The second motivates the simplification cascade later in the chapter.
-
-The starting point is pressure-volume work. A ventricular pressure-volume loop has a strong mechanical meaning because its area is the external work exchanged between the ventricular wall and the blood. It is the right level of description if the question is how much work a chamber performs as a pump. But it is silent about where that work is produced inside the wall. The same chamber pressure and volume change can be compatible with many different regional stress and strain patterns.
-
-Clinical pressure-length and pressure-strain loops move one step closer to regional work by pairing chamber pressure with local shortening {cite}`forrester1974pressure_length,tyberg1974segmental,urheim2005regional,russell2012novel`. The practical appeal is clear: pressure and deformation can be measured or estimated in patients. The mechanical reduction is also clear. Chamber pressure is used where local myocardial stress would be needed, and one measured strain component is used where the full deformation state would be needed.
-
-Simple wall-stress arguments already show that the pressure substitution cannot be an identity. Pressure is a boundary load. Wall stress is an internal response that also depends on geometry and thickness. Thick-wall ventricular analyses add another layer: stresses vary through the wall, and a useful mean wall-stress estimate is not the same thing as a resolved local stress field {cite}`mirsky1969left`.
-
-To compute local work density rather than a wall-stress scale, the model has to keep the local stress and strain fields. That is the step into continuum mechanics. The myocardium undergoes finite deformation. Strain cannot be reduced to a small-displacement scalar. Stress cannot be reduced to one wall-tension number. Work density is the local stress power integrated through time. Early passive models treated ventricular myocardium as incompressible hyperelastic, anisotropic tissue. Large-scale beating-heart finite-element work then showed why regional mechanics also depends on geometry, fibre architecture, active tension, and electrical activation {cite}`guccione1991passive,mcculloch1992large`.
-
-A stress-power formula is therefore only the foundation. The model also needs a passive material law, fibre architecture, active tension, boundary support, cavity constraints, and a circulation that determines ventricular loading. These layers are defined in the model chapter. They draw on structurally motivated myocardial material laws, rule-based fibre assignment, and coupled 3D--0D mechanics frameworks {cite}`holzapfel2009constitutive,streeter1969fiber,bayer2012novel,kerckhoffs2007coupling,regazzoni2022cardiac,piersanti2022closed`.
-
-This coupling matters for the present thesis because the pressure used in the proxy is also the pressure produced by the mechanics solve. It is the Lagrange multiplier needed to enforce the cavity volume in the current geometry, material state, and active contraction.
-
-The endpoint of this upward construction is a mechanically explicit test system. Its assumptions define the scope of the result. Within that scope, the stress and strain fields hidden from the clinical proxy become available, including the two-sided loading of the septum. That makes it possible to ask the reverse question: how much of this model-resolved local work survives when it is collapsed back down to pressure-longitudinal-strain work?
-
-## Local Work And Chamber Work
-
-The basic local statement in mechanics is that work in a deforming material comes from stress acting through deformation. In one dimension this is the familiar density-like product $\sigma\,d\varepsilon$. In three dimensions the scalar product becomes a tensor contraction. Written in the current configuration, the local stress power is $\boldsymbol{\sigma}:\mathbf{d}$, where $\boldsymbol{\sigma}$ is the Cauchy stress and $\mathbf{d}$ is the rate-of-deformation tensor. This is the continuum-mechanics work-density idea, independent of the particular cardiac material model used later. The finite-element expression used here is the same stress power pulled back to the reference mesh:
-
-$$
-\boldsymbol{\sigma}:\mathbf{d}\,dv
-= \mathbf{S}:\dot{\mathbf{E}}\,dV_0,
-$$
-
-with $\mathbf{S}$ the second Piola-Kirchhoff stress and $\mathbf{E}$ the Green-Lagrange strain {cite}`holzapfel2000nonlinear`. This pair is energy-conjugate in the reference configuration, so the contraction $\mathbf{S}:\dot{\mathbf{E}}$ is the fixed-mesh form of the same local stress power. What the cardiac model contributes is the estimate of those stress and strain fields.
-
-This is the conceptual step between pressure-volume work and the hyperelastic model solved later. The pressure-volume loop uses a boundary force scale, pressure, and a chamber motion, volume change. Continuum mechanics instead resolves work density inside the wall from stress and deformation at each material point. The model layers introduced later then determine how those fields are estimated.
-
-Pressure-volume work is the corresponding chamber-level boundary expression of the same mechanical exchange. When the wall presses on the blood, the boundary force can be represented by the cavity pressure and the boundary motion by the change in cavity volume. The positive stroke-work magnitude is
-
-$$
-SW = \left|\oint p\,dV\right|,
-$$
-
-the work exchanged between the ventricular wall and the blood over one beat. This is the same mechanical idea behind the classical cardiac pressure-volume loop and the pressure-volume area framework used in whole-ventricle energetics {cite}`frank1899grundform,suga1979total`. It is a strong chamber-level quantity, but it has no regional wall information. It does not tell us how much work was carried by the LV free wall, the RV free wall, or the interventricular septum.
-
-The finite-element model gives a way to estimate the corresponding local mechanical quantity. Let $\Omega$ denote the reference-configuration biventricular myocardium. Because $\mathbf{S}:\dot{\mathbf{E}}$ is evaluated point by point in the tissue, the same density can be integrated over whatever region is relevant. For a reference-configuration subregion $\Omega_j \subseteq \Omega$, such as the LV free wall, RV free wall, septum, or the whole myocardium, the internal work over a cardiac cycle is
+Because $\mathbf{S}:\dot{\mathbf{E}}$ is evaluated point by point, the density can be integrated over any reference-configuration subregion $\Omega_j \subseteq \Omega$ — the LV free wall, the RV free wall, the septum, or the whole myocardium. The internal work over a cardiac cycle is
 
 $$
 W_\text{int}[\Omega_j]
@@ -53,7 +16,7 @@ W_\text{int}[\Omega_j]
 \mathbf{S}(t,\mathbf{X}) : \dot{\mathbf{E}}(t,\mathbf{X}) \, dV_0 \, dt,
 $$
 
-where the colon denotes double contraction {cite}`delhaas1994regional,finsberg2019assessment`. The pair $\mathbf{S}$ and $\mathbf{E}$ is used because the finite-element calculation is carried out on the fixed reference mesh. This is the reference-configuration form of the same stress-power idea. The regional decomposition used in this thesis comes from changing the integration domain $\Omega_j$ while keeping the definition of work fixed.
+where the colon denotes double contraction {cite}`delhaas1994regional,finsberg2019assessment`. The regional decomposition used in this thesis comes from changing the integration domain $\Omega_j$ while keeping the definition of work fixed.
 
 In sampled simulation output, the cycle integral is accumulated with a trapezoidal rule,
 
@@ -66,7 +29,7 @@ $$
 
 with $\bar{\mathbf{S}}(t_i)=\tfrac{1}{2}(\mathbf{S}(t_i)+\mathbf{S}(t_{i-1}))$ and $\Delta\mathbf{E}(t_i)=\mathbf{E}(t_i)-\mathbf{E}(t_{i-1})$.
 
-This regional integral has units of energy. A clinical pressure-strain loop has no regional myocardial volume in it. Pressure times dimensionless strain has pressure units, equivalent to work per volume. The finite-element reference is therefore converted to work density by dividing by the reference volume of the region,
+This regional integral has units of energy. A clinical pressure-strain loop carries no regional myocardial volume; pressure times dimensionless strain has pressure units, equivalent to work per volume. The finite-element reference is therefore converted to a work density by dividing by the reference volume of the region,
 
 $$
 w_\text{int}[\Omega_j]
@@ -75,13 +38,11 @@ w_\text{int}[\Omega_j]
 |\Omega_{j,0}| = \int_{\Omega_j} dV_0.
 $$
 
-This is the target quantity in the thesis: model-resolved regional mechanical work density, the internally defined estimate of the local stress-strain work density implied by the chosen finite-element model.
+This $w_\text{int}[\Omega_j]$ is the model-resolved reference quantity in the thesis: not a patient-level ground truth, but the internally consistent tensor-work density produced by the chosen geometry, material law, activation, boundary conditions, and circulation coupling.
 
-## The Clinical Pressure-Strain Proxy
+The sign convention is kept explicit because the raw loop integrals are signed. With the strain convention used here, systolic shortening in a loaded direction gives a negative strain increment, so the accumulated tensor work and pressure-strain loop areas are often negative when written directly as $\int p\,d\varepsilon$ or $\int \mathbf{S}:\dot{\mathbf{E}}\,dt$. The analysis therefore uses the signed quantities when discussing component balances or loop orientation, but reports positive work-density magnitudes for ratios and magnitude errors by taking absolute values consistently across both integrals. When a figure shows signed plateau values, the caption states this directly.
 
-Clinical pressure-strain work comes from a different direction. Earlier pressure-length studies used chamber pressure and measured segment length to form regional loop areas {cite}`forrester1974pressure_length,tyberg1974segmental`. Later pressure-strain methods replaced segment length with image-based strain, making the approach more practical for echocardiography {cite}`urheim2005regional,russell2012novel,abawi2022noninvasive`. Recent RV applications follow the same basic construction, using RV pressure and RV longitudinal or free-wall longitudinal strain {cite}`wang2022apply,lakatos2024right`.
-
-For a region $\Omega_j$ and an assigned pressure $p_j(t)$, the pressure-longitudinal-strain proxy used here is
+The pressure-longitudinal-strain proxy lives on the same density scale by construction. For a region $\Omega_j$ and an assigned pressure $p_j(t)$,
 
 $$
 w_{\text{PS},ll}[\Omega_j]
@@ -97,15 +58,70 @@ w_{\text{PS},ll}[\Omega_j] \approx
 \bar p_j(t_i)\,\Delta\varepsilon_{ll,j}(t_i),
 $$
 
-where $\bar p_j(t_i)=\tfrac{1}{2}(p_j(t_i)+p_j(t_{i-1}))$ and $\Delta\varepsilon_{ll,j}(t_i)=\varepsilon_{ll,j}(t_i)-\varepsilon_{ll,j}(t_{i-1})$. No regional volume factor appears. If an absolute model-side energy estimate were desired, this density-like index could be multiplied by the known finite-element region volume. That is not how the clinical index is measured. The comparison in this thesis therefore keeps the clinical-side proxy as pressure times longitudinal strain and compares it with $w_\text{int}$.
+where $\bar p_j(t_i)=\tfrac{1}{2}(p_j(t_i)+p_j(t_{i-1}))$ and $\Delta\varepsilon_{ll,j}(t_i)=\varepsilon_{ll,j}(t_i)-\varepsilon_{ll,j}(t_{i-1})$. No regional volume factor appears, so the proxy is naturally a density-like index.
 
-The pressure assignment is straightforward only in the free walls. The LV free wall is paired with $p_\text{LV}$ and the RV free wall with $p_\text{RV}$. The septum is different. It is shared tissue with LV pressure on one face and RV pressure on the other. Assigning one scalar pressure to the septum is already a mechanical assumption. The tested choices are the two cavity pressures, their difference, mean pressure, nearest-side pressure, and through-wall weighted pressure.
+The longitudinal strain used in the model is a clinical analogue rather than an image-derived measurement. The geometry-generation step saves an apex-to-base direction field from the LDRB construction as the `apex_gradient` field. During postprocessing this raw apico-basal direction is first projected into the local wall tangent plane, using the endocardium-to-epicardium geometric direction $\mathbf{e}_r$ as the radial direction,
 
-Pressure is a boundary load rather than a local myocardial stress measurement. At an endocardial surface, the Cauchy traction condition is $\boldsymbol{\sigma}\mathbf{n}=-p\mathbf{n}$, so pressure fixes the normal traction applied by the blood. It does not determine the fibre, circumferential, longitudinal, or shear stresses inside the wall. Those follow from equilibrium, geometry, material law, active contraction, and support conditions.
+$$
+\mathbf{l}_0(\mathbf{X})
+=
+\frac{
+\tilde{\mathbf{l}}(\mathbf{X})
+- [\tilde{\mathbf{l}}(\mathbf{X})\cdot\mathbf{e}_r(\mathbf{X})]\mathbf{e}_r(\mathbf{X})
+}{
+\left\|
+\tilde{\mathbf{l}}(\mathbf{X})
+- [\tilde{\mathbf{l}}(\mathbf{X})\cdot\mathbf{e}_r(\mathbf{X})]\mathbf{e}_r(\mathbf{X})
+\right\|
+}.
+$$
 
-The scale difference is large in the simulations. In the UKB baseline cascade used below, the regional mean fibre stress $S_{ff}$ peaks at about 68 kPa on the LV side and 56 kPa on the RV side, while the corresponding cavity pressures peak at about 16 kPa and 3.9 kPa. Thick-wall analyses make the same qualitative point: pressure is a boundary load, not a resolved wall-stress field {cite}`mirsky1969left`.
+This removes the transmural component of the apico-basal field before the strain projection is computed. The resulting tangent-longitudinal direction is then used as a fixed reference-direction projection of Green-Lagrange strain,
 
-The strain choice is also a reduction. Clinical imaging can report longitudinal, circumferential, and radial deformation. Cardiac MRI tagging can provide more complete three-dimensional regional strain information {cite}`tee2013imaging,voigt2015definitions`. Clinical pressure-strain myocardial-work workflows, however, are usually built from longitudinal strain rather than myocardial fibre strain or a full local strain tensor {cite}`russell2012novel,abawi2022noninvasive,thomas2025clinical`. Measuring additional strain directions would reduce one part of the approximation. It would not by itself turn pressure-strain work into tensor work, because the matching local stress components would still be unmeasured. The fibre-aligned quantities used later in the results are therefore model-side diagnostics, not alternative clinical measurements.
+$$
+\varepsilon_{ll,j}(t)
+= \frac{1}{|\Omega_{j,0}|}
+\int_{\Omega_j}
+\mathbf{l}_0(\mathbf{X}) \cdot
+\mathbf{E}(t,\mathbf{X})\,
+\mathbf{l}_0(\mathbf{X})\,dV_0 .
+$$
+
+The per-cell postprocessing uses the same tangent-longitudinal definition locally: it assembles $\Delta E_{ll}=\mathbf{l}_0\cdot\Delta\mathbf{E}\,\mathbf{l}_0$ over each cell and accumulates pressure times that strain increment with a trapezoidal pressure average. The pressure used for these pressure-strain integrals is the solver cavity pressure, namely the Lagrange multiplier pressure that enforces the cavity-volume constraint in the finite-element mechanics problem. The standalone zero-dimensional pressures are still part of the coupled circulation, but they are not the pressure used for the final pressure-strain proxy integrals.
+
+The pressure assignment is straightforward only in the free walls. The LV free wall is paired with $p_\text{LV}$ and the RV free wall with $p_\text{RV}$. The septum is shared tissue with LV pressure on one face and RV pressure on the other, and assigning one scalar pressure to it is already a mechanical assumption.
+
+For the septum, the tested pressure choices are defined from the two solver cavity pressures and, for the spatially varying choices, from a transventricular coordinate. The one-sided choices are $p_\text{LV}$ and $p_\text{RV}$. The transmural choice is $p_\text{LV}-p_\text{RV}$, the mean choice is $\tfrac{1}{2}(p_\text{LV}+p_\text{RV})$, and the nearest-side choice assigns $p_\text{LV}$ to cells on the LV side and $p_\text{RV}$ to cells on the RV side. The through-wall weighted choice uses a scalar $\lambda(\mathbf{X})$ that is one on the LV side and zero on the RV side, so that
+
+$$
+p_\lambda(t,\mathbf{X})
+= \lambda(\mathbf{X})p_\text{LV}(t)
++ [1-\lambda(\mathbf{X})]p_\text{RV}(t).
+$$
+
+In the canonical postprocessing, $\lambda$ is the saved LV-to-RV Laplace scalar when available. If the Euclidean distance coordinate $\tau=d_\text{LV}/(d_\text{LV}+d_\text{RV})$ is used instead, the equivalent LV weight is $1-\tau$. This convention matters: the words "LV side" and "RV side" refer to the pressure weight, not merely to the name of the scalar field.
+
+The scale difference between cavity pressure and local stress is large in the simulations. In the UKB baseline cascade used below, the regional mean fibre stress $S_{ff}$ peaks at about 68 kPa on the LV side and 56 kPa on the RV side, while the corresponding cavity pressures peak at about 16 kPa and 3.9 kPa. The pressure-for-stress substitution is therefore not expected to preserve absolute work-density magnitude. The useful question is whether it preserves regional ratios and rankings.
+
+The stress-power form is only the foundation. Each model layer used in the simulations below affects the stress and strain estimates returned to $w_\text{int}[\Omega_j]$ and therefore affects the proxy comparison. A small-deformation, isotropic, linear-elastic description would give wrong stress magnitudes and wrong stress allocation, because cardiac tissue undergoes finite deformation and is mechanically anisotropic. The simulations therefore use a transversely isotropic Holzapfel-Ogden hyperelastic passive law together with a rule-based fibre assignment with helical transmural variation, since fibre and cross-fibre stresses differ substantially in active tissue {cite}`holzapfel2009constitutive,streeter1969fiber,bayer2012novel`.
+
+Active contraction is equally necessary. Without an active tension term, the wall would behave as a passive elastic membrane during systole, with all stress attributed to cavity pressure and none to internal contraction. A prescribed Blanco activation waveform supplies the active stress along the fibre direction so that systole is generated inside the wall rather than imposed from outside {cite}`blanco2010computational`.
+
+The heart in the chest is also not free-floating. It is constrained by the pericardium and by the great-vessel attachments at the base, so the model retains epicardial Robin springs and a partial basal Dirichlet condition. Without these supports the simulation would exhibit rigid-body motion and unphysical wall thinning.
+
+Cavity pressure is not externally imposed in vivo. It emerges from the interaction between ventricular ejection and the systemic and pulmonary networks, so a coupled zero-dimensional closed-loop circulation is solved alongside the mechanics, exchanging volume and pressure with each cavity at every timestep {cite}`kerckhoffs2007coupling,regazzoni2022cardiac`. The pressure used in $w_{\text{PS},ll}[\Omega_j]$ is itself a product of this machinery: it is the Lagrange multiplier needed to enforce the cavity volume in the current geometry, material state, and active contraction.
+
+Finally, the imaging-derived geometry corresponds to an already-loaded heart rather than a stress-free reference. A separate inverse-elasticity prestressing step recovers the stress-free configuration before the cycle begins; without it, internal stresses would be miscounted from the first beat {cite}`bols2013computational,gee2010computational`. The model chapter describes each of these layers in detail; the point here is that none of them is decorative.
+
+Naming what the model leaves out is part of the same scope statement. The volumetric formulation is slightly compressible, with a bulk-modulus penalty that closes the volumetric energy density at finite stiffness rather than enforcing $J=1$ exactly. This avoids volumetric locking on tetrahedral elements and keeps the Newton iterates well conditioned. A strictly incompressible formulation is also implemented and can be selected at run time, and the per-cycle compressible-work residual is reported by the postprocessing pipeline as a routine sanity check. In the production runs that residual is a small fraction of the total internal work, small enough that the compressible substitution is not load-bearing for the work-density results below.
+
+The passive law is purely hyperelastic, so stress relaxation, hysteresis, and rate-dependence of real myocardium are absent. The 3D mechanics domain is biventricular and basally truncated: atria, valves, the fibrous skeleton, and great vessels appear only in the 0D circulation, and the basal plane is a flat geometric clip rather than the anatomical atrioventricular valve plane attached to atrial tissue.
+
+The clipped basal plane carries a real mechanical cost. The atrioventricular plane displacement that contributes to ventricular filling in vivo, on the order of ten millimetres during systole, is replaced here by a partial basal Dirichlet condition that fixes one displacement component while leaving the others free. Atrial filling and valve dynamics therefore enter the ventricles through the 0D coupling rather than through 3D wall mechanics.
+
+Active tension is prescribed as a Blanco waveform with a uniform peak amplitude across the LV free wall, the septum, and the RV free wall, so electrophysiology, calcium handling, conduction delays, and any regional activation differences are not modelled. The pericardium is approximated by Robin springs on the epicardium rather than solved as a contact problem with a separate pericardial body, and there is no fluid-structure interaction with the blood, which enters only as a Lagrange-multiplier cavity pressure on the endocardium.
+
+None of these simplifications is physically benign in the abstract, but together they bound the scope of the result: the thesis tests how a clinical pressure-strain proxy compares with model-resolved tensor work in a biventricular, hyperelastic, electromechanically prescribed, pericardially Robin-supported simulation, not in a fully resolved electromechanical heart-thorax model.
 
 ## Energy Identity And Numerical Verification
 
@@ -146,24 +162,36 @@ The energy-balance figure is therefore an implementation check. It shows that th
 
 Clinical validation studies usually test pressure-strain work against patient-relevant endpoints. That is appropriate, but those endpoints do not isolate the pressure-for-stress approximation. Glucose uptake and oxygen use ask whether tissue paid a metabolic cost. Contractility asks whether the ventricle can generate pressure for its loading conditions. Pressure-length and pressure-strain loops ask whether an accessible loop behaves like a regional work index. These are important physiological questions, but they are not direct measurements of local myocardial stress-strain work.
 
-Finite-element stress-strain work has also been used before. Regional fibre or tensor work has been studied in LV, biventricular, perfusion, dyssynchrony, and CRT settings {cite}`finsberg2019assessment,wang2012myocardial,pluijmert2017determinants,ahmadbakir2018multiphysics,craine2024successful`. Patient-specific biventricular mechanics frameworks have been used to estimate regional stress and contractility in healthy subjects and in pulmonary arterial hypertension {cite}`finsberg2018efficient,finsberg2019computational`. Coupled 3D--0D frameworks provide the pressure-volume loading context for such mechanics models {cite}`kerckhoffs2007coupling,regazzoni2022cardiac,piersanti2022closed`.
+Finite-element stress-strain work has been used before. Regional fibre or tensor work has been studied in LV, biventricular, perfusion, dyssynchrony, and CRT settings {cite}`finsberg2019assessment,wang2012myocardial,pluijmert2017determinants,ahmadbakir2018multiphysics,craine2024successful`. Patient-specific biventricular mechanics frameworks have been used to estimate regional stress and contractility in healthy subjects and in pulmonary arterial hypertension {cite}`finsberg2018efficient,finsberg2019computational`. Coupled 3D--0D frameworks provide the pressure-volume loading context for such mechanics models {cite}`kerckhoffs2007coupling,regazzoni2022cardiac,piersanti2022closed`.
 
-The gap addressed here is narrower than "regional work has not been modelled." The gap is how a clinical-style pressure-longitudinal-strain proxy behaves when checked against model-resolved tensor work in the RV free wall and in the septum. The RV free wall matters because RV pressure-strain indices are now being proposed clinically as more informative than RV strain alone {cite}`lakatos2024right`. The septum matters because it is a shared wall and no single cavity pressure is an unambiguous local stress surrogate there.
+The gap addressed here is narrower than "regional work has not been modelled." What is missing is a quantitative check of how a clinical-style pressure-longitudinal-strain proxy behaves when compared with model-resolved tensor work in the RV free wall and the septum specifically — the two cases where the one-pressure assumption is least obvious.
 
 The controlled pressure-loading sweep is designed for that mechanical test. The biventricular mesh, passive material law, fibre field, active-tension waveform, basal support, and cavity-volume coupling are held fixed. What changes is the calibrated zero-dimensional circulation used to drive the same mechanics model through a range of RV pressure loads. The high-resolution sweep contains 16 nominal RV-pressure cases. Achieved peak RV pressure spans roughly 31--89 mmHg while peak LV pressure remains comparatively stable, about 100--109 mmHg. The sweep is a loading-path sensitivity experiment, not clinical PAH progression.
 
-## Simplification Cascade
+The final sweep also keeps the septal postprocessing definitions consistent across cases. The per-cell septal and transventricular fields are computed once on the canonical generated geometry and then mapped to each prestressed checkpoint through the saved inverse-elastic displacement permutation. The work integrals themselves are still evaluated on each simulation checkpoint and over the final cardiac cycle; the canonical fields define the septal masks and LV-to-RV through-wall coordinate, while the original solver region tags identify the free-wall domains. This is different from the legacy unloaded-tagging mode kept in the code for reproducibility, which is not used as the anatomical basis for the main sweep.
 
-One way to make the proxy reduction visible is to remove mechanical information step by step. The cascade used in the next two figures moves from full tensor work density to fibre-direction stress-strain work, then to cavity pressure with fibre strain, and finally to cavity pressure with longitudinal strain. For this diagnostic only, the myocardium is split into LV-side and RV-side territories by solving a Laplace problem with value zero on the LV endocardium and one on the RV endocardium, then cutting the resulting coordinate at $0.5$. The pressure-based steps use the corresponding cavity pressure, denoted $p_\text{cav}$.
+## Simplification Cascade Diagnostic
 
-The main effect is large: replacing fibre stress by cavity pressure causes most of the absolute magnitude loss. This is consistent with the pressure-stress scale difference above. The final pressure-longitudinal-strain proxy is therefore not expected to match tensor work density by absolute scale. The useful questions are whether it preserves regional work-density ratios and whether it ranks cases consistently across the pressure-loading sweep.
+One way to make the proxy reduction visible, before the full results chapter, is to remove mechanical information step by step in a diagnostic baseline case. {numref}`fig-cascade` shows this cascade as four cumulative work-density curves on the UKB synthetic baseline, each one a different stage of the reduction from full tensor work down to the clinical pressure-longitudinal-strain proxy. For this diagnostic only, the myocardium is split into LV-side and RV-side territories by solving a Laplace problem between the LV and RV endocardial surfaces, then cutting the resulting coordinate at its mid-surface. The pressure-based steps use the corresponding cavity pressure, denoted $p_\text{cav}$.
 
 ```{figure} ../figures/fig_cascade_cumulative.png
 :name: fig-cascade
 :width: 80%
 
-Cascade of work-density measures from the full tensor contraction down to the clinical pressure-strain proxy, shown for the LV-side tau-split territory on the UKB synthetic baseline. In this diagnostic split, every myocardial cell is assigned to either the LV-side or RV-side territory, so this is not the anatomical LV free wall defined in the geometry chapter and used in the later free-wall ratio tests. $\mathbf{S}:\dot{\mathbf{E}}$ is the full double contraction; $S_{ff}\,\dot E_{ff}$ is the fibre-normal component alone; $p_\text{cav}\,\dot E_{ff}$ is a model-side intermediate that substitutes cavity pressure for the fibre stress; $p_\text{cav}\,\dot\varepsilon_{ll}$ is the clinical pressure-longitudinal-strain proxy. End-of-cycle plateau values: $-8.4$, $-7.4$, $-1.9$, $-1.5$ kPa. The pressure-for-stress substitution accounts for the bulk of the magnitude loss.
+Cascade of work-density measures from the full tensor contraction down to the clinical pressure-strain proxy, shown for the LV-side tau-split territory on the UKB synthetic baseline. In this diagnostic split, every myocardial cell is assigned to either the LV-side or RV-side territory, so this is not the anatomical LV free wall defined in the geometry chapter and used in the later free-wall ratio tests. $\mathbf{S}:\dot{\mathbf{E}}$ is the full double contraction; $S_{ff}\,\dot E_{ff}$ is the fibre-normal component alone; $p_\text{cav}\,\dot E_{ff}$ is a model-side intermediate that substitutes cavity pressure for the fibre stress; $p_\text{cav}\,\dot\varepsilon_{ll}$ is the clinical pressure-longitudinal-strain proxy. Signed end-of-cycle plateau values: $-8.4$, $-7.4$, $-1.9$, $-1.5$ kPa. The pressure-for-stress substitution accounts for the bulk of the magnitude loss.
 ```
+
+The starting quantity is the full tensor contraction $\mathbf{S}:\dot{\mathbf{E}}$ integrated over the region. This is the complete local work density within the model: every stress component acts through every conjugate strain component, including fibre, cross-fibre, sheet, sheet-normal, and shear contributions. Nothing has been thrown away yet.
+
+The first substitution projects this contraction onto the fibre direction, keeping only $S_{ff}\,\dot E_{ff}$. The choice of the fibre direction is mechanically motivated: cardiac muscle is strongly anisotropic and the fibre direction dominates both the passive and active response in healthy tissue, so this is the natural one-dimensional projection. What is lost are the cross-fibre and sheet contributions, which are small in the free walls but non-negligible in the septum.
+
+It is worth weighing this anatomical projection against a principal-stress alternative, because in continuum-mechanics terms a valid one-direction reduction could instead project the contraction onto the largest principal stress direction at each point. The fibre direction is preferred here for two complementary reasons. First, cardiac muscle is much stiffer along the fibre than across it and the active stress acts along $\mathbf{f}_0$, so the largest principal stress direction generally stays close to the fibre direction in healthy biventricular tissue, and a fibre projection therefore retains most of the local work-density magnitude that a principal projection would {cite}`holzapfel2009constitutive`. Second, the fibre direction is anatomically fixed in the tissue, just like longitudinal strain is anatomically fixed in the imaging frame, so both sides of the cascade project onto tissue-defined axes rather than onto a moving principal axis. A principal-stress projection is a useful model-side diagnostic in its own right, but its eigenvector can move through the cycle and has no direct clinical analogue, so it would break the parallel between the model-side intermediate and the clinical longitudinal-strain proxy that the cascade is built around.
+
+The second substitution replaces fibre stress by cavity pressure while keeping the fibre strain rate, giving $p_\text{cav}\,\dot E_{ff}$. This is the pressure-for-stress substitution that motivates the rest of the chapter: a scalar cavity boundary load standing in for an internal stress component. What is lost is the stress-pressure scale difference documented earlier, on the order of a factor of four to five at baseline.
+
+The third substitution keeps cavity pressure but replaces fibre strain by longitudinal strain, giving $p_\text{cav}\,\dot\varepsilon_{ll}$. This is the clinical pressure-longitudinal-strain proxy. What is lost is alignment with the fibre direction: longitudinal strain is the long-axis projection in the anatomical frame, while cardiac fibres spiral well off that axis, so longitudinal strain rate carries only part of the fibre strain rate.
+
+The four end-of-cycle plateau values on the figure make the relative cost of each substitution explicit. Projecting the full tensor contraction onto the fibre direction loses about $1.0$ kPa of LV-side work density, the cross-fibre and sheet share. Replacing fibre stress by cavity pressure loses a further $5.5$ kPa, by far the largest single drop and consistent with the pressure-stress scale gap documented above. Replacing fibre strain by longitudinal strain then loses an additional $0.4$ kPa, a smaller correction. Most of the absolute magnitude loss therefore happens at the pressure-for-stress step; the strain-direction reduction is a finer correction; and the projection onto the fibre direction sits in between. The clinical proxy is not expected to match tensor work density by absolute scale, so the useful questions are whether it preserves regional work-density ratios and whether it ranks cases consistently across the pressure-loading sweep.
 
 The same simplification can also be viewed as a sequence of loop shapes. The full tensor contraction $\mathbf{S}:\dot{\mathbf{E}}$ has no single two-axis loop, because both stress and strain are tensors. Once the work is projected onto one direction, scalar loops can be drawn. The three loops here are fibre stress versus fibre strain, cavity pressure versus fibre strain, and cavity pressure versus longitudinal strain. Each loop has stress or pressure on the vertical axis and dimensionless strain on the horizontal axis, so the signed loop area has work-density units. {numref}`fig-cascade-loops` shows that the pressure substitution changes the loop geometry as well as the final scale.
 
@@ -180,4 +208,4 @@ The scientific question has two parts. First, in the ventricular free walls, doe
 
 The word "track" is evaluated in two complementary ways. The first is a sweep-ranking question. Across the completed pressure-loading cases, does the proxy increase and decrease with the model-resolved tensor work density along the achieved RV-pressure path? This is measured with Pearson correlation $r$. The second is a magnitude-distribution question. Within a given simulation, does the proxy preserve the regional work-density ratios between the LV free wall, RV free wall, and septum? This is measured with ratio errors. Both views are needed. A proxy can correlate well across one loading path while still giving the wrong regional work-density balance inside the heart.
 
-The expectation from the construction above is not that pressure-strain should reproduce tensor-work magnitude. It should not. The question is where the reduction remains mechanically useful. In the free walls, adjacent pressure is the natural scalar load and the one-pressure assumption is at its strongest. In the septum, pressure difference may help explain shape and force balance, but work density depends on local stress and strain in tissue loaded by both cavities. The aim of the model is to test these assumptions under controlled loading while keeping the geometry and material model fixed.
+The expectation from the construction above is not that pressure-strain should reproduce tensor-work magnitude. It should not. The question is where the reduction remains mechanically useful. In the free walls, adjacent pressure is the natural scalar load and the one-pressure assumption is at its strongest. In the septum, pressure difference may help explain shape and force balance, but work density depends on local stress and strain in tissue loaded by both cavities. The aim is to test these assumptions inside a controlled model where the geometry and material model are held fixed.
