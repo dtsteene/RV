@@ -1,3 +1,4 @@
+(chap-model)=
 # The Computational Model
 
 The previous chapter framed the model as the upper rung of a ladder of mechanical descriptions. Pressure-volume work gives whole-chamber pump work. Pressure-strain work gives a clinically measurable regional index. Laplace-type reasoning adds the first wall-stress correction by including geometry and thickness. The finite-element model is used because the RV free wall and septum require still more structure: local three-dimensional geometry, thick-wall equilibrium, fibre anisotropy, active contraction, boundary support, and two interacting ventricular cavities.
@@ -17,11 +18,12 @@ The implementation combines three open-source components. `cardiac-geometries` {
 End-to-end simulation pipeline. The geometry and fibre fields define the finite-element heart. A zero-dimensional circulation pre-run establishes a periodic hemodynamic state and a fixed mesh-to-circulation volume scaling. Prestressing constructs the unloaded reference configuration. During the main loop, the circulation sends target LV and RV volumes to the mechanics solver, active tension is prescribed, and the solver returns cavity pressures. Stress-strain quantities are recorded from the solved state.
 ```
 
-The sections below follow this pipeline. The geometry section defines the mesh and anatomical tags. The fibre section explains how the local fibre-sheet-normal frame is assigned. The mechanics section gives the finite-strain kinematics, passive Holzapfel-Ogden material law, active-stress contribution, equilibrium problem, and boundary/support conditions. The active-contraction section then focuses on the time course and spatial assignment of active tension, and the circulation section gives the standalone 0D model and the 3D--0D coupling.
+The model description follows this pipeline. {ref}`sec-geometry-anatomical-model` defines the mesh and anatomical tags. {ref}`sec-fibers` explains how the local fibre-sheet-normal frame is assigned. {ref}`sec-3d-mechanics` gives the finite-strain kinematics, passive Holzapfel-Ogden material law, active-stress contribution, equilibrium problem, and boundary/support conditions. {ref}`sec-active-contraction` then focuses on the time course and spatial assignment of active tension, and {ref}`sec-0d-circulation` gives the standalone 0D model and the 3D--0D coupling.
 
+(sec-simulation-practice)=
 ## The Simulation in Practice
 
-The simulation itself is a sequence of preparation phases followed by the coupled time loop. First, the biventricular mesh is loaded, scaled to SI units, oriented, and given anatomical tags. The fibre architecture is then assigned with the LDRB algorithm, which solves Laplace problems on the mesh to build smooth anatomical coordinates before rotating them into fibre, sheet, and sheet-normal directions.
+The simulation itself is a sequence of preparation phases followed by the coupled time loop. First, the biventricular mesh is loaded, scaled to SI units, oriented, and given anatomical tags. The fibre architecture is then assigned with the LDRB algorithm {cite}`bayer2012novel`, which solves Laplace problems on the mesh to build smooth anatomical coordinates before rotating them into fibre, sheet, and sheet-normal directions.
 
 Second, the 0D circulation is run by itself for several beats until it reaches a periodic state. This warm-up gives a consistent set of end-diastolic pressures and volumes before the expensive 3D solve begins. Because the clipped finite-element mesh and the calibrated 0D circulation do not have identical cavity volumes, a fixed volume scale is computed for each ventricle,
 
@@ -31,28 +33,25 @@ s_\text{LV} = \frac{\mathcal{V}_{\text{LV,mesh}}^\text{ED}}{\mathcal{V}_{\text{L
 s_\text{RV} = \frac{\mathcal{V}_{\text{RV,mesh}}^\text{ED}}{\mathcal{V}_{\text{RV,0D}}^\text{ED}}.
 $$
 
-Later, when the circulation requests a cavity volume $\mathcal{V}_\text{0D}^{*}(t)$, the mechanics solver receives the scaled target $s\,\mathcal{V}_\text{0D}^{*}(t)$. This preserves the fractional filling and ejection pattern from the circulation while respecting the physical size of the mesh. The details and limitations of this choice are discussed in the 0D circulation section.
+During the coupled solve, when the circulation requests a cavity volume $\mathcal{V}_\text{0D}^{*}(t)$, the mechanics solver receives the scaled target $s\,\mathcal{V}_\text{0D}^{*}(t)$. This preserves the fractional filling and ejection pattern from the circulation while respecting the physical size of the mesh. The details and limitations of this choice are discussed in {ref}`sec-3d-0d-coupling`.
 
-Third, the mesh is prestressed. The image-derived geometry represents a loaded end-diastolic heart, not an unloaded stress-free body. The backward displacement method therefore estimates a reference configuration that, when inflated to the end-diastolic pressures from the 0D warm-up, reproduces the original mesh. The coupled simulation starts from this mechanically consistent end-diastolic state.
+The mesh is then prestressed. The image-derived geometry represents a loaded end-diastolic heart, not an unloaded stress-free body. The backward displacement method estimates a reference configuration that, when inflated to the end-diastolic pressures from the 0D warm-up, reproduces the original mesh {cite}`bols2013computational,gee2010computational`. The coupled simulation starts from this mechanically consistent end-diastolic state.
 
 The main coupled loop then advances one time step at a time. The circulation proposes target LV and RV volumes, the Blanco activation waveform {cite}`blanco2010computational` sets the active tension, the finite-element solver finds the displacement field that satisfies mechanical equilibrium at those volumes, and the resulting Lagrange multipliers are returned as the LV and RV cavity pressures. Stress, strain, and work-density metrics are recorded from this solved state but do not alter the simulation.
 
-In compressed form, the pipeline is:
+In compressed form, the pipeline is
 
-```text
-mesh, tags          ← load_and_prepare_geometry()
-fibre, sheet, normal ← LDRB(mesh, tags)
-state_0D            ← circulation.run_alone(n_beats = 10)
-s_LV, s_RV          ← calV_mesh^ED / calV_0D^ED
-u_ref               ← prestress(mesh, p_0D^ED)
-u                   ← inflate_to_end_diastole(u_ref)
+$$
+\begin{aligned}
+(\text{mesh},\text{tags}) &\leftarrow \text{load and prepare geometry},\\
+(\mathbf{f}_0,\mathbf{s}_0,\mathbf{n}_0) &\leftarrow \text{LDRB}(\text{mesh},\text{tags}),\\
+\mathbf{y}_\text{0D}^{ED} &\leftarrow \text{standalone circulation warm-up},\\
+(s_\text{LV},s_\text{RV}) &\leftarrow
+(\mathcal{V}_\text{mesh}^{ED}/\mathcal{V}_\text{0D}^{ED})_{\text{LV,RV}},\\
+\mathcal{B}_0 &\leftarrow \text{prestressed reference configuration}.
+\end{aligned}
+$$
 
-for t in cycle:
-    calV_LV*, calV_RV* ← circulation.advance(state_0D, t)
-    Ta(t)           ← Blanco_activation(t)
-    u, p_LV, p_RV   ← FEM.solve(calV = s · calV*,  Ta = Ta(t))
-    state_0D        ← circulation.update(p_LV, p_RV)
-    metrics.record(u, S, E, Ta, p)
-```
+Then, at each coupled time step, the 0D model supplies target LV and RV volumes, the active-tension waveform supplies $T_a(t)$, the finite-element solve returns the displacement and cavity pressures, and those pressures are passed back to the circulation.
 
 The key feature is that the expensive mechanics solve and the circulation advance are coupled only through volumes and pressures. This makes the model interpretable: when a loading parameter is changed in the 0D circulation, the finite-element heart responds through the same mechanical problem, with the same geometry, fibres, constitutive law, active tension waveform, and boundary conditions.

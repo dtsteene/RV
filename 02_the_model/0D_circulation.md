@@ -1,3 +1,4 @@
+(sec-0d-circulation)=
 # The Zero-Dimensional Circulation Model
 
 A finite element model of the myocardium, however detailed, cannot beat realistically in isolation. Without a circulatory system, there is no way to determine what volumes the ventricles should fill to, what pressures they should develop, when the valves should open and close, or how the hemodynamic state should evolve from beat to beat. The heart is a pump embedded in a closed hydraulic loop, and its behavior is shaped at every moment by the impedance of the vessels it is pumping into and the compliance of the vessels it is pumping from.
@@ -6,15 +7,16 @@ To provide this circulatory context, we couple the three-dimensional finite elem
 
 The specific model we use is the closed-loop four-chamber formulation of Regazzoni et al. {cite}`regazzoni2022cardiac`, implemented in the `circulation` software package {cite}`circulation`. The coupling idea is older than this specific implementation. Early finite-element heart models often prescribed cavity pressure or volume histories, or connected the ventricle only to a simple afterload. Kerckhoffs et al. gave a clear early closed-loop version: the finite-element ventricles and the lumped systemic and pulmonary circulation are advanced together, and the ventricular pressures are iterated until the cavity volumes in the two models agree {cite}`kerckhoffs2007coupling`. Regazzoni et al. later wrote the same volume-consistency idea in a more explicit 3D--0D mathematical framework, including an energy balance for the coupled model {cite}`regazzoni2022cardiac`. Piersanti et al. extended that framework to biventricular electromechanics, where the LV and RV pressures enter as Lagrange multipliers enforcing the two cavity-volume constraints {cite}`piersanti2022closed`.
 
+(sec-0d-state-topology)=
 ## State Variables and Circuit Topology
 
-The model state is a vector $\mathbf{y}(t) \in \mathbb{R}^{12}$ consisting of the four chamber volumes $\mathcal{V}_\text{LA}, \mathcal{V}_\text{LV}, \mathcal{V}_\text{RA}, \mathcal{V}_\text{RV}$, the four vascular pressures $p_\text{AR,sys}, p_\text{VEN,sys}, p_\text{AR,pul}, p_\text{VEN,pul}$, and the four vascular flow rates $Q_\text{AR,sys}, Q_\text{VEN,sys}, Q_\text{AR,pul}, Q_\text{VEN,pul}$. The topology of the circuit is a closed loop: blood flows from the left atrium through the mitral valve into the left ventricle, through the aortic valve into the systemic arterial compartment, through the systemic venous compartment and the tricuspid valve into the right ventricle, through the pulmonary valve into the pulmonary arterial compartment, through the pulmonary venous compartment, and back into the left atrium. {numref}`fig-0d-network` shows the resulting closed-loop network with all four chambers, four valves, and the systemic and pulmonary Windkessel branches.
+The model state is a vector $\mathbf{y}(t) \in \mathbb{R}^{12}$ consisting of the four chamber volumes $\mathcal{V}_\text{LA}, \mathcal{V}_\text{LV}, \mathcal{V}_\text{RA}, \mathcal{V}_\text{RV}$, the four vascular pressures $p_\text{AR,sys}, p_\text{VEN,sys}, p_\text{AR,pul}, p_\text{VEN,pul}$, and the four vascular flow rates $Q_\text{AR,sys}, Q_\text{VEN,sys}, Q_\text{AR,pul}, Q_\text{VEN,pul}$. The topology of the circuit is a closed loop: blood flows from the left atrium through the mitral valve into the left ventricle, through the aortic valve into the systemic arterial compartment, through the systemic venous compartment and the tricuspid valve into the right ventricle, through the pulmonary valve into the pulmonary arterial compartment, through the pulmonary venous compartment, and back into the left atrium. {numref}`fig-0d-network` shows the resulting closed-loop network with all four chambers, four valves, and the systemic and pulmonary Windkessel models.
 
 ```{figure} ../figures/fig_2_10_0d_network.png
 :name: fig-0d-network
 :width: 90%
 
-Network diagram of the closed-loop four-chamber circulation model. The four cardiac chambers (LA, LV, RA, RV) are drawn as time-varying elastances; the four valves (mitral, aortic, tricuspid, pulmonary) as ideal diodes with finite forward and large backward resistance; and the systemic and pulmonary vasculature as RCL Windkessel branches with arterial and venous compartments. Arrows indicate the direction of forward flow during a single cardiac cycle.
+Network diagram of the closed-loop four-chamber circulation model. The four cardiac chambers (LA, LV, RA, RV) are drawn as time-varying elastances; the four valves (mitral, aortic, tricuspid, pulmonary) as ideal diodes with finite forward and large backward resistance; and the systemic and pulmonary vasculature as RCL Windkessel models with arterial and venous compartments. Arrows indicate the direction of forward flow during a single cardiac cycle.
 ```
 
 In the standalone 0D circulation model, each cardiac chamber has a time-varying elastance $\mathcal{E}(t)$ that determines how cavity pressure responds to volume. The chamber pressure is
@@ -45,7 +47,7 @@ In the coupled 3D--0D simulations, this elastance law is not used as the mechani
 :name: fig-elastance
 :width: 80%
 
-Time-varying elastance $\mathcal{E}(t) = \mathcal{E}_B + (\mathcal{E}_A - \mathcal{E}_B) f(t)$ for the LV and RV chambers at the healthy calibration over two cardiac cycles. The dotted horizontal lines mark the passive end-diastolic baselines $\mathcal{E}_B$. The LV systolic elastance peak is roughly six times the RV value, reflecting the difference in systemic versus pulmonary afterload. The Klotz nonlinear modification described in the calibration chapter modifies the passive component without changing the active part of this curve.
+Time-varying elastance $\mathcal{E}(t) = \mathcal{E}_B + (\mathcal{E}_A - \mathcal{E}_B) f(t)$ for the LV and RV chambers at the healthy calibration over two cardiac cycles. The dotted horizontal lines mark the passive end-diastolic baselines $\mathcal{E}_B$. The LV systolic elastance peak is roughly six times the RV value, reflecting the difference in systemic versus pulmonary afterload.
 ```
 
 The four cardiac valves are modeled as ideal diodes with finite forward resistance $R_\text{min}$ and a large backward resistance $R_\text{max}$. The flow through a valve between upstream pressure $p_\text{up}$ and downstream pressure $p_\text{down}$ is
@@ -54,8 +56,27 @@ $$
 Q_\text{valve} = \frac{p_\text{up} - p_\text{down}}{R(p_\text{up}, p_\text{down})}, \qquad R = \begin{cases} R_\text{min} & p_\text{up} > p_\text{down}, \\ R_\text{max} & \text{otherwise}. \end{cases}
 $$
 
-The systemic and pulmonary vascular beds are each represented by two compartments — arterial and venous — connected by resistive and inductive elements. Each arterial compartment has a scalar compliance $C_\text{AR}$, a resistance $R_\text{AR}$, and an inductance $L_\text{AR}$ that captures the inertia of blood in the large vessels; the venous compartment is analogous with parameters $C_\text{VEN}$, $R_\text{VEN}$, and $L_\text{VEN}$. Here $C$ denotes vascular compliance, not the right Cauchy-Green tensor $\mathbf{C}$ used in the mechanics chapter.
+The systemic and pulmonary Windkessel models are each represented by two compartments — arterial and venous — connected by resistive and inductive elements. Each arterial compartment has a scalar compliance $C_\text{AR}$, a resistance $R_\text{AR}$, and an inductance $L_\text{AR}$ that captures the inertia of blood in the large vessels; the venous compartment is analogous with parameters $C_\text{VEN}$, $R_\text{VEN}$, and $L_\text{VEN}$. Here $C$ denotes vascular compliance, not the right Cauchy-Green tensor $\mathbf{C}$ used in {ref}`sec-kinematics`.
 
+```{table} Main variables and parameters in the closed-loop 0D circulation model.
+:name: tab-0d-symbols
+:align: left
+
+| Symbol | Meaning |
+|---|---|
+| $\mathcal{V}_\text{LA},\mathcal{V}_\text{LV},\mathcal{V}_\text{RA},\mathcal{V}_\text{RV}$ | Chamber volumes |
+| $p_\text{LA},p_\text{LV},p_\text{RA},p_\text{RV}$ | Chamber pressures |
+| $p_\text{AR},p_\text{VEN}$ | Arterial and venous compartment pressures, with systemic and pulmonary subscripts |
+| $Q_\text{MV},Q_\text{AV},Q_\text{TV},Q_\text{PV}$ | Mitral, aortic, tricuspid, and pulmonary valve flows |
+| $Q_\text{AR},Q_\text{VEN}$ | Arterial and venous Windkessel flows |
+| $\mathcal{E}_A,\mathcal{E}_B,\mathcal{V}_0$ | Active elastance, passive elastance, and unstressed chamber volume |
+| $R_\text{min},R_\text{max}$ | Forward and backward valve resistances |
+| $C_\text{AR},C_\text{VEN}$ | Arterial and venous compliances |
+| $R_\text{AR},R_\text{VEN}$ | Arterial and venous vascular resistances |
+| $L_\text{AR},L_\text{VEN}$ | Arterial and venous inertances |
+```
+
+(sec-0d-ode-system)=
 ## The ODE System
 
 Conservation of volume in the four chambers gives
@@ -91,8 +112,9 @@ $$
 \end{aligned}
 $$
 
-This is a system of twelve coupled ODEs — four volume equations, four pressure equations, and four flow equations — with the algebraic valve flow relations and the time-varying elastance functions embedded in the right-hand side. The system is stiff because the valve resistances switch between $R_\text{min}$ and $R_\text{max}$ (a ratio of order $10^7$), producing rapid transitions in the flow signals at valve opening and closing events. The system is integrated forward in time using a stiff ODE solver with an analytically provided Jacobian, which substantially improves the convergence of the implicit time-stepping scheme.
+This is a system of twelve coupled ODEs — four volume equations, four pressure equations, and four flow equations — with the algebraic valve flow relations and the time-varying elastance functions embedded in the right-hand side. The large ratio between $R_\text{min}$ and $R_\text{max}$ produces rapid transitions in the flow signals at valve opening and closure. In the standalone calibration stage, the circulation model is advanced until the last-beat pressure-volume loops are periodic to the tolerance used by the optimizer.
 
+(sec-3d-0d-coupling)=
 ## Coupling the 3D and 0D Models
 
 The link between the finite element model and the circulation model is an exchange of cavity volume and cavity pressure at each time step. The circulation model advances the closed-loop state and provides target LV and RV cavity volumes. The finite element solver then deforms the myocardium to match those volumes while satisfying mechanical equilibrium, and returns the cavity pressures required to enforce the two volume constraints. These pressures are fed back to the circulation model, where they affect valve states, arterial pressures, and flow rates on the next step.
@@ -105,20 +127,21 @@ $$
 
 Here $\mathcal{V}_\text{mesh,ED}$ is the end-diastolic cavity volume measured directly from the image-derived finite-element mesh, and $\mathcal{V}_\text{0D,ED}$ is the end-diastolic volume of the same cavity at steady state in the 0D simulation. The ratio of these two quantities is computed once at the beginning of the simulation and held fixed throughout. When the 0D calibration is close to the mesh volume this correction is small; when it is not, the 0D model still supplies the timing and relative volume change while the FEM model deforms within its own geometric scale. The pressure that emerges from the FEM solution reflects the actual stiffness of the discretized myocardium, so the pressure-volume relationship is not imposed but computed.
 
-This coupling scheme is implemented as a callback function that the 0D solver invokes at each time step. The callback receives the target volume, calls the finite element solver to compute the equilibrium displacement for that volume, extracts the resulting cavity pressure from the Lagrange multiplier associated with the cavity-volume constraint, and returns this pressure to the 0D solver. If the nonlinear mechanics solve becomes difficult at a given time step, the requested volume and activation update is subdivided into smaller substeps. This adds robustness during rapid volume changes without changing the mathematical coupling: the circulation still provides target volumes, and the mechanics solve still returns the pressures required to realize them. The structure of the callback can be summarised in a few lines:
+At a coupled time step, the circulation provides target volumes $\mathcal{V}^*_{\text{0D},\text{LV}}$ and $\mathcal{V}^*_{\text{0D},\text{RV}}$. These are mapped to finite-element target volumes
 
-```text
-def coupling_callback(t, calV_LV*, calV_RV*):
-    Ta(t)         ← blanco_waveform(t, peak = 100 kPa)
-    u             ← FEM.solve(calV_LV = ratio_LV · calV_LV*,
-                              calV_RV = ratio_RV · calV_RV*,
-                              Ta   = Ta(t))         # Newton + adaptive substep
-    p_LV          ← lagrange_multiplier(u, Γ_LV)
-    p_RV          ← lagrange_multiplier(u, Γ_RV)
-    return p_LV, p_RV
-```
+$$
+\mathcal{V}^*_{\text{FEM},c}(t)=s_c\,\mathcal{V}^*_{\text{0D},c}(t),
+\qquad c\in\{\text{LV},\text{RV}\},
+$$
 
-Volumes flow into the FEM solver, pressures flow back out, and the active tension that drives the contraction is updated as a function of the global cycle time before each solve. {numref}`fig-coupling-schematic` summarises the same bidirectional handshake graphically.
+where $s_c=\mathcal{V}_{\text{mesh,ED},c}/\mathcal{V}_{\text{0D,ED},c}$. The mechanics solver then solves the equilibrium problem in {ref}`sec-equilibrium-problem` with the current active tension $T_a(t)$ and the two cavity-volume constraints
+
+$$
+\mathcal{V}_{c}(\mathbf{u})=\mathcal{V}^*_{\text{FEM},c}(t),
+\qquad c\in\{\text{LV},\text{RV}\}.
+$$
+
+The associated Lagrange multipliers are returned as $p_\text{LV}$ and $p_\text{RV}$. If the nonlinear mechanics solve becomes difficult at a given time step, the requested volume and activation update is subdivided into smaller substeps. This adds robustness during rapid volume changes without changing the coupling definition: volumes are prescribed by the circulation, and pressures are returned by the finite-element equilibrium solve. {numref}`fig-coupling-schematic` summarises the same bidirectional exchange graphically.
 
 ```{figure} ../figures/fig_2_11_coupling_schematic.png
 :name: fig-coupling-schematic
@@ -127,8 +150,9 @@ Volumes flow into the FEM solver, pressures flow back out, and the active tensio
 Bidirectional 3D--0D coupling. At each time step the 0D solver advances the circulation state and emits target cavity volumes $\mathcal{V}_\text{LV}^{*}, \mathcal{V}_\text{RV}^{*}$; these are scaled by the fixed mesh-to-0D volume ratio and passed to the FEM solver, which finds the displacement field that satisfies mechanical equilibrium at the prescribed volumes; the resulting cavity Lagrange multipliers $p_\text{LV}, p_\text{RV}$ are returned to the 0D solver to advance the next step. Volumes flow one way, pressures flow the other; the volume scaling ratio is computed once at simulation start and held fixed.
 ```
 
+(sec-solver-pressure)=
 ### Solver Pressure Used for Work
 
 The pressure used for mechanical work calculations must be the pressure from the mechanics solve. The scalar elastance relation in the 0D model can provide a chamber pressure for the standalone circulation, but in the coupled 3D--0D run the mechanically consistent cavity pressure is the Lagrange multiplier that enforces the FEM cavity-volume constraint. This multiplier is the endocardial traction required to achieve the target volume with the current geometry, fibre field, constitutive law, boundary conditions, and active tension.
 
-This distinction matters in postprocessing. A circulation pressure history and a solver-pressure history can both exist on disk, but they do not play the same role. The circulation history is useful for hemodynamic context. Boundary work, energy closure, and the pressure-strain proxies in the results chapter use the solver Lagrange-multiplier pressure, because it is synchronized with the saved deformation states and is the pressure actually associated with the finite-element equilibrium problem.
+This distinction matters in postprocessing. A circulation pressure history and a solver-pressure history can both exist on disk, but they do not play the same role. The circulation history is useful for hemodynamic context. Boundary work, energy closure, and the pressure-strain proxies in {ref}`chap-results` use the solver Lagrange-multiplier pressure, because it is synchronized with the saved deformation states and is the pressure actually associated with the finite-element equilibrium problem.

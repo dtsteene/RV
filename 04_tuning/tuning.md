@@ -1,10 +1,11 @@
+(chap-calibration)=
 # Calibrating the Circulation Model
 
 ## Purpose of the Calibration
 
 The calibration in this chapter tunes the 0D Regazzoni circulation and chamber parameters. It does **not** tune the 3D finite-element mechanics. Across the pressure sweep, the biventricular mesh geometry, passive material law, fibre architecture, basal support condition, cavity-volume coupling formulation, and 3D active tension are held fixed. What changes is the effective 0D circulation required to generate pressure-volume histories that are compatible with the fixed mesh.
 
-The sweep is therefore a controlled mechanical loading experiment, not a simulated PAH disease trajectory. The nominal case labels identify pressure-loading scenarios. They should not be read as clinical severity classes, because contemporary PAH risk models are not organized by systolic pulmonary pressure alone {cite}`humbert2022esc,benza2010reveal`. The achieved pressures and volumes from the coupled simulations, not the nominal labels, are the quantities used in the results chapter.
+The sweep is therefore a controlled mechanical loading experiment, not a simulated PAH disease trajectory. The nominal case labels identify pressure-loading scenarios. They should not be read as clinical severity classes, because contemporary PAH risk models are not organized by systolic pulmonary pressure alone {cite}`humbert2022esc,benza2010reveal`. The achieved pressures and volumes from the coupled simulations, not the nominal labels, are the quantities used in {ref}`chap-results`.
 
 The inverse problem is still coupled. Raising pulmonary resistance lifts RV pressure, but it also changes stroke volume, venous return, filling pressures, atrial pressures, and the next beat's operating point. Because the model distributes a fixed total blood volume across compliant compartments, there is no simple "set LV preload" knob; the target state has to emerge from the closed-loop circulation.
 
@@ -94,7 +95,7 @@ The final search used CMA-ES through Optuna {cite}`akiba2019optuna,hansen2001com
 
 ## Calibration Achievements and Limits
 
-The corrected coupled runs used in the results chapter achieved the main feature the sweep was designed to isolate: RV pressure rises while LV pressure remains comparatively stable. Across the last beat of the 16 simulated cases, peak LV pressure stayed in the range 102 to 111 mmHg, while peak RV pressure rose from about 31 to 88 mmHg. The lowest case sits above the ideal Kovacs-normal systolic pulmonary pressure target, and the highest cases do not reach the full nominal 95 mmHg target in the coupled mechanics run. The important point for the proxy analysis is the achieved pressure path, and that path is used directly in all results computations.
+The corrected coupled runs used in {ref}`chap-results` achieved the main feature the sweep was designed to isolate: RV pressure rises while LV pressure remains comparatively stable. Across the last beat of the 16 simulated cases, peak LV pressure stayed in the range 102 to 111 mmHg, while peak RV pressure rose from about 31 to 88 mmHg. The lowest case sits above the ideal Kovacs-normal systolic pulmonary pressure target, and the highest cases do not reach the full nominal 95 mmHg target in the coupled mechanics run. The important point for the proxy analysis is the achieved pressure path, and that path is used directly in all results computations.
 
 The clearest summary of this calibration is the pressure-volume loop family in {numref}`fig-pv-loops-spectrum`. The figure shows why the sweep is useful for the thesis even though it is not a patient trajectory: the same biventricular geometry is driven through a controlled range of RV pressure loading, while the LV side remains comparatively preserved. This is the hemodynamic stage on which the pressure-strain proxy is tested.
 
