@@ -1,11 +1,13 @@
 (sec-3d-mechanics)=
-# Three-Dimensional Continuum Mechanics
+# Finite-Strain Mechanics of the Ventricular Wall
+
+The work definitions in {ref}`sec-work-definitions` use the stress-strain power $\mathbf{S}:\dot{\mathbf{E}}$ as a reference quantity. This section gives the ventricular-wall mechanics that produce those stress and strain fields. It is the full model behind the compact notation introduced earlier: finite deformation, passive material response, active fibre tension, equilibrium, cavity-volume constraints, boundary support, and the finite-element discretization.
 
 When the heart beats, its walls undergo a complex sequence of mechanical events. During systole, the muscle fibres shorten by 15–25%, the wall thickens transmurally, and the entire ventricle twists around its long axis — a wringing motion that squeezes blood out of the cavity. During diastole, the process reverses: the muscle relaxes, the wall thins, and blood flows back in. At every instant, the tissue is being stretched, compressed, and sheared in different directions simultaneously, and the forces that arise internally — the stresses — depend on how much the tissue has deformed, in which direction, and what material it is made of.
 
 To predict these forces and deformations quantitatively, we need a mathematical framework that can describe how a solid body changes shape under applied loads. For small deformations — a steel beam bending by a fraction of a percent — the linearized theory of elasticity is sufficient. The heart wall, however, deforms by tens of percent, far beyond the regime where linear approximations are valid. The appropriate framework is finite hyperelasticity, which allows for large deformations and defines stress through the derivative of an objective stored-energy function {cite}`holzapfel2000nonlinear`.
 
-In the hierarchy introduced in {ref}`chap-introduction`, this section is the step beyond Laplace-type wall-stress estimates. Laplace reasoning is useful because it shows that pressure, curvature, and thickness set a wall-stress scale. It is not enough for the present question because myocardial work depends on a local tensor stress and a local tensor strain, not on one membrane-stress number. The formulation below describes how those tensor fields are computed in the finite-element model.
+In the hierarchy introduced in {ref}`chap-introduction`, this is the step beyond Laplace-type wall-stress estimates. Laplace reasoning is useful because it shows that pressure, curvature, and thickness set a wall-stress scale. It is not enough for the present question because myocardial work depends on a local tensor stress and a local tensor strain, not on one membrane-stress number. The formulation below describes how those tensor fields are computed in the finite-element model.
 
 (sec-kinematics)=
 ## Kinematics
@@ -31,13 +33,6 @@ $$
 $$
 
 is a measure of how far the current deformation is from the undeformed state. It vanishes when the body undergoes pure rigid motion and is positive when material elements are stretched. The factor of $\frac{1}{2}$ is a convention that makes $\mathbf{E}$ reduce to the small-strain measure $\varepsilon = \Delta L / L$ in the limit of infinitesimal deformations. Both $\mathbf{C}$ and $\mathbf{E}$ are defined relative to the reference configuration, making them natural objects for a material-frame description of deformation.
-
-```{figure} ../figures/fig_intro_reference_current_configuration.png
-:name: fig-reference-current-configuration
-:width: 85%
-
-Reference and current descriptions of the same deformation. Cauchy stress power, $\boldsymbol{\sigma}:\mathbf{d}$, is written on the deformed body, while $\mathbf{S}:\dot{\mathbf{E}}$ is the same mechanical power pulled back to the fixed reference mesh used by the finite-element model.
-```
 
 (sec-stress-energy)=
 ## Stress, Energy, and Thermodynamic Consistency
@@ -228,12 +223,13 @@ where $\mathbf{P} = \mathbf{F}\mathbf{S}$ is the first Piola-Kirchhoff stress te
 The displacement solution is sought in a kinematic space $\mathscr{V}$ of $H^1$ vector fields satisfying the basal displacement constraint. Test functions lie in the corresponding homogeneous space $\mathscr{V}_0$, so $\delta\mathbf{u}\in\mathscr{V}_0$ satisfies the same zero Dirichlet condition at the base. Multiplying the strong form by $\delta\mathbf{u}$ and integrating by parts yields a nonlinear weak form. If the cavity pressures are written as scalar pressure variables $p_\text{LV}$ and $p_\text{RV}$, the mechanical residual has the schematic form
 
 $$
+\begin{aligned}
 G(\mathbf{u},p_\text{LV},p_\text{RV}; \delta\mathbf{u})
-= \int_{\mathcal{B}_0} \mathbf{S}(\mathbf{u}) : \delta\mathbf{E}(\mathbf{u}; \delta\mathbf{u}) \, dV_0
-- p_\text{LV}\,\delta \mathcal{V}_\text{LV}(\mathbf{u};\delta\mathbf{u})
+&= \int_{\mathcal{B}_0} \mathbf{S}(\mathbf{u}) : \delta\mathbf{E}(\mathbf{u}; \delta\mathbf{u}) \, dV_0 \\
+&\quad - p_\text{LV}\,\delta \mathcal{V}_\text{LV}(\mathbf{u};\delta\mathbf{u})
 - p_\text{RV}\,\delta \mathcal{V}_\text{RV}(\mathbf{u};\delta\mathbf{u})
-+ G_\text{Robin}(\mathbf{u};\delta\mathbf{u})
-=0.
++ G_\text{Robin}(\mathbf{u};\delta\mathbf{u}) = 0.
+\end{aligned}
 $$
 
 Here $\delta\mathbf{E} = \frac{1}{2}(\mathbf{F}^\top \nabla\delta\mathbf{u} + \nabla\delta\mathbf{u}^\top \mathbf{F})$ is the variation of the Green-Lagrange strain, and $\delta \mathcal{V}_\text{LV}$ and $\delta \mathcal{V}_\text{RV}$ are the variations of the nonlinear cavity-volume functionals. In the coupled 3D--0D solve, $p_\text{LV}$ and $p_\text{RV}$ are not prescribed pressure histories. They are Lagrange multipliers enforcing the target LV and RV cavity volumes requested by the 0D circulation model. The equivalent pressure tractions act normal to the deformed endocardial surface.

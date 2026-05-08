@@ -77,20 +77,22 @@ This matters most for the RV. With uniform passive material parameters, the infe
 
 The pattern is clear. Regional RV and septal stiffening makes the low-pressure case much more plausible and improves the intermediate case substantially. It does not fully rescue the severe case: even at RV scale 16 and septum scale 8, the sPAP95 RV unloaded cavity remains only 48.6% of the end-diastolic target volume. The conclusion is therefore not that the stiffened run is the correct model. The conclusion is that the severe fixed-geometry production sweep is reference-state sensitive, and that uniform passive material properties likely exaggerate the deformation needed to inflate the RV from its unloaded state to end diastole.
 
-The exploratory patient meshes give a second, independent direction check. The PAH mesh is not merely the healthy mesh under a different pressure load. It has smaller cavities and more wall volume: RV EDV is 74.2 mL rather than 94.4 mL, while total wall volume is 165.7 mL rather than 129.1 mL. In the selected same-label comparisons, the thicker PAH geometry tended to carry lower RV work density than the healthy geometry at similar or even higher RV systolic pressure.
+The exploratory patient meshes give a second, independent direction check. The PAH mesh is not merely the healthy mesh under a different pressure load. It has smaller cavities and more wall volume: RV EDV is 74.2 mL rather than 94.4 mL, while total wall volume is 165.7 mL rather than 129.1 mL. In the selected same-label comparisons, the thicker PAH geometry tended to carry lower RV and septal tensor work density than the healthy geometry at similar or even higher RV systolic pressure. The pressure-strain proxy did not always attenuate with the tensor work density, especially in the RV free wall.
 
-```{table} Exploratory same-label healthy/PAH geometry comparisons. Work density is the finite-element RV free-wall stress-strain work density.
+```{table} Exploratory same-label healthy/PAH geometry comparisons. Work densities are reported as healthy/PAH pairs. Finite-element values use stress-strain tensor work density. Proxy values use tangent-longitudinal pressure-strain density; the RV proxy uses adjacent RV pressure, and the septal proxy uses mean LV/RV pressure.
 :name: tab-app-patient-geometry-direction
 :align: left
 
-| Case | RVSP healthy/PAH (mmHg) | RV work density healthy/PAH (kPa) | LV/RV FE work ratio healthy/PAH |
-|---|---:|---:|---:|
-| sPAP22 | 31.7 / 31.7 | 3.69 / 1.51 | 1.73 / 3.39 |
-| sPAP55 | 57.6 / 57.8 | 5.77 / 3.19 | 1.14 / 1.82 |
-| sPAP65 | 61.5 / 72.8 | 4.75 / 4.08 | 1.28 / 1.48 |
+| Case | RVSP (mmHg) | RV FE (kPa) | RV proxy (kPa) | Septum FE (kPa) | Septum proxy (kPa) |
+|---|---:|---:|---:|---:|---:|
+| sPAP22 | 31.7 / 31.7 | 3.69 / 1.51 | 0.35 / 0.30 | 6.54 / 2.90 | 0.71 / 0.46 |
+| sPAP30 | 40.5 / 34.9 | 5.05 / 1.78 | 0.48 / 0.34 | 7.01 / 3.00 | 0.83 / 0.52 |
+| sPAP45 | 41.7 / 49.8 | 4.90 / 3.02 | 0.46 / 0.56 | 6.55 / 3.72 | 0.78 / 0.72 |
+| sPAP55 | 57.6 / 57.8 | 5.77 / 3.19 | 0.55 / 0.63 | 5.20 / 3.48 | 0.75 / 0.66 |
+| sPAP65 | 61.5 / 72.8 | 4.75 / 4.08 | 0.54 / 0.79 | 5.08 / 3.73 | 0.74 / 0.74 |
 ```
 
-These patient-geometry runs are deliberately not promoted to main results. The healthy high-pressure sequence did not fully complete, the selected cases used end-diastolic region tagging, and the comparison changes anatomy, loading, and numerical robustness together. Their purpose here is narrower: they show that the fixed UKB pressure sweep should not be read as a patient-specific PAH remodelling model. In a thicker/remodelled geometry, RV work density can be lower at comparable RV pressure, so the severe fixed-geometry RV and RV-side septal magnitudes in the main sweep are best read as likely upward-biased absolute values.
+These patient-geometry runs are deliberately not promoted to main results. The healthy high-pressure sequence did not fully complete, the selected cases used end-diastolic region tagging, and the comparison changes anatomy, loading, and numerical robustness together. Their purpose here is narrower: they show that the fixed UKB pressure sweep should not be read as a patient-specific PAH remodelling model. In a thicker/remodelled geometry, RV and septal tensor work density can be lower at comparable RV pressure, while the pressure-strain proxy may attenuate less or even increase because it does not explicitly include wall volume, curvature, passive remodelling, or reference-state changes. The severe fixed-geometry RV and RV-side septal magnitudes in the main sweep are therefore best read as likely upward-biased absolute values, and the geometry-dependent relationship between clinical-style proxy work and tensor work should be treated as a high-priority future-work question.
 
 This caveat does not invalidate the main pressure-proxy comparisons. The free-wall adjacent-pressure result, the septal distinction between ranking and magnitude preservation, and the failure of transmural pressure as a septum/free-wall magnitude proxy are all comparisons made within the same fixed-geometry simulations. The sensitivity check changes the interpretation of absolute severe-case work-density magnitudes, not the central conclusion that the septum is a shared-wall pressure-assignment problem.
 

@@ -6,7 +6,7 @@ This chapter defines the two work quantities compared in the thesis: the regiona
 (sec-mechanics-notation)=
 ## Mechanics Notation
 
-The mechanics are written in a reference-configuration frame. A material point with reference position $\mathbf{X}\in\mathcal{B}_0$ moves to the current position
+Before defining work, the configurations and symbols need to be fixed. The finite-element mechanics are written in a reference-configuration frame. The reference configuration $\mathcal{B}_0$ is the fixed material body used to label points in the mesh; the current configuration $\mathcal{B}_t$ is the deformed body at time $t$. A material point with reference position $\mathbf{X}\in\mathcal{B}_0$ moves to the current position
 
 $$
 \mathbf{x}=\boldsymbol{\varphi}(\mathbf{X},t)
@@ -28,7 +28,14 @@ $$
 \mathbf{E}=\frac{1}{2}(\mathbf{C}-\mathbf{I}).
 $$
 
-A dot denotes a material time derivative at fixed $\mathbf{X}$, so $\dot{\mathbf{E}}$ is the rate of Green-Lagrange strain. The stress paired with $\mathbf{E}$ in this reference-frame work expression is the second Piola-Kirchhoff stress $\mathbf{S}$. The product $\mathbf{S}:\dot{\mathbf{E}}$ has units of power per reference volume, Pa/s or J m$^{-3}$ s$^{-1}$. After integration in time it has units J m$^{-3}$, equivalent to Pa. The detailed finite-strain mechanics and constitutive law are given in {ref}`sec-3d-mechanics`.
+```{figure} ../figures/fig_intro_reference_current_configuration.png
+:name: fig-reference-current-configuration
+:width: 85%
+
+Reference and current descriptions of the same deformation. Material points are labelled by their reference coordinates $\mathbf{X}$ on the fixed mesh and move to current coordinates $\mathbf{x}$ as the wall deforms. The work calculation is written on the fixed reference mesh, so the same material region can be integrated throughout the cardiac cycle.
+```
+
+A dot denotes a material time derivative at fixed $\mathbf{X}$, so $\dot{\mathbf{E}}$ is the rate of Green-Lagrange strain. The stress paired with $\mathbf{E}$ in this reference-frame work expression is the second Piola-Kirchhoff stress $\mathbf{S}$. This pair is used because both fields live on the reference configuration and their contraction gives stress power on the fixed mesh. The product $\mathbf{S}:\dot{\mathbf{E}}$ has units of power per reference volume, Pa/s or J m$^{-3}$ s$^{-1}$. After integration in time it has units J m$^{-3}$, equivalent to Pa. The detailed finite-strain mechanics and constitutive law are given in {ref}`sec-3d-mechanics`.
 
 (sec-work-definitions)=
 ## Local Work and the Pressure-Strain Proxy
