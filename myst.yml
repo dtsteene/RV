@@ -37,6 +37,7 @@ project:
     - file: 07_conclusion/conclusion.md
     - file: 08_appendix/circulation_calibration.md
     - file: 08_appendix/numerical_robustness.md
+    - file: 08_appendix/energy_identity_derivation.md
 
 site:
   template: book-theme

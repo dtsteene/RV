@@ -1,7 +1,7 @@
 (sec-fibers)=
 # Myocardial Fibre Architecture
 
-The myocardium is direction-dependent, so the spatial arrangement of fibres is one of the most important inputs to the simulation. The fibre direction is the direction along which the passive material is stiffest. In the active-stress model it is also the direction along which active tension is applied during contraction. In the real heart, muscle fibres wrap around the ventricular walls in a helical pattern: near the endocardium (the inner cavity-facing surface), fibres run in a right-handed helix when viewed from the apex, while near the epicardium (the outer surface) they run in a left-handed helix, with a continuous rotation of the helix angle across the wall thickness {cite}`streeter1969fiber,bayer2012novel`. This arrangement is mechanically important because fibre shortening produces wall thickening, torsion, and ejection rather than pure one-dimensional shortening {cite}`pluijmert2017determinants`.
+The myocardium is direction-dependent, so the spatial arrangement of fibres is one of the simulation's primary inputs. The fibre direction is the direction along which the passive material is stiffest. In the active-stress model it is also the direction along which active tension is applied during contraction. In the real heart, muscle fibres wrap around the ventricular walls in a helical pattern: near the endocardium (the inner cavity-facing surface), fibres run in a right-handed helix when viewed from the apex, while near the epicardium (the outer surface) they run in a left-handed helix, with a continuous rotation of the helix angle across the wall thickness {cite}`streeter1969fiber,bayer2012novel`. This arrangement is mechanically important because fibre shortening produces wall thickening, torsion, and ejection rather than pure one-dimensional shortening {cite}`pluijmert2017determinants`.
 
 Assigning realistic fibre orientations to an idealized mesh, without per-patient imaging of the fibre structure, needs a method that adapts to the geometry. The Laplace-Dirichlet Rule-Based (LDRB) algorithm of Bayer et al. {cite}`bayer2012novel` does this by solving a small number of simple boundary-value problems on the mesh and reading directions off their gradients.
 
@@ -11,7 +11,7 @@ $$\nabla^2 \phi = 0 \text{ on } \Omega, \quad \phi = 0 \text{ on } \Gamma_0, \qu
 
 Such solutions are *harmonic*: at every interior point, $\phi$ equals the average of values in any small neighbourhood. This gives a smooth transition from $0$ to $1$ between the two boundary patches $\Gamma_0$ and $\Gamma_1$, conforming to the geometry of the wall even on irregular shapes. Its gradient $\nabla\phi$ points perpendicular to the level sets of $\phi$, from $\Gamma_0$ toward $\Gamma_1$ at every interior point, giving a direction "from the 0-boundary to the 1-boundary". Which direction it encodes depends on where the 0 and 1 boundary patches are placed.
 
-For the LDRB construction we need three direction fields: an apico-basal direction from apex to base, a transmural direction from endocardium to epicardium, and a circumferential direction perpendicular to both. The first two come from Laplace solutions: one with $\phi=0$ at the apex and $\phi=1$ at the base, and one with $\phi=0$ on the endocardia and $\phi=1$ on the epicardium. The circumferential direction follows as their cross product. The two Laplace solutions are shown in {numref}`fig-apex-laplace` and {numref}`fig-transmural-laplace`.
+For the LDRB construction we need three direction fields: an apico-basal direction from apex to base, a transmural direction from endocardium to epicardium, and a circumferential direction perpendicular to both. The first two come from Laplace solutions: one with $\phi=0$ at the apex and $\phi=1$ at the base, and one with $\phi=0$ on the endocardia and $\phi=1$ on the epicardium. The third — the circumferential direction — is built from these two and is defined formally below. The two Laplace solutions are shown in {numref}`fig-apex-laplace` and {numref}`fig-transmural-laplace`.
 
 ```{figure} ../figures/fig_2_4_apex_laplace.png
 :name: fig-apex-laplace
@@ -46,7 +46,7 @@ The right ventricular free wall has a different architecture. Because the RV wal
 LV/RV cell partition used to apply distinct helix-angle conventions. Each cell is classified by the sign of $\phi_\text{lv}-\phi_\text{rv}$, with cells closer to the LV endocardial surface coloured blue and cells closer to the RV endocardial surface coloured red. The transition through the septum is visible as the smooth colour gradient running from blue to red along the central wall.
 ```
 
-With the four Laplace solutions in hand, the third direction we still need — the circumferential one — falls out of the first two by a cross product:
+The circumferential direction is the cross product of the apico-basal and transmural gradients:
 $$
 \mathbf{e}_\text{circ} \;=\; \frac{\nabla\phi_\text{ab}\times\nabla\phi_\text{epi}}{\lVert\nabla\phi_\text{ab}\times\nabla\phi_\text{epi}\rVert}.
 $$

@@ -1,5 +1,5 @@
 (sec-software-stack)=
-# Software Used By The Model
+# The Software Stack
 
 The conceptual model above is implemented in the FEniCSx ecosystem {cite}`baratta2023dolfinx`. DOLFINx provides the parallel finite-element mesh, function-space, assembly, and solver infrastructure, while UFL represents the weak forms and constitutive expressions in symbolic Python notation before they are compiled by FFCx. This matters because the strain energy, stress, residual, and tangent can be written close to the mathematical form used in the previous sections.
 

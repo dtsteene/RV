@@ -61,14 +61,6 @@ def main() -> None:
 
     ax.text(2.0, 0.70, r"work density: $\mathbf{S}:\dot{\mathbf{E}}$", ha="center", va="center", fontsize=10)
     ax.text(8.0, 0.70, r"work density: $\boldsymbol{\sigma}:\mathbf{d}$", ha="center", va="center", fontsize=10)
-    ax.text(
-        5.0,
-        0.25,
-        r"same stress power: $\boldsymbol{\sigma}:\mathbf{d}\,dv = \mathbf{S}:\dot{\mathbf{E}}\,dV$",
-        ha="center",
-        va="center",
-        fontsize=10,
-    )
 
     save(fig, FIGURES / "fig_intro_reference_current_configuration")
 

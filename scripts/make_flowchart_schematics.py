@@ -150,10 +150,10 @@ def make_0d_network() -> None:
     rv = (0.42, 0.25)
     pul = (0.10, 0.25)
 
-    card(ax, la, (chamber_w, chamber_h), "LA", "time-varying\nelastance", BLUE)
-    card(ax, lv, (chamber_w, chamber_h), "LV", "time-varying\nelastance", BLUE)
-    card(ax, ra, (chamber_w, chamber_h), "RA", "time-varying\nelastance", BLUE)
-    card(ax, rv, (chamber_w, chamber_h), "RV", "time-varying\nelastance", BLUE)
+    card(ax, la, (chamber_w, chamber_h), "LA", "", BLUE, title_size=11.5)
+    card(ax, lv, (chamber_w, chamber_h), "LV", "", BLUE, title_size=11.5)
+    card(ax, ra, (chamber_w, chamber_h), "RA", "", BLUE, title_size=11.5)
+    card(ax, rv, (chamber_w, chamber_h), "RV", "", BLUE, title_size=11.5)
 
     card(
         ax,
@@ -177,18 +177,16 @@ def make_0d_network() -> None:
     )
 
     # Forward-flow path around the closed loop.
-    arrow(ax, (0.25, 0.75), (0.38, 0.75), label="MV", label_offset=(0.0, 0.037), color="#1f77b4")
+    arrow(ax, (0.25, 0.75), (0.38, 0.75), color="#1f77b4")
     valve(ax, (0.315, 0.75), "MV")
-    arrow(ax, (0.53, 0.75), (0.67, 0.70), label="AV", label_offset=(0.005, 0.040), color="#1f77b4")
+    arrow(ax, (0.53, 0.75), (0.67, 0.70), color="#1f77b4")
     valve(ax, (0.600, 0.725), "AV")
     arrow(ax, (0.79, 0.61), (0.79, 0.37), label="systemic\nreturn", label_offset=(0.075, 0.0), color="#2e7d32", label_size=7.3)
-    arrow(ax, (0.72, 0.31), (0.57, 0.31), label="TV", label_offset=(0.0, -0.040), color="#c0392b")
+    arrow(ax, (0.72, 0.31), (0.57, 0.31), color="#c0392b")
     valve(ax, (0.645, 0.31), "TV")
-    arrow(ax, (0.42, 0.31), (0.34, 0.31), label="PV", label_offset=(0.0, -0.040), color="#c0392b")
+    arrow(ax, (0.42, 0.31), (0.34, 0.31), color="#c0392b")
     valve(ax, (0.380, 0.31), "PV")
     arrow(ax, (0.22, 0.42), (0.18, 0.69), label="pulmonary\nreturn", label_offset=(-0.090, 0.0), color="#8a6d00", label_size=7.3)
-
-    ax.text(0.50, 0.11, "Valves set direction; vascular RCL branches set afterload, compliance, and inertance.", ha="center", va="center", fontsize=8.2, color=TEXT)
 
     save(fig, FIGURES / "fig_2_10_0d_network")
     plt.close(fig)
@@ -242,20 +240,15 @@ def make_boundary_conditions() -> None:
     ax.text(0.50, 0.505, "biventricular\nmechanics", ha="center", va="center", fontsize=10.2, fontweight="bold", color=TEXT, linespacing=1.15)
     ax.text(0.50, 0.425, r"$\mathbf{u},\ p_\mathrm{LV},\ p_\mathrm{RV}$", ha="center", va="center", fontsize=9.2, color=TEXT)
 
-    card(ax, (0.06, 0.61), (0.25, 0.15), "LV endocardium", r"$\mathcal{V}_\mathrm{LV}=\mathcal{V}_\mathrm{LV}^*$" + "\n" + r"returns $p_\mathrm{LV}$", BLUE, title_size=9.2, body_size=7.6)
-    card(ax, (0.69, 0.61), (0.25, 0.15), "RV endocardium", r"$\mathcal{V}_\mathrm{RV}=\mathcal{V}_\mathrm{RV}^*$" + "\n" + r"returns $p_\mathrm{RV}$", BLUE, title_size=9.2, body_size=7.6)
+    card(ax, (0.06, 0.61), (0.26, 0.15), "LV endocardium", r"$\mathcal{V}_\mathrm{LV}=\mathcal{V}_\mathrm{LV}^*$" + "\n" + r"returns $p_\mathrm{LV}$", BLUE, title_size=9.2, body_size=7.6)
+    card(ax, (0.68, 0.61), (0.26, 0.15), "RV endocardium", r"$\mathcal{V}_\mathrm{RV}=\mathcal{V}_\mathrm{RV}^*$" + "\n" + r"returns $p_\mathrm{RV}$", BLUE, title_size=9.2, body_size=7.6)
     card(ax, (0.06, 0.20), (0.26, 0.15), "epicardium", "Robin spring\nnormal direction only", GREEN, title_size=9.2, body_size=7.6)
-    card(ax, (0.68, 0.20), (0.26, 0.15), "base", "base-normal/global-x fixed\nRobin support", YELLOW, title_size=8.8, body_size=7.0)
+    card(ax, (0.68, 0.20), (0.26, 0.15), "base", "partial Dirichlet\nRobin spring", GREEN, title_size=9.2, body_size=7.6)
 
-    arrow(ax, (0.31, 0.665), (0.39, 0.555), color="#1f77b4", lw=1.8, label="constraint", label_offset=(-0.015, 0.035))
-    arrow(ax, (0.69, 0.665), (0.61, 0.555), color="#1f77b4", lw=1.8, label="constraint", label_offset=(0.015, 0.035))
-    arrow(ax, (0.32, 0.295), (0.39, 0.425), color="#2e7d32", lw=1.8, label="support", label_offset=(-0.028, -0.010))
-    arrow(ax, (0.68, 0.295), (0.61, 0.425), color="#8a6d00", lw=1.8, label="stabilize", label_offset=(0.030, -0.010))
-
-    # Small visual cue for tangential sliding.
-    arrow(ax, (0.72, 0.145), (0.90, 0.145), color="#78909c", lw=1.3, label="tangential sliding remains", label_offset=(0.0, -0.032), label_size=7.1, ms=10)
-
-    ax.text(0.50, 0.08, "Cavity constraints impose volumes; scalar pressures enter as Lagrange multipliers. Robin terms are included in the energy budget.", ha="center", va="center", fontsize=7.6, color=TEXT)
+    arrow(ax, (0.32, 0.665), (0.39, 0.555), color="#1f77b4", lw=1.8, label="constraint", label_offset=(-0.015, 0.035))
+    arrow(ax, (0.68, 0.665), (0.61, 0.555), color="#1f77b4", lw=1.8, label="constraint", label_offset=(0.015, 0.035))
+    arrow(ax, (0.32, 0.295), (0.39, 0.425), color="#2e7d32", lw=1.8, label="support", label_offset=(-0.020, -0.012))
+    arrow(ax, (0.68, 0.295), (0.61, 0.425), color="#2e7d32", lw=1.8, label="support", label_offset=(0.020, -0.012))
 
     save(fig, FIGURES / "fig_2_8_boundary_conditions")
     plt.close(fig)

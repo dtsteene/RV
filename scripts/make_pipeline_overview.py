@@ -158,13 +158,13 @@ def main() -> None:
     )
 
     y_top, h_top, w_top = 0.73, 0.13, 0.14
-    xs = [0.055, 0.25, 0.445, 0.64, 0.805]
+    xs = [0.04, 0.235, 0.43, 0.625, 0.82]
     top_cards = [
         ("Geometry", "mesh\nlabels", colors["geom"]),
         ("Fibres", "LDRB\nframe", colors["fiber"]),
         ("0D warm-up", "periodic\ncycle", colors["circ"]),
         ("Scale", "match\nvolumes", colors["prep"]),
-        ("Prestress", "loaded ED\nstate", colors["mech"]),
+        ("Prestress", "reference\nconfig", colors["mech"]),
     ]
     for x, (title, body, color) in zip(xs, top_cards):
         card(ax, (x, y_top), (w_top, h_top), title, body, color, title_size=8.7, body_size=7.2)

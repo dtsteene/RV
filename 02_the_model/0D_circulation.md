@@ -3,9 +3,9 @@
 
 A finite element model of the myocardium, however detailed, cannot beat realistically in isolation. Without a circulatory system, there is no way to determine what volumes the ventricles should fill to, what pressures they should develop, when the valves should open and close, or how the hemodynamic state should evolve from beat to beat. The heart is a pump embedded in a closed hydraulic loop, and its behavior is shaped at every moment by the impedance of the vessels it is pumping into and the compliance of the vessels it is pumping from.
 
-To provide this circulatory context, we couple the three-dimensional finite element model to a zero-dimensional lumped-parameter model of the complete cardiovascular system. In a zero-dimensional model, the spatial distribution of quantities like pressure and flow rate is discarded; each element of the cardiovascular circuit — a blood vessel, a valve, a cardiac chamber — is represented by a single ordinary differential equation relating pressure, volume, and flow at its inlet and outlet. This is the same principle that underlies the electrical circuit analogy frequently used in physiology teaching, where pressure corresponds to voltage, volumetric flow rate corresponds to current, and the mechanical resistance of a vessel corresponds to an electrical resistor. The analogy is more than pedagogical: the governing equations for linear RC circuits and linear fluidic circuits are mathematically identical, which is why circuit simulation methods can be directly applied to lumped-parameter cardiovascular models.
+To provide this circulatory context, we couple the three-dimensional finite element model to a zero-dimensional lumped-parameter model of the cardiovascular system. In a 0D model, the spatial distribution of pressure and flow is discarded; each element of the circuit — a vessel, a valve, a cardiac chamber — is represented by an ordinary differential equation relating pressure, volume, and flow at its inlet and outlet. This is the standard hydraulic-electrical analogy: pressure corresponds to voltage, flow to current, vascular resistance to a resistor, and the governing ODEs are identical.
 
-The specific model we use is the closed-loop four-chamber formulation of Regazzoni et al. {cite}`regazzoni2022cardiac`, implemented in the `circulation` software package {cite}`circulation`. The coupling idea is older than this specific implementation. Early finite-element heart models often prescribed cavity pressure or volume histories, or connected the ventricle only to a simple afterload. Kerckhoffs et al. gave a clear early closed-loop version: the finite-element ventricles and the lumped systemic and pulmonary circulation are advanced together, and the ventricular pressures are iterated until the cavity volumes in the two models agree {cite}`kerckhoffs2007coupling`. Regazzoni et al. later wrote the same volume-consistency idea in a more explicit 3D--0D mathematical framework, including an energy balance for the coupled model {cite}`regazzoni2022cardiac`. Piersanti et al. extended that framework to biventricular electromechanics, where the LV and RV pressures enter as Lagrange multipliers enforcing the two cavity-volume constraints {cite}`piersanti2022closed`.
+The specific model used is the closed-loop four-chamber formulation of Regazzoni et al. {cite}`regazzoni2022cardiac`, implemented in the `circulation` software package {cite}`circulation`. The volume-consistency idea — finite-element ventricles and a lumped circulation advanced together, with pressures iterated until cavity volumes agree — was first written explicitly by Kerckhoffs et al. {cite}`kerckhoffs2007coupling`. Piersanti et al. extended the framework to biventricular electromechanics, with LV and RV pressures entering as Lagrange multipliers enforcing the two cavity-volume constraints {cite}`piersanti2022closed`.
 
 (sec-0d-state-topology)=
 ## State Variables and Circuit Topology
@@ -31,15 +31,7 @@ $$
 \mathcal{E}(t) = \mathcal{E}_B + (\mathcal{E}_A - \mathcal{E}_B) f(t),
 $$
 
-where $\mathcal{E}_A$ is the peak systolic elastance, $\mathcal{E}_B$ is the passive diastolic elastance, and $f(t)$ is a smooth activation function that rises from 0 to 1 during contraction and returns to 0 during relaxation. {numref}`fig-elastance` shows the resulting time-varying elastance $\mathcal{E}(t)$ for both ventricles at the healthy calibration over two cardiac cycles, with the asymptotic passive values $\mathcal{E}_B$ marked. The LV elastance peaks roughly six times higher than the RV — the structural reflection of the systemic versus pulmonary pressure regimes the two chambers operate against. The activation function is defined piecewise using cosine segments parametrized by the contraction onset $t_C$, contraction duration $T_C$, and relaxation duration $T_R$:
-
-$$
-f(t) = \begin{cases}
-\frac{1}{2}\!\left(1 - \cos\!\left(\frac{\pi}{T_C}(t - t_C)\right)\right) & t_C \leq t < t_C + T_C, \\[4pt]
-\frac{1}{2}\!\left(1 + \cos\!\left(\frac{\pi}{T_R}(t - t_C - T_C)\right)\right) & t_C + T_C \leq t < t_C + T_C + T_R, \\[4pt]
-0 & \text{otherwise}.
-\end{cases}
-$$
+where $\mathcal{E}_A$ is the peak systolic elastance, $\mathcal{E}_B$ is the passive diastolic elastance, and $f(t)$ is the same piecewise-cosine activation waveform defined in {ref}`sec-active-contraction`, parametrized by the contraction onset $t_C$, contraction duration $T_C$, and relaxation duration $T_R$. {numref}`fig-elastance` shows the resulting time-varying elastance $\mathcal{E}(t)$ for both ventricles at the healthy calibration over two cardiac cycles, with the asymptotic passive values $\mathcal{E}_B$ marked. The LV elastance peaks roughly six times higher than the RV — the structural reflection of the systemic versus pulmonary pressure regimes the two chambers operate against.
 
 In the coupled 3D--0D simulations, this elastance law is not used as the mechanical pressure law for the LV and RV myocardium. Instead, the 0D model advances the closed-loop circulation and sends target LV and RV volumes to the finite-element solver; the FEM cavity-volume constraints then return the mechanically consistent LV and RV pressures. The elastance formulation remains important for the standalone circulation warm-up, for the atrial chambers, and for defining the calibrated hemodynamic state that the coupled model follows.
 
@@ -141,7 +133,7 @@ $$
 \qquad c\in\{\text{LV},\text{RV}\}.
 $$
 
-The associated Lagrange multipliers are returned as $p_\text{LV}$ and $p_\text{RV}$. If the nonlinear mechanics solve becomes difficult at a given time step, the requested volume and activation update is subdivided into smaller substeps. This adds robustness during rapid volume changes without changing the coupling definition: volumes are prescribed by the circulation, and pressures are returned by the finite-element equilibrium solve. {numref}`fig-coupling-schematic` summarises the same bidirectional exchange graphically.
+The associated Lagrange multipliers are returned as $p_\text{LV}$ and $p_\text{RV}$. Volumes are prescribed by the circulation, and pressures are returned by the finite-element equilibrium solve. {numref}`fig-coupling-schematic` summarises the same bidirectional exchange graphically.
 
 ```{figure} ../figures/fig_2_11_coupling_schematic.png
 :name: fig-coupling-schematic
