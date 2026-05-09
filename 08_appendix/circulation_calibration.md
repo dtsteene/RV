@@ -6,7 +6,7 @@ This appendix documents the calibration details behind the pressure-loading swee
 (sec-app-calibration-targets)=
 ## Target Set
 
-Every target used by the corrected sweep was audited against a literature source or marked as an interpolation between sourced anchors. The operational target set is summarized here; the full audit is archived in `cardiac-work/results/docs/target_grounding_audit.md`.
+Every target used by the corrected circulation sweep was audited against a literature source or marked as an interpolation between sourced anchors. The operational target set is summarized here; the full audit is archived in `cardiac-work/results/docs/target_grounding_audit.md`. The primary thesis simulations use these corrected circulation targets together with the capped-RV-EDP inverse-unloading choice described in {ref}`sec-app-reference-remodeling-sensitivity`.
 
 | Target | Value or rule | Role in the sweep |
 |---|---|---|
@@ -28,7 +28,7 @@ Cardiac index is used rather than absolute cardiac output because the ESC/ERS ri
 
 An earlier exploratory target table varied several left-sided and systemic quantities across the RV pressure spectrum, including declining LV systolic pressure, LV filling pressure, aortic diastolic pressure, and LV ejection-fraction floor. The source audit found no primary-source support for those ramps, so they were removed from the corrected sweep.
 
-The correction matters mechanically. A declining LV pressure target does part of the work of reducing the septal transmural pressure $p_\text{LV,ES}-p_\text{RV,ES}$. With LV pressure held stable, the transmural reduction is driven mainly by the imposed RV pressure rise. The earlier exploratory simulations are still useful, but only as a loading-path sensitivity check: they show that a septal correlation ranking can change when the LV pressure path changes. The main results use the corrected 16-case sweep.
+The correction matters mechanically. A declining LV pressure target does part of the work of reducing the septal transmural pressure $p_\text{LV,ES}-p_\text{RV,ES}$. With LV pressure held stable, the transmural reduction is driven mainly by the imposed RV pressure rise. The earlier exploratory simulations are still useful, but only as a loading-path sensitivity check: they show that a septal correlation ranking can change when the LV pressure path changes. The main results use the corrected 16-case circulation path with the capped-reference inverse-unloading model.
 
 Even after correction, the optimizer must balance the RV pressure target against the geometric requirement that the cavity volumes match the mesh. The UKB mean RV cavity is approximately 77 mL, and defending that volume can push the lowest-pressure case above the ideal Kovacs-normal systolic pulmonary pressure. The thesis therefore reports achieved pressures directly rather than relying on the nominal target label.
 

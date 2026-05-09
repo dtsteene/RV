@@ -18,14 +18,15 @@ The robustness checks are summarized in {numref}`tab-numerical-robustness-summar
 | Check | Evidence | Consequence for interpretation |
 |---|---|---|
 | Energy-consistent postprocessing | Quadrature-level stress-strain work closes the whole-heart boundary-work budget to about $10^{-5}$--$10^{-4}$ relative error | The regional work reference is computed from the same mechanics that drives the cavities |
-| Mesh convergence | h=5 differs from h=3.75 by less than 0.8% for hemodynamics and less than about 3% for free-wall ratios; severe septal work differs by about 5--7% | Free-wall conclusions are robust; high-pressure septal magnitudes are reported with mesh sensitivity in mind |
-| Full sweep rerun at h=5 | In the 16 paired cases, LV/RV pressures shifted by at most 1.8%/1.1% and free-wall ratios by a few percent | The final sweep should be read from the h=5 rerun; the h=10 sweep is retained only as a resolution comparison |
+| Primary capped sweep audit | All 16 capped-reference cases completed canonical quadrature-level postprocessing with finite pressure and per-cell work arrays | The primary figures and tables use a complete internally consistent result set |
+| Mesh convergence | h=5 differs from h=3.75 by less than 0.8% for hemodynamics and less than about 3% for free-wall ratios in the endpoint mesh study; severe septal work differs by about 5--7% | Free-wall conclusions are robust; high-pressure septal magnitudes are reported with mesh sensitivity in mind |
+| Full sweep rerun at h=5 | In the 16 paired pre-cap cases, LV/RV pressures shifted by at most 1.8%/1.1% and free-wall ratios by a few percent | This supports the 5 mm production resolution, but is not presented as a capped-sweep convergence proof |
 | Septum sweep envelope | Epi-excluded and epi-inclusive relaxed septum envelopes were compared on the h=5 sweep | The geometric septum cutoff is unchanged; only the far relaxed sweep tail is definition-sensitive |
 | Basal support audit | The production condition fixes only the base-normal/global-x component; tangential basal sliding remains | The model does not use a full basal clamp |
 | No-Dirichlet variants | Endpoint cases failed during end-diastolic inflation after removing the basal displacement constraint | The partial constraint is a stabilizing modelling choice in this production setup |
 | Postprocessing space replay | DG1 stays within about 1.2% of Quadrature6 for integrated regional stress-strain work; DG0 underestimates high-pressure septal work | DG1 is adequate for integrated regional totals in this check; DG0 is too crude for septal work; Quadrature6 is retained as the conservative production path |
 | Robin work budget | Signed net Robin work is below about 0.2% of cavity boundary work in checked endpoint cases | Robin springs are part of the model definition but do not dominate the reported work-density results |
-| Reference-state and remodelling sensitivity | Unloading-only regional stiffness variants and exploratory patient meshes were compared with the fixed-geometry production interpretation | Severe fixed-geometry RV and RV-side septal work-density magnitudes are likely biased upward; the pressure-proxy conclusions remain fixed-geometry tests |
+| Reference-state and remodelling sensitivity | Unloading-only regional stiffness variants, capped-RV-EDP production cases, acute fixed-reference pilots, and exploratory patient meshes were compared with the fixed-geometry production interpretation | Severe fixed-geometry RV and RV-side septal work-density magnitudes are reference-state sensitive; the pressure-proxy conclusions remain fixed-geometry tests |
 ```
 
 ## Energy-Consistent Postprocessing
@@ -47,22 +48,24 @@ The external work terms were also matched to the solver formulation. Cavity work
 (sec-app-mesh-convergence)=
 ## Mesh Convergence
 
-The mesh-convergence study repeated three representative pressure cases, sPAP22, sPAP60, and sPAP95, using characteristic lengths of 10, 7.5, 5, and 3.75 mm. The 3.75 mm runs were used as the finest available reference.
+The primary capped-reference sweep was also audited directly before being promoted to the main result set. All 16 cases contain solver cavity-pressure histories, metrics files, canonical per-cell data, and quadrature-level stress-strain work arrays. The pressure histories have shape `(4800, 2)`, the per-cell arrays are finite, and the canonical geometric septum volume matches the tag-3 septum volume case by case. The capped sweep is therefore numerically usable as a complete production set.
+
+The separate mesh-convergence study repeated three representative pressure cases, sPAP22, sPAP60, and sPAP95, using characteristic lengths of 10, 7.5, 5, and 3.75 mm. The 3.75 mm runs were used as the finest available reference.
 
 At the production 5 mm resolution, hemodynamic quantities differed from the 3.75 mm reference by less than 0.8%. Free-wall work-density ratios were also stable, with differences below about 3%. Septal quantities were more mesh-sensitive, especially at high RV pressure. At 5 mm, septal stress-strain work differed from the 3.75 mm reference by about 0.2% in sPAP22, 3.8% in sPAP60, and 5.7% in sPAP95; the largest septal longitudinal-proxy discrepancy was about 6.6%. The 10 mm mesh was clearly too coarse for septal quantities in the high-pressure case, with errors up to about 18%.
 
 The interpretation is therefore targeted: the 5 mm production mesh is sufficient for the qualitative free-wall conclusions tested here, while absolute high-pressure septal values should be read with the observed 5-7% difference between the 5 mm and 3.75 mm meshes in mind. This is a practical finest-mesh comparison, not a formal mesh-uncertainty estimate.
 
-The final corrected pressure sweep was also rerun at 5 mm resolution. Across the 16 h=10/h=5 paired cases, achieved LV and RV end-systolic pressures changed by at most 1.8% and 1.1%, respectively. The free-wall finite-element LV/RV stress-strain work ratio changed by at most 5.4%, and the adjacent-pressure longitudinal proxy ratio by at most 11.9%. This supports the free-wall pressure-strain result as a robust regional finding rather than a consequence of the coarse 10 mm sweep.
+The pre-cap corrected pressure sweep was also rerun at 5 mm resolution. Across the 16 h=10/h=5 paired cases, achieved LV and RV end-systolic pressures changed by at most 1.8% and 1.1%, respectively. The free-wall finite-element LV/RV stress-strain work ratio changed by at most 5.4%, and the adjacent-pressure longitudinal proxy ratio by at most 11.9%. This supports the free-wall pressure-strain result as a robust regional finding rather than a consequence of the coarse 10 mm sweep. It is retained as numerical-method support, not as a direct convergence proof for the capped reference-state choice.
 
 The septum required a different interpretation. The 10 mm corrected sweep used a case-specific geometric septum mask that covered only part of the tag-3/canonical septum in several cases. In the completed 5 mm rerun, the geometric septum volume matches the tag-3 septum volume to within about 0.2%. For that reason, h=10-to-h=5 septal differences are not reported as simple mesh errors. The high-resolution septal results replace the earlier septal tables rather than merely perturbing them. This is the conservative choice: it avoids treating a change in septal definition as a change in mesh resolution.
 
 (sec-app-reference-remodeling-sensitivity)=
 ## Reference-State and Remodelling Sensitivity
 
-The inverse-unloading workflow treats the image-derived mesh as a loaded end-diastolic target. That is the appropriate target for a single end-diastolic image-derived mesh, but it also means that the unloaded reference depends on the end-diastolic pressures, the passive material parameters, and the anatomy used during unloading. In the main pressure sweep, the anatomy and passive material law are held fixed while RV pressure is raised. This is useful for isolating the pressure-proxy question, but it removes the RV hypertrophy, curvature changes, and regional passive remodelling that would normally accompany severe PAH.
+The inverse-unloading workflow treats the image-derived mesh as a loaded end-diastolic target. That is the appropriate target for a single end-diastolic image-derived mesh, but it also means that the unloaded reference depends on the end-diastolic pressures, the passive material parameters, and the anatomy used during unloading. In the pressure sweep, the anatomy and passive material law are held fixed while RV pressure is raised. This is useful for isolating the pressure-proxy question, but it removes the RV hypertrophy, curvature changes, and regional passive remodelling that would normally accompany severe PAH.
 
-This matters most for the RV. With uniform passive material parameters, the inferred RV unloaded cavity became much smaller as RV end-diastolic pressure increased. A late unloading-only sensitivity sweep tested whether regional passive stiffening could reduce that collapse. The LV material scale was held at 1.0, while RV and septal scales were varied; the stiffest tested point used RV scale 16 and septum scale 8. This was not a full corrected production rerun, because only the unloading stage was repeated. It is therefore a reference-state sensitivity check, not a replacement result set.
+This matters most for the RV. In the uncapped fixed-geometry pilot, the inferred RV unloaded cavity became much smaller as RV end-diastolic pressure increased. A late unloading-only sensitivity sweep tested whether regional passive stiffening could reduce that collapse. The LV material scale was held at 1.0, while RV and septal scales were varied; the stiffest tested point used RV scale 16 and septum scale 8. This was not a full corrected production rerun, because only the unloading stage was repeated. It is therefore a reference-state sensitivity check, not a replacement result set.
 
 ```{table} Unloaded-volume fraction in the baseline unloading and in the stiffest tested RV/septum regional material variant. Fractions are unloaded volume divided by the fixed end-diastolic target volume.
 :name: tab-app-reference-stiffness
@@ -76,6 +79,22 @@ This matters most for the RV. With uniform passive material parameters, the infe
 ```
 
 The pattern is clear. Regional RV and septal stiffening makes the low-pressure case much more plausible and improves the intermediate case substantially. It does not fully rescue the severe case: even at RV scale 16 and septum scale 8, the sPAP95 RV unloaded cavity remains only 48.6% of the end-diastolic target volume. The conclusion is therefore not that the stiffened run is the correct model. The conclusion is that the severe fixed-geometry production sweep is reference-state sensitive, and that uniform passive material properties likely exaggerate the deformation needed to inflate the RV from its unloaded state to end diastole.
+
+A more targeted correction was then tested by keeping the same end-diastolic mesh target but capping the RV end-diastolic pressure used during inverse unloading at 5 mmHg. This is not a complete PAH remodelling model: wall thickness, curvature, activation, and passive material parameters remain fixed. Its value is that it changes the most questionable input to the unloading problem directly, rather than using regional stiffness as an uncalibrated tuning parameter. In the completed capped cases, the RV unloaded/ED fraction moved substantially upward while the LV unloaded/ED fraction stayed in the same range as before.
+
+```{table} Effect of capping RV end-diastolic pressure at 5 mmHg during inverse unloading in completed capped cases. Fractions are unloaded volume divided by the fixed end-diastolic target volume.
+:name: tab-app-rvedp-capped-unloading
+:align: left
+
+| Case | Baseline LV | Capped LV | Baseline RV | Capped RV |
+|---|---:|---:|---:|---:|
+| sPAP22 | 80.5% | 78.3% | 55.6% | 62.7% |
+| sPAP55 | 80.3% | 80.1% | 31.1% | 60.7% |
+| sPAP65 | 75.1% | 74.0% | 33.7% | 67.2% |
+| sPAP95 | 72.2% | 75.8% | 20.9% | 65.3% |
+```
+
+This capped-unloading result is the most defensible fixed-geometry path among the tested options, and it is therefore used as the primary sweep in the thesis. It preserves the logic of inverse unloading from an end-diastolic image mesh, avoids treating passive stiffness as a free post-hoc target, and removes much of the severe RV reference collapse. The effect on work density was not a simple downward correction: in the severe cases, mean RV tensor work increased from 4.65 to 6.20 kPa and mean septal tensor work from 2.29 to 5.52 kPa. The important conclusion is therefore reference-state sensitivity, not a guaranteed direction of bias. Acute fixed-reference loading was also tested as the opposite limit, by reusing the low-pressure reference configuration while increasing RV pressure, but high-pressure cases produced non-finite stress-strain work values even with circulation preconditioning and pressure/volume ramping. That failure is informative: the model needs a compatible pre-stressed reference state, but the original high-RV-EDP unloading target was too aggressive. The capped-RV-EDP sweep is therefore a bounded sensitivity model, not a claim that the fixed UKB anatomy has become a remodeled PAH heart.
 
 The exploratory patient meshes give a second, independent direction check. The PAH mesh is not merely the healthy mesh under a different pressure load. It has smaller cavities and more wall volume: RV EDV is 74.2 mL rather than 94.4 mL, while total wall volume is 165.7 mL rather than 129.1 mL. In the selected same-label comparisons, the thicker PAH geometry tended to carry lower RV and septal tensor work density than the healthy geometry at similar or even higher RV systolic pressure. The pressure-strain proxy did not always attenuate with the tensor work density, especially in the RV free wall.
 
@@ -92,14 +111,14 @@ The exploratory patient meshes give a second, independent direction check. The P
 | sPAP65 | 61.5 / 72.8 | 4.75 / 4.08 | 0.54 / 0.79 | 5.08 / 3.73 | 0.74 / 0.74 |
 ```
 
-These patient-geometry runs are deliberately not promoted to main results. The healthy high-pressure sequence did not fully complete, the selected cases used end-diastolic region tagging, and the comparison changes anatomy, loading, and numerical robustness together. Their purpose here is narrower: they show that the fixed UKB pressure sweep should not be read as a patient-specific PAH remodelling model. In a thicker/remodelled geometry, RV and septal tensor work density can be lower at comparable RV pressure, while the pressure-strain proxy may attenuate less or even increase because it does not explicitly include wall volume, curvature, passive remodelling, or reference-state changes. The severe fixed-geometry RV and RV-side septal magnitudes in the main sweep are therefore best read as likely upward-biased absolute values, and the geometry-dependent relationship between clinical-style proxy work and tensor work should be treated as a high-priority future-work question.
+These patient-geometry runs are deliberately not promoted to main results. The healthy high-pressure sequence did not fully complete, the selected cases used end-diastolic region tagging, and the comparison changes anatomy, loading, and numerical robustness together. Their purpose here is narrower: they show that the fixed UKB pressure sweep should not be read as a patient-specific PAH remodelling model. In a thicker/remodelled geometry, RV and septal tensor work density can be lower at comparable RV pressure, while the pressure-strain proxy may attenuate less or even increase because it does not explicitly include wall volume, curvature, passive remodelling, or reference-state changes. Together with the capped-unloading production sweep, this means the severe fixed-geometry RV and RV-side septal magnitudes are best read as reference-state and geometry sensitive rather than as corrected PAH tissue-work estimates. The geometry-dependent relationship between clinical-style proxy work and tensor work should be treated as a high-priority future-work question.
 
-This caveat does not invalidate the main pressure-proxy comparisons. The free-wall adjacent-pressure result, the septal distinction between ranking and magnitude preservation, and the failure of transmural pressure as a septum/free-wall magnitude proxy are all comparisons made within the same fixed-geometry simulations. The sensitivity check changes the interpretation of absolute severe-case work-density magnitudes, not the central conclusion that the septum is a shared-wall pressure-assignment problem.
+This caveat does not invalidate the main pressure-proxy comparisons. The free-wall adjacent-pressure result and the failure of transmural pressure as a septum/free-wall work-density proxy are comparisons made within the same fixed-geometry simulations. The sensitivity checks change the interpretation of absolute severe-case work-density magnitudes, not the central conclusion that the septum is a shared-wall pressure-assignment problem.
 
 (sec-app-septum-epi-envelope)=
 ## Septum Sweep Envelope Sensitivity
 
-The boundary-relaxation sweep used in {ref}`chap-results` defines a family of septal masks,
+The boundary-relaxation sweep defines a family of septal masks,
 
 $$
 \Omega_\mathrm{sep}(t)
@@ -115,7 +134,7 @@ $$
 
 This topological epicardial exclusion removes cells on the outer boundary of the ventricular wall. The reason for keeping it in the production definition is practical: near the LV/RV junction, the free wall becomes thin and an epicardial boundary cell can satisfy the relaxed distance criterion even though it is still part of the outer wall surface. Excluding epicardial-touching cells makes the relaxed sweep a conservative interior-septum envelope.
 
-The opposite convention was also tested by using only $d_\mathrm{LV}+d_\mathrm{RV}\leq 22$ mm. This epi-inclusive envelope is anatomically defensible if the goal is to let the geometric parametrization grow the septal mask all the way to the outer wall. The two definitions are identical at the geometric cutoff: both give 1269 cells at $t=0$, with the same direct correlations ($r=0.898$ for $p_\mathrm{LV}$ and $r=0.947$ for $p_\mathrm{LV}-p_\mathrm{RV}$). They first diverge only at about $t=+4.5$ mm. The difference is therefore not a change to the main geometric septum; it is a sensitivity of the far relaxed sweep tail.
+The opposite convention was also tested by using only $d_\mathrm{LV}+d_\mathrm{RV}\leq 22$ mm. This epi-inclusive envelope is anatomically defensible if the goal is to let the geometric parametrization grow the septal mask all the way to the outer wall. This envelope test was performed before the capped-reference sweep was promoted to the primary result, so the numerical correlations below are retained only as a mask-definition check. The key point carried into the primary analysis is geometric: the two definitions are identical at the actual geometric septum cutoff and first diverge only at about $t=+4.5$ mm. The difference is therefore not a change to the reported primary septum; it is a sensitivity of the far relaxed sweep tail.
 
 ```{figure} ../figures/fig_app_septum_epi_envelope_comparison.png
 :name: fig-app-septum-epi-envelope
@@ -124,7 +143,7 @@ The opposite convention was also tested by using only $d_\mathrm{LV}+d_\mathrm{R
 Effect of allowing epicardial-touching cells into the relaxed septum sweep. Solid lines use the production epi-excluded envelope; dashed lines use the epi-inclusive envelope. The lower panel shows the inclusive-minus-excluded correlation change. The definitions coincide through the geometric cutoff and separate only when the relaxed mask reaches the outer wall.
 ```
 
-```{table} Selected thresholds from the epi-excluded and epi-inclusive septum sweep comparison. Correlations are Pearson correlations between volume-integrated septal stress-strain work and longitudinal pressure-strain proxies across the 16 high-resolution loading cases.
+```{table} Selected thresholds from the epi-excluded and epi-inclusive septum sweep comparison. Correlations are Pearson correlations between volume-integrated septal stress-strain work and longitudinal pressure-strain proxies in the pre-cap definition-sensitivity check.
 :name: tab-app-septum-epi-envelope
 :align: left
 
@@ -138,7 +157,7 @@ Effect of allowing epicardial-touching cells into the relaxed septum sweep. Soli
 
 The effect is interpretable. Adding the epicardial-touching cells lets the relaxed septal region grow farther toward the outer LV/RV junction. At wide thresholds this shifts the sweep slightly toward the LV-pressure and mean-pressure trends and away from the transmural-pressure trend. At $t=+20$ mm, the inclusive sweep adds 520 cells per case, increasing the region from 2592 to 3112 cells; $r(p_\mathrm{LV})$ changes from 0.971 to 0.989, while $r(p_\mathrm{LV}-p_\mathrm{RV})$ changes from 0.885 to 0.860. The RV-pressure proxy remains weak in both definitions, changing from $r=-0.106$ to $r=-0.015$ at this widest threshold.
 
-This sensitivity check supports two conclusions. First, the main geometric-septum result is not affected by the epicardial-envelope convention. Second, the far relaxed tail of the septum sweep should not be overinterpreted as a unique anatomical septum. It is better read as a controlled definition sensitivity: the strict envelope asks what happens when only interior septal cells are admitted, while the epi-inclusive envelope asks what happens when the geometric parametrization is allowed to grow to the outer wall.
+This sensitivity check supports two conclusions. First, the geometric septum used in the primary result is not affected by the epicardial-envelope convention. Second, the far relaxed tail of the septum sweep should not be overinterpreted as a unique anatomical septum. It is better read as a controlled definition sensitivity: the strict envelope asks what happens when only interior septal cells are admitted, while the epi-inclusive envelope asks what happens when the geometric parametrization is allowed to grow to the outer wall.
 
 ## Basal Boundary Condition
 
