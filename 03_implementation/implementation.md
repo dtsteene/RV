@@ -39,6 +39,8 @@ During development, a large work-budget mismatch appeared when replayed stress a
 
 The final pipeline keeps the work calculation at quadrature level because this is the most direct match to the constitutive evaluation used by the solver and gives the tightest energy closure. The current stress is evaluated directly from the UFL constitutive expression, previous stress and strain states are stored in a degree-six quadrature space, and DG0 is used only as a cellwise partition for extracting per-cell integrals after the quadrature-level integrand has already been formed. This makes the regional cell outputs sum to the same value as the scalar domain assembly, up to numerical precision. The DG0, DG1, and Quadrature6 sensitivity checks are reported in the numerical robustness appendix.
 
+For pressure-strain proxies, the replay initializes the previous strain state at the first checkpoint of the analysed beat, approximately end diastole, and then accumulates only subsequent strain increments. The underlying Green-Lagrange tensor is still the mechanically conjugate strain relative to the unloaded reference configuration, but the clinical-style longitudinal strain loop is zeroed at the start of the beat by construction. Subtracting the end-diastolic strain state would therefore translate the plotted strain trace without changing the reported pressure-strain work densities.
+
 ## Solver-Consistent Boundary Work
 
 The internal stress-strain work is only a useful energy check if the external work is computed with the same assumptions as the mechanics solver. Two details mattered.

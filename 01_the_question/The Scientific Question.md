@@ -114,18 +114,25 @@ $$
 }.
 $$
 
-This removes the transmural component of the apico-basal field before the strain projection is computed. The resulting tangent-longitudinal direction is then used as a fixed reference-direction projection of Green-Lagrange strain,
+This removes the transmural component of the apico-basal field before the strain projection is computed. The resulting tangent-longitudinal direction is then used as a fixed reference-direction projection of Green-Lagrange strain. Let
 
 $$
-\varepsilon_{ll,j}(t)
+\hat\varepsilon_{ll,j}(t)
 = \frac{1}{|\Omega_{j,0}|}
 \int_{\Omega_j}
 \mathbf{l}_0(\mathbf{X}) \cdot
 \mathbf{E}(t,\mathbf{X})\,
-\mathbf{l}_0(\mathbf{X})\,dV_0 .
+\mathbf{l}_0(\mathbf{X})\,dV_0
 $$
 
-The same projection is applied per cell during postprocessing. The pressure used in $w_{\text{PS},ll}$ is the solver cavity pressure — the Lagrange multiplier that enforces the cavity-volume constraint in the mechanics problem — not the standalone zero-dimensional circulation pressure.
+denote this projection relative to the mechanical reference configuration. For the clinical-style pressure-strain signal, the plotted strain is zeroed at the start of the analysed beat, which corresponds to end diastole in the periodic simulation:
+
+$$
+\varepsilon_{ll,j}(t)
+= \hat\varepsilon_{ll,j}(t)-\hat\varepsilon_{ll,j}(t_\mathrm{ED}).
+$$
+
+This subtraction matches the clinical convention that strain is measured relative to the end-diastolic frame. It does not change the pressure-strain loop area, because $w_{\text{PS},ll}$ uses increments $\Delta\varepsilon_{ll,j}$; it only fixes the displayed zero level of the strain trace. The same projection and start-of-beat increment convention are applied per cell during postprocessing. The pressure used in $w_{\text{PS},ll}$ is the solver cavity pressure — the Lagrange multiplier that enforces the cavity-volume constraint in the mechanics problem — not the standalone zero-dimensional circulation pressure.
 
 The pressure assignment is straightforward only in the free walls. The LV free wall is paired with $p_\text{LV}$ and the RV free wall with $p_\text{RV}$. The septum is shared tissue with LV pressure on one face and RV pressure on the other, and assigning one scalar pressure to it is already a mechanical assumption.
 
