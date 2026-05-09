@@ -164,6 +164,22 @@ Septum-definition sweep used for the boundary-relaxation sensitivity. Each panel
 
 The fibre-aligned diagnostic helps separate pressure-choice error from strain-direction error. When the same pressure choices were combined with the model-side fibre strain $E_{ff}$, correlations with septal stress-strain work became strongest for two-sided pressure choices: $r=0.975$ for mean pressure, $r=0.943$ for nearest-side pressure, and $r=0.978$ for through-wall weighted pressure. LV pressure also remained good ($r=0.840$), while transmural pressure became negative ($r=-0.262$). The magnitude test improved sharply for the two-sided choices: mean absolute log-ratio error was 0.072 for mean pressure, 0.075 for nearest-side pressure, and 0.069 for through-wall weighted pressure, compared with 0.886 for transmural pressure. This suggests that part of the septal difficulty is a strain-direction limitation of longitudinal strain, not only a pressure-assignment limitation.
 
+The structural reason for this behaviour is shown in {numref}`tab-principal-strain-alignment`. The saved displacement checkpoints from the primary capped-reference sweep were replayed, the cell-centred Green--Lagrange strain tensor was diagonalized at each septal cell, and the most compressive eigenvector was compared with the model fibre, longitudinal, radial, and circumferential directions. The fibre direction was not identical to principal shortening, but it was substantially closer than the longitudinal direction and was the best aligned of the four candidates in more than half of the septal volume. The fibre-strain diagnostic above is therefore not only a rhetorical alternative to longitudinal strain; it follows from the deformation geometry of the septum in this sweep.
+
+```{table} Alignment of candidate directions with principal shortening in the geometric septum, primary capped-reference sweep. Values are volume-weighted within each case and averaged across the 16 capped cases.
+:name: tab-principal-strain-alignment
+:align: left
+
+| Candidate direction | Mean angle to principal shortening | Mean $\lvert\cos\theta\rvert$ | Best-aligned septal volume fraction |
+|---|---:|---:|---:|
+| Fibre | 32.3 deg | 0.788 | 0.56 |
+| Longitudinal | 50.3 deg | 0.595 | 0.22 |
+| Radial | 58.5 deg | 0.485 | 0.14 |
+| Circumferential | 62.9 deg | 0.431 | 0.09 |
+```
+
+A deliberately non-clinical upper-bound scalar was also tested by using principal shortening itself in the pressure-strain loops. This did not make the septal pressure problem disappear. The best septal ranking used the through-wall weighted pressure ($r=0.767$), and the best magnitude preservation used nearest-side pressure with a mean absolute log-ratio error of 0.141. The magnitude result is better than the longitudinal proxy, but the ranking is not better than the longitudinal fixed-candidate result in {numref}`tab-septum-proxies` and remains well below the fibre-aligned diagnostic. Because principal shortening requires the full local strain tensor and varies cell by cell, it is best read as supporting evidence for the need for three-dimensional strain information rather than as a practical scalar replacement.
+
 ```{figure} ../figures/fig_5_3b_septum_strain_direction_diagnostic.png
 :name: fig-septum-strain-direction-diagnostic
 :width: 95%
