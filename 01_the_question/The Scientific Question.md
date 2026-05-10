@@ -144,7 +144,7 @@ p_\lambda(t,\mathbf{X})
 + [1-\lambda(\mathbf{X})]p_\text{RV}(t).
 $$
 
-In the canonical postprocessing, $\lambda$ is the saved LV-to-RV Laplace scalar when available. If the Euclidean distance coordinate $\tau=d_\text{LV}/(d_\text{LV}+d_\text{RV})$ is used instead, the equivalent LV weight is $1-\tau$. This convention matters: the words "LV side" and "RV side" refer to the pressure weight, not merely to the name of the scalar field.
+In the reference-tag postprocessing ({ref}`sec-reference-tag-postprocessing`), $\lambda$ is the saved LV-to-RV Laplace scalar when available. If the Euclidean distance coordinate $\tau=d_\text{LV}/(d_\text{LV}+d_\text{RV})$ is used instead, the equivalent LV weight is $1-\tau$. This convention matters: the words "LV side" and "RV side" refer to the pressure weight, not merely to the name of the scalar field.
 
 The scale difference between cavity pressure and local stress is large in the simulations. In the UKB baseline cascade used below, the regional mean fibre stress $S_{ff}$ peaks at about 68 kPa on the LV side and 56 kPa on the RV side, while the corresponding cavity pressures peak at about 16 kPa and 3.9 kPa. The pressure-for-stress substitution is therefore not expected to preserve absolute work-density magnitude. The useful question is whether it preserves regional ratios and rankings.
 

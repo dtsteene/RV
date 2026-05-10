@@ -41,6 +41,15 @@ The final pipeline keeps the work calculation at quadrature level because this i
 
 For pressure-strain proxies, the replay initializes the previous strain state at the first checkpoint of the analysed beat, approximately end diastole, and then accumulates only subsequent strain increments. The underlying Green-Lagrange tensor is still the mechanically conjugate strain relative to the unloaded reference configuration, but the clinical-style longitudinal strain loop is zeroed at the start of the beat by construction. Subtracting the end-diastolic strain state would therefore translate the plotted strain trace without changing the reported pressure-strain work densities.
 
+(sec-reference-tag-postprocessing)=
+## Reference-Tag Postprocessing
+
+The regional integrals $W_\mathrm{int}[\Omega_j]$ above need a definition of each region $\Omega_j$. In this thesis, the cell tags for the LV free wall, RV free wall, and septum are computed once on the image-derived end-diastolic mesh — the same mesh used as the inverse-unloading target — and then reused for every simulation in the sweep, rather than recomputed from each simulation's deformed end-diastolic state. The geometric LV / RV / septum partition $\Omega_\text{sept}$ defined in {ref}`sec-geometry-anatomical-model` and the LV-to-RV through-wall scalar are evaluated on this reference mesh. Outputs computed under this scheme are called **reference-tag postprocessing** in the rest of the thesis.
+
+The choice is deliberate. It keeps cross-case region definitions stable: an LV-side septal cell remains LV-side regardless of RV pressure load, so the LV/RV/septum integration domains do not shift between simulations. Per-case re-tagging would be closer to a clinical workflow but is fragile to small deformation differences in the geometric distance criteria — a near-boundary cell can flip between regions under modest deformation. An LDRB-style classification was also tested; it consistently misclassified obviously septal cells in the more curved regions of the wall, so the failure mode was reproducible but the classification itself was wrong. The reference-tag scheme is therefore the conservative choice for the cross-case proxy comparisons in {ref}`chap-results`.
+
+In practice, the figures and tables currently shown in {ref}`chap-results` are produced under a per-case canonical variant of this scheme: each capped sweep case is independently tetrahedralised, tagged on its own reference end-diastolic mesh, and integrated. The full reference-tag rerun, in which a single fixed reference mesh and a single set of region tags are reused across all sweep cases, is in progress. The conclusions in this thesis are not expected to change qualitatively when the reference-tag set replaces the current one, but absolute work-density magnitudes and the small case-to-case mesh differences will be tightened.
+
 ## Solver-Consistent Boundary Work
 
 The internal stress-strain work is only a useful energy check if the external work is computed with the same assumptions as the mechanics solver. Two details mattered.
