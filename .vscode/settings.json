@@ -1,0 +1,18 @@
+{
+    "remote.autoForwardPorts": true,
+    "remote.autoForwardPortsSource": "process",
+    "remote.portsAttributes": {
+        "3000": {
+            "label": "RV MyST live page",
+            "onAutoForward": "openBrowser"
+        },
+        "3100": {
+            "label": "RV MyST live assets",
+            "onAutoForward": "notify"
+        },
+        "3300": {
+            "label": "RV static book preview",
+            "onAutoForward": "openBrowser"
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "RV: preview book on one port",
+            "type": "shell",
+            "command": "bash scripts/serve_book_static.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "RV: start MyST live preview",
+            "type": "shell",
+            "command": "conda run -n RV myst start --port 3000 --server-port 3100",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "RV: build MyST HTML",
+            "type": "shell",
+            "command": "conda run -n RV myst build --html --strict",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

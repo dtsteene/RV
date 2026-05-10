@@ -18,7 +18,7 @@ The robustness checks are summarized in {numref}`tab-numerical-robustness-summar
 | Check | Evidence | Consequence for interpretation |
 |---|---|---|
 | Energy-consistent postprocessing | Quadrature-level stress-strain work closes the whole-heart boundary-work budget to about $10^{-5}$--$10^{-4}$ relative error | The regional work reference is computed from the same mechanics that drives the cavities |
-| Primary capped sweep audit | All 16 capped-reference cases completed canonical quadrature-level postprocessing with finite pressure and per-cell work arrays | The primary figures and tables use a complete internally consistent result set |
+| Primary capped sweep audit | All 16 capped-reference cases completed per-case canonical quadrature-level postprocessing with finite pressure and per-cell work arrays | The primary figures and tables use a complete internally consistent regional result set |
 | Mesh convergence | h=5 differs from h=3.75 by less than 0.8% for hemodynamics and less than about 3% for free-wall ratios in the endpoint mesh study; severe septal work differs by about 5--7% | Free-wall conclusions are robust; high-pressure septal magnitudes are reported with mesh sensitivity in mind |
 | Full sweep rerun at h=5 | In the 16 paired pre-cap cases, LV/RV pressures shifted by at most 1.8%/1.1% and free-wall ratios by a few percent | This supports the 5 mm production resolution, but is not presented as a capped-sweep convergence proof |
 | Pre-cap versus capped sweep comparison | The pre-cap and capped 16-case sweeps give different septal ranking correlations: transmural pressure was strongest in the pre-cap path, but not in the capped primary path | The old sweep is retained as a loading/reference-state sensitivity, not as the main septal result |
@@ -50,7 +50,7 @@ The external work terms were also matched to the solver formulation. Cavity work
 (sec-app-mesh-convergence)=
 ## Mesh Convergence
 
-The primary capped-reference sweep was also audited directly before being promoted to the main result set. All 16 cases contain solver cavity-pressure histories, metrics files, canonical per-cell data, and quadrature-level stress-strain work arrays. The pressure histories have shape `(4800, 2)`, the per-cell arrays are finite, and the canonical geometric septum volume matches the tag-3 septum volume case by case. The capped sweep is therefore numerically usable as a complete production set.
+The primary capped-reference sweep was also audited directly before being promoted to the main result set. All 16 cases contain solver cavity-pressure histories, metrics files, per-case canonical per-cell data, and quadrature-level stress-strain work arrays. The pressure histories have shape `(4800, 2)`, the per-cell arrays are finite, and the per-case canonical geometric septum volume stays within about 1.4% of the tag-3 septum volume case by case. The stored cell counts range from 7936 to 8109 cells because the jobs are separate 5 mm tetrahedralizations of the same atlas target, so the capped sweep is numerically usable as a complete regional production set rather than as a cellwise cross-case atlas.
 
 The separate mesh-convergence study repeated three representative pressure cases, sPAP22, sPAP60, and sPAP95, using characteristic lengths of 10, 7.5, 5, and 3.75 mm. The 3.75 mm runs were used as the finest available reference.
 
@@ -62,7 +62,7 @@ The pre-cap corrected pressure sweep was also rerun at 5 mm resolution. Across t
 
 The distinction is important because an h=10-to-capped-h=5 comparison would mix three changes at once: mesh resolution, the RV-EDP cap during inverse unloading, and the achieved pressure path. That mixed comparison is not used as a mesh-convergence estimate. The capped sweep is evaluated directly as the primary 5 mm production set, while the pre-cap h=10/h=5 rerun is kept only as resolution support for the broad free-wall conclusion.
 
-The septum required a different interpretation. The 10 mm corrected sweep used a case-specific geometric septum mask that covered only part of the tag-3/canonical septum in several cases. In the completed 5 mm rerun, the geometric septum volume matches the tag-3 septum volume to within about 0.2%. For that reason, h=10-to-h=5 septal differences are not reported as simple mesh errors. The high-resolution septal results replace the earlier septal tables rather than merely perturbing them. This is the conservative choice: it avoids treating a change in septal definition as a change in mesh resolution.
+The septum required a different interpretation. The 10 mm corrected sweep used a case-specific geometric septum mask that covered only part of the tag-3/canonical septum in several cases. In the completed 5 mm rerun, the geometric septum volume matches the tag-3 septum volume to within about 1.4%. For that reason, h=10-to-h=5 septal differences are not reported as simple mesh errors. The high-resolution septal results replace the earlier septal tables rather than merely perturbing them. This is the conservative choice: it avoids treating a change in septal definition as a change in mesh resolution.
 
 (sec-app-reference-remodeling-sensitivity)=
 ## Reference-State and Remodelling Sensitivity

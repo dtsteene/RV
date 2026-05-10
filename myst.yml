@@ -41,7 +41,6 @@ project:
 
 site:
   template: book-theme
-  base_url: /RV
   # options:
   #   favicon: favicon.ico
   #   logo: site_logo.png
