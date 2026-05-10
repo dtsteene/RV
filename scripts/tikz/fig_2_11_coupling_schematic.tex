@@ -1,0 +1,48 @@
+\documentclass[border=8pt]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath, amssymb, bm}
+\input{_uio_style}
+
+\begin{document}
+\begin{tikzpicture}[x=1cm, y=1cm]
+
+  % Main coupled pair.
+  \node[card-blue, minimum width=54mm, minimum height=22mm] (circ) at (-5.2, 0) {%
+    {\bfseries 0D circulation}\\[4pt]
+    \small advance circuit\\
+    \small emit target volumes%
+  };
+  \node[card-pink, minimum width=54mm, minimum height=22mm] (mech) at ( 5.2, 0) {%
+    {\bfseries 3D mechanics}\\[4pt]
+    \small solve equilibrium\\
+    \small return Lagrange multipliers%
+  };
+
+  % Top: volume path passes through the fixed mesh-to-0D scaling.
+  \draw[flow-blue, line width=1.0pt]
+    ([yshift=4mm]circ.east) --
+    node[card-gray, minimum height=9mm,
+         font=\small, inner xsep=5pt, inner ysep=3pt, pos=0.5,
+         text=black]
+        {$\mathcal{V}^{*}_\text{FEM} = s_{c}\,\mathcal{V}^{*}_\text{0D}$}
+    ([yshift=4mm]mech.west);
+
+  % Bottom: pressures return directly (no scaling).
+  \draw[flow-pink, line width=1.0pt]
+    ([yshift=-4mm]mech.west) --
+    node[edge-label, text=uiopink1, below=2pt, pos=0.5]
+        {$p_\text{LV},\,p_\text{RV}$}
+    ([yshift=-4mm]circ.east);
+
+  % Active tension — time-series input, demoted.
+  \draw[flow-orange, line width=0.9pt] (5.2, -1.95) -- (mech.south);
+  \node[font=\normalsize, text=uioorange1!85!black, align=center] at (5.2, -2.35)
+    {$T_a(t)$\ \ Blanco activation};
+
+  % Recorded outputs — post-processing readouts, demoted.
+  \draw[flow-gray, line width=0.9pt] (mech.north) -- (5.2, 1.95);
+  \node[font=\normalsize, text=black!60, align=center] at (5.2, 2.35)
+    {stress, strain, work density};
+
+\end{tikzpicture}
+\end{document}

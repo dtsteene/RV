@@ -5,22 +5,41 @@
 
 \begin{document}
 \begin{tikzpicture}[
-    node distance=8mm,
+    node distance=16mm,
     every node/.append style={font=\small},
   ]
 
-  \tikzset{prep/.style={minimum width=30mm, minimum height=14mm}}
+  \tikzset{
+    prep/.style={
+      minimum width=28mm, minimum height=11mm,
+      font=\small\bfseries,
+    },
+    transition/.style={
+      font=\scriptsize,
+      fill=white, inner xsep=2pt, inner ysep=1pt,
+      midway,
+    },
+  }
 
-  \node[card-green,  prep] (geom) {{\bfseries Geometry}\\[2pt]\scriptsize mesh, labels};
-  \node[card-orange, prep, right=of geom]  (fib)   {{\bfseries Fibres}\\[2pt]\scriptsize LDRB frame};
-  \node[card-blue,   prep, right=of fib]   (warm)  {{\bfseries 0D warm-up}\\[2pt]\scriptsize periodic cycle};
-  \node[card-gray,   prep, right=of warm]  (scale) {{\bfseries Scale}\\[2pt]\scriptsize match volumes};
-  \node[card-pink,   prep, right=of scale] (pre)   {{\bfseries Prestress}\\[2pt]\scriptsize reference config};
+  \node[card-green,  prep] (geom) {Geometry};
+  \node[card-orange, prep, right=of geom]  (fib)   {Fibres};
+  \node[card-blue,   prep, right=of fib]   (warm)  {0D warm-up};
+  \node[card-gray,   prep, right=of warm]  (scale) {Scale};
+  \node[card-pink,   prep, right=of scale] (pre)   {Prestress};
 
-  \draw[flow-gray, line width=0.9pt] (geom)  -- (fib);
-  \draw[flow-gray, line width=0.9pt] (fib)   -- (warm);
-  \draw[flow-gray, line width=0.9pt] (warm)  -- (scale);
-  \draw[flow-gray, line width=0.9pt] (scale) -- (pre);
+  \draw[flow-gray, line width=0.9pt]
+    (geom) -- node[transition] {mesh, tags} (fib);
+  \draw[flow-gray, line width=0.9pt]
+    (fib) -- node[transition] {$\mathbf{f}_0,\mathbf{s}_0,\mathbf{n}_0$} (warm);
+  \draw[flow-gray, line width=0.9pt]
+    (warm) -- node[transition] {$\mathbf{y}_\text{0D}^{ED}$} (scale);
+  \draw[flow-gray, line width=0.9pt]
+    (scale) -- node[transition] {$s_\text{LV},\,s_\text{RV}$} (pre);
+
+  % Outgoing artefact that the coupled solve consumes.
+  \draw[flow-gray, line width=0.9pt, dashed]
+    (pre.east) -- ++(14mm, 0)
+    node[right, font=\scriptsize, text=black!70] {$\mathcal{B}_0$};
 
 \end{tikzpicture}
 \end{document}

@@ -1,0 +1,72 @@
+\documentclass[border=8pt]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath, amssymb, bm}
+\usetikzlibrary{shapes.geometric}
+\input{_uio_style}
+
+\tikzset{
+  chamber/.style={
+    minimum width=22mm, minimum height=15mm,
+    font=\small\bfseries,
+  },
+  windkessel/.style={
+    minimum width=44mm, minimum height=18mm,
+    align=center,
+    font=\small,
+  },
+  valve/.style={
+    diamond,
+    minimum size=7.5mm,
+    draw=black!70, line width=0.55pt,
+    fill=white,
+    text=black,
+    inner sep=0pt,
+    font=\scriptsize\bfseries,
+  },
+  return-label/.style={
+    font=\scriptsize, text=black!70,
+    fill=white, inner xsep=2pt, inner ysep=1pt,
+  },
+}
+
+\begin{document}
+\begin{tikzpicture}[x=1cm, y=1cm]
+
+  % Top row: LA  →  LV  →  systemic Windkessel
+  \node[card-blue,  chamber]    (LA)  at (-4.5,  2) {LA};
+  \node[card-blue,  chamber]    (LV)  at ( 0.0,  2) {LV};
+  \node[card-green, windkessel] (sys) at ( 4.5,  2) {%
+    {\bfseries systemic Windkessel}\\[2pt]
+    \small arterial / venous\\
+    \small $R$, $C$, $L$ elements%
+  };
+
+  % Bottom row: pulmonary Windkessel  ←  RV  ←  RA
+  \node[card-orange, windkessel] (pul) at (-4.5, -2) {%
+    {\bfseries pulmonary Windkessel}\\[2pt]
+    \small arterial / venous\\
+    \small $R$, $C$, $L$ elements%
+  };
+  \node[card-blue, chamber] (RV) at ( 0.0, -2) {RV};
+  \node[card-blue, chamber] (RA) at ( 4.5, -2) {RA};
+
+  % --- Top forward flow (left → right): LA → LV → systemic ---
+  \draw[flow-blue, line width=1.0pt] (LA.east) -- node[valve] {MV} (LV.west);
+  \draw[flow-blue, line width=1.0pt] (LV.east) -- node[valve] {AV} (sys.west);
+
+  % --- Right vertical: systemic return (sys → RA) ---
+  \draw[flow-gray, line width=1.0pt] (sys.south) --
+    node[return-label] {systemic return}
+    (RA.north);
+
+  % --- Bottom forward flow (right → left): RA → RV → pulmonary ---
+  \draw[flow-pink, line width=1.0pt] (RA.west) -- node[valve] {TV} (RV.east);
+  \draw[flow-pink, line width=1.0pt] (RV.west) -- node[valve] {PV} (pul.east);
+
+  % --- Left vertical: pulmonary return (pul → LA) ---
+  \draw[flow-gray, line width=1.0pt] (pul.north) --
+    node[return-label] {pulmonary return}
+    (LA.south);
+
+\end{tikzpicture}
+\end{document}

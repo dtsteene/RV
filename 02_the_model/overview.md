@@ -15,7 +15,7 @@ The implementation combines three open-source components. `cardiac-geometries` {
 :name: fig-pipeline-prep
 :width: 100%
 
-Preparation pipeline. The geometry and fibre fields define the finite-element heart; the 0D circulation pre-run establishes a periodic hemodynamic state and a fixed mesh-to-circulation volume scaling; prestressing constructs the unloaded reference configuration. The five steps run once, before the coupled solve begins.
+Preparation pipeline, run once before the coupled solve. Each arrow carries the artefact produced by the upstream step: mesh and surface tags, the fibre-sheet-normal frame $(\mathbf{f}_0,\mathbf{s}_0,\mathbf{n}_0)$, the periodic 0D state $\mathbf{y}_\text{0D}^{ED}$, and the mesh-to-circulation scale factors $s_\text{LV},s_\text{RV}$. The dashed exit hands the unloaded reference configuration $\mathcal{B}_0$ to the coupled solve.
 ```
 
 Once preparation has produced a calibrated reference configuration, the coupled solve advances one time step at a time. The 0D circulation requests target LV and RV cavity volumes; the mechanics solver finds the displacement field that satisfies these volumes under the prescribed active tension and returns the corresponding cavity pressures as Lagrange multipliers. {numref}`fig-pipeline-loop` shows this exchange together with the auxiliary input and output streams.
@@ -24,7 +24,7 @@ Once preparation has produced a calibrated reference configuration, the coupled 
 :name: fig-pipeline-loop
 :width: 80%
 
-Coupled 3D--0D time step. The 0D circulation sends target LV and RV cavity volumes to the mechanics solver; active tension is prescribed by the Blanco waveform; the solver returns cavity pressures. Stress, strain, and work-density metrics are recorded from the solved state.
+Coupled 3D--0D time step. The 0D circulation supplies target cavity volumes $\mathcal{V}^{*}_\text{LV},\mathcal{V}^{*}_\text{RV}$; the mechanics solver returns the corresponding Lagrange multipliers $p_\text{LV},p_\text{RV}$. The Blanco-waveform active tension $T_a(t)$ is a prescribed time-series input; stress, strain, and work-density fields are recorded as post-processing readouts.
 ```
 
 The model description follows this pipeline. {ref}`sec-geometry-anatomical-model` defines the mesh and anatomical tags. {ref}`sec-fibers` explains how the local fibre-sheet-normal frame is assigned. {ref}`sec-3d-mechanics` gives the finite-strain kinematics, passive Holzapfel-Ogden material law, active-stress contribution, equilibrium problem, and boundary/support conditions. {ref}`sec-active-contraction` then focuses on the time course and spatial assignment of active tension, and {ref}`sec-0d-circulation` gives the standalone 0D model and the 3D--0D coupling.

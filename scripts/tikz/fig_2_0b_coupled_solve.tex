@@ -6,43 +6,39 @@
 \begin{document}
 \begin{tikzpicture}[x=1cm, y=1cm]
 
-  % Main pair on a horizontal axis.
-  \node[card-blue, minimum width=52mm, minimum height=22mm] (circ) at (-3.6, 0) {%
+  % Main coupled pair — these are the focus of the figure.
+  \node[card-blue, minimum width=54mm, minimum height=22mm] (circ) at (-3.7, 0) {%
     {\bfseries 0D circulation}\\[4pt]
-    \scriptsize advance circuit\\
-    \scriptsize request target volumes%
+    \small advance circuit\\
+    \small request target volumes%
   };
-  \node[card-pink, minimum width=52mm, minimum height=22mm] (mech) at ( 3.6, 0) {%
+  \node[card-pink, minimum width=54mm, minimum height=22mm] (mech) at ( 3.7, 0) {%
     {\bfseries 3D mechanics}\\[4pt]
-    \scriptsize solve equilibrium\\
-    \scriptsize return cavity pressures%
+    \small solve equilibrium\\
+    \small return cavity pressures%
   };
 
-  % Output above mechanics.
-  \node[card-gray, minimum width=46mm, minimum height=14mm] (rec) at (3.6, 2.7) {%
-    {\bfseries Record metrics}\\[2pt]
-    \scriptsize stress, strain, work density%
-  };
-
-  % Input below mechanics.
-  \node[card-orange, minimum width=46mm, minimum height=14mm] (act) at (3.6, -2.7) {%
-    {\bfseries Active tension}\\[2pt]
-    \scriptsize Blanco waveform%
-  };
-
-  % Bidirectional volumes/pressures exchange.
+  % Bidirectional exchange — labelled with the actual symbols.
   \draw[flow-blue, line width=1.0pt]
     ([yshift=4mm]circ.east) --
-    node[edge-label, text=uioblue1, above=2pt, pos=0.5] {target volumes}
+    node[edge-label, text=uioblue1, above=2pt, pos=0.5]
+        {$\mathcal{V}^{*}_\text{LV},\,\mathcal{V}^{*}_\text{RV}$}
     ([yshift=4mm]mech.west);
   \draw[flow-pink, line width=1.0pt]
     ([yshift=-4mm]mech.west) --
-    node[edge-label, text=uiopink1, below=2pt, pos=0.5] {pressures}
+    node[edge-label, text=uiopink1, below=2pt, pos=0.5]
+        {$p_\text{LV},\,p_\text{RV}$}
     ([yshift=-4mm]circ.east);
 
-  % Active tension drives mechanics; mechanics emits metrics.
-  \draw[flow-orange] (act) -- (mech);
-  \draw[flow-gray]   (mech) -- (rec);
+  % Active tension — a time-series input, not a peer module. Demoted.
+  \draw[flow-orange, line width=0.9pt] (3.7, -1.95) -- (mech.south);
+  \node[font=\normalsize, text=uioorange1!85!black, align=center] at (3.7, -2.35)
+    {$T_a(t)$\ \ Blanco activation};
+
+  % Recorded outputs — post-processing readouts. Demoted.
+  \draw[flow-gray, line width=0.9pt] (mech.north) -- (3.7, 1.95);
+  \node[font=\normalsize, text=black!60, align=center] at (3.7, 2.35)
+    {stress, strain, work density};
 
 \end{tikzpicture}
 \end{document}

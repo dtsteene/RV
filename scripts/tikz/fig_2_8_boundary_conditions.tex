@@ -13,26 +13,26 @@
   };
 
   % Top row — cavity-volume constraints (blue accent).
-  \node[card-blue, minimum width=44mm] (lv) at (-5.4, 2.6) {%
-    {\bfseries LV endocardium}\\[3pt]
+  \node[card-blue, minimum width=46mm] (lv) at (-5.4, 2.6) {%
+    $\Gamma_\mathrm{LV}$\,\ {\bfseries LV endocardium}\\[3pt]
     $\mathcal{V}_\mathrm{LV}=\mathcal{V}_\mathrm{LV}^{\ast}$\\[1pt]
     returns $p_\mathrm{LV}$%
   };
-  \node[card-blue, minimum width=44mm] (rv) at (5.4, 2.6) {%
-    {\bfseries RV endocardium}\\[3pt]
+  \node[card-blue, minimum width=46mm] (rv) at (5.4, 2.6) {%
+    $\Gamma_\mathrm{RV}$\,\ {\bfseries RV endocardium}\\[3pt]
     $\mathcal{V}_\mathrm{RV}=\mathcal{V}_\mathrm{RV}^{\ast}$\\[1pt]
     returns $p_\mathrm{RV}$%
   };
 
   % Bottom row — Robin supports (green accent).
-  \node[card-green, minimum width=44mm] (epi) at (-5.4, -2.6) {%
-    {\bfseries epicardium}\\[3pt]
+  \node[card-green, minimum width=46mm] (epi) at (-5.4, -2.6) {%
+    $\Gamma_\mathrm{epi}$\,\ {\bfseries epicardium}\\[3pt]
     Robin spring\\[1pt]
     normal direction only%
   };
-  \node[card-green, minimum width=44mm] (base) at (5.4, -2.6) {%
-    {\bfseries base}\\[3pt]
-    partial Dirichlet\\[1pt]
+  \node[card-green, minimum width=46mm] (base) at (5.4, -2.6) {%
+    $\Gamma_\mathrm{base}$\,\ {\bfseries base}\\[3pt]
+    $u_n = 0$\\[1pt]
     Robin spring%
   };
 

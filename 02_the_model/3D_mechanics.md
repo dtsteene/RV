@@ -201,7 +201,7 @@ where $\mathbf{n} = J\mathbf{F}^{-\top}\mathbf{N} / |J\mathbf{F}^{-\top}\mathbf{
 :name: fig-bc-schematic
 :width: 80%
 
-Boundary and cavity conditions on the biventricular reference mesh. The LV and RV endocardial surfaces $\Gamma_\text{LV}, \Gamma_\text{RV}$ define the cavity-volume constraints; the associated pressures are Lagrange multipliers returned by the mechanics solve. The basal plane $\Gamma_\text{base}$ has only its base-normal displacement component constrained by a Dirichlet condition and is also supported by stiff Robin springs. The epicardial surface $\Gamma_\text{epi}$ is supported by softer Robin springs acting along the deformed surface normal, modelling the pericardial constraint while allowing tangential sliding.
+Boundary and cavity conditions on the biventricular reference mesh. The LV and RV endocardial surfaces $\Gamma_\text{LV}, \Gamma_\text{RV}$ define the cavity-volume constraints; the associated pressures are the Lagrange multipliers returned by the mechanics solve. The targets $\mathcal{V}_\text{LV}^{*}, \mathcal{V}_\text{RV}^{*}$ are supplied each step by the 0D circulation. On the basal plane $\Gamma_\text{base}$, the displacement component along the base normal, $u_n = \mathbf{u}\cdot\mathbf{n}$, is fixed to zero, while the in-plane components are left free and lightly resisted by stiff Robin springs. The epicardial surface $\Gamma_\text{epi}$ is supported by softer Robin springs acting along the deformed surface normal, modelling the pericardial constraint while allowing tangential sliding.
 ```
 
 (sec-newton-method)=

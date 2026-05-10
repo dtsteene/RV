@@ -16,7 +16,7 @@ The model state is a vector $\mathbf{y}(t) \in \mathbb{R}^{12}$ consisting of th
 :name: fig-0d-network
 :width: 90%
 
-Network diagram of the closed-loop four-chamber circulation model. The four cardiac chambers (LA, LV, RA, RV) are drawn as time-varying elastances; the four valves (mitral, aortic, tricuspid, pulmonary) as ideal diodes with finite forward and large backward resistance; and the systemic and pulmonary vasculature as RCL Windkessel models with arterial and venous compartments. Arrows indicate the direction of forward flow during a single cardiac cycle.
+Closed-loop four-chamber circulation. The four chambers (LA, LV, RA, RV) are time-varying elastances; the four valves (MV, AV, TV, PV, drawn as diamond glyphs along the flow arrows) are ideal diodes with finite forward and large backward resistance; the systemic and pulmonary vasculature are $R$-$C$-$L$ Windkessels with separate arterial and venous compartments. Arrows trace the forward-flow direction across one cardiac cycle.
 ```
 
 In the standalone 0D circulation model, each cardiac chamber has a time-varying elastance $\mathcal{E}(t)$ that determines how cavity pressure responds to volume. The chamber pressure is
@@ -139,7 +139,7 @@ The associated Lagrange multipliers are returned as $p_\text{LV}$ and $p_\text{R
 :name: fig-coupling-schematic
 :width: 75%
 
-Bidirectional 3D--0D coupling. At each time step the 0D solver advances the circulation state and emits target cavity volumes $\mathcal{V}_\text{LV}^{*}, \mathcal{V}_\text{RV}^{*}$; these are scaled by the fixed mesh-to-0D volume ratio and passed to the FEM solver, which finds the displacement field that satisfies mechanical equilibrium at the prescribed volumes; the resulting cavity Lagrange multipliers $p_\text{LV}, p_\text{RV}$ are returned to the 0D solver to advance the next step. Volumes flow one way, pressures flow the other; the volume scaling ratio is computed once at simulation start and held fixed.
+Bidirectional 3D--0D coupling at one time step. The 0D solver emits target cavity volumes $\mathcal{V}^{*}_\text{0D}$; these pass through the fixed mesh-to-0D scaling $\mathcal{V}^{*}_\text{FEM} = s_c\,\mathcal{V}^{*}_\text{0D}$ and become cavity-volume constraints on the FEM solve, which returns the corresponding cavity Lagrange multipliers $p_\text{LV}, p_\text{RV}$. The asymmetry is the content of the figure: volumes pass through scaling, pressures return direct. The active tension $T_a(t)$ enters as a prescribed input; stress, strain, and work-density fields are recorded as readouts. The scale factors $s_\text{LV},s_\text{RV}$ are computed once at simulation start and held fixed.
 ```
 
 (sec-solver-pressure)=
