@@ -1,0 +1,26 @@
+\documentclass[border=8pt]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath, amssymb, bm}
+\input{_uio_style}
+
+\begin{document}
+\begin{tikzpicture}[
+    node distance=8mm,
+    every node/.append style={font=\small},
+  ]
+
+  \tikzset{prep/.style={minimum width=30mm, minimum height=14mm}}
+
+  \node[card-green,  prep] (geom) {{\bfseries Geometry}\\[2pt]\scriptsize mesh, labels};
+  \node[card-orange, prep, right=of geom]  (fib)   {{\bfseries Fibres}\\[2pt]\scriptsize LDRB frame};
+  \node[card-blue,   prep, right=of fib]   (warm)  {{\bfseries 0D warm-up}\\[2pt]\scriptsize periodic cycle};
+  \node[card-gray,   prep, right=of warm]  (scale) {{\bfseries Scale}\\[2pt]\scriptsize match volumes};
+  \node[card-pink,   prep, right=of scale] (pre)   {{\bfseries Prestress}\\[2pt]\scriptsize reference config};
+
+  \draw[flow-gray, line width=0.9pt] (geom)  -- (fib);
+  \draw[flow-gray, line width=0.9pt] (fib)   -- (warm);
+  \draw[flow-gray, line width=0.9pt] (warm)  -- (scale);
+  \draw[flow-gray, line width=0.9pt] (scale) -- (pre);
+
+\end{tikzpicture}
+\end{document}

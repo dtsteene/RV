@@ -1,0 +1,48 @@
+\documentclass[border=8pt]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath, amssymb, bm}
+\input{_uio_style}
+
+\begin{document}
+\begin{tikzpicture}[x=1cm, y=1cm]
+
+  % Main pair on a horizontal axis.
+  \node[card-blue, minimum width=52mm, minimum height=22mm] (circ) at (-3.6, 0) {%
+    {\bfseries 0D circulation}\\[4pt]
+    \scriptsize advance circuit\\
+    \scriptsize request target volumes%
+  };
+  \node[card-pink, minimum width=52mm, minimum height=22mm] (mech) at ( 3.6, 0) {%
+    {\bfseries 3D mechanics}\\[4pt]
+    \scriptsize solve equilibrium\\
+    \scriptsize return cavity pressures%
+  };
+
+  % Output above mechanics.
+  \node[card-gray, minimum width=46mm, minimum height=14mm] (rec) at (3.6, 2.7) {%
+    {\bfseries Record metrics}\\[2pt]
+    \scriptsize stress, strain, work density%
+  };
+
+  % Input below mechanics.
+  \node[card-orange, minimum width=46mm, minimum height=14mm] (act) at (3.6, -2.7) {%
+    {\bfseries Active tension}\\[2pt]
+    \scriptsize Blanco waveform%
+  };
+
+  % Bidirectional volumes/pressures exchange.
+  \draw[flow-blue, line width=1.0pt]
+    ([yshift=4mm]circ.east) --
+    node[edge-label, text=uioblue1, above=2pt, pos=0.5] {target volumes}
+    ([yshift=4mm]mech.west);
+  \draw[flow-pink, line width=1.0pt]
+    ([yshift=-4mm]mech.west) --
+    node[edge-label, text=uiopink1, below=2pt, pos=0.5] {pressures}
+    ([yshift=-4mm]circ.east);
+
+  % Active tension drives mechanics; mechanics emits metrics.
+  \draw[flow-orange] (act) -- (mech);
+  \draw[flow-gray]   (mech) -- (rec);
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,56 @@
+\documentclass[border=8pt]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath, amssymb, bm}
+\input{_uio_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 16mm]
+
+  % Central node — the mechanics body.
+  \node[hub, minimum width=46mm, minimum height=22mm] (body) at (0, 0) {%
+    {\small\bfseries biventricular mechanics}\\[5pt]
+    $\bm{u},\ p_\mathrm{LV},\ p_\mathrm{RV}$%
+  };
+
+  % Top row — cavity-volume constraints (blue accent).
+  \node[card-blue, minimum width=44mm] (lv) at (-5.4, 2.6) {%
+    {\bfseries LV endocardium}\\[3pt]
+    $\mathcal{V}_\mathrm{LV}=\mathcal{V}_\mathrm{LV}^{\ast}$\\[1pt]
+    returns $p_\mathrm{LV}$%
+  };
+  \node[card-blue, minimum width=44mm] (rv) at (5.4, 2.6) {%
+    {\bfseries RV endocardium}\\[3pt]
+    $\mathcal{V}_\mathrm{RV}=\mathcal{V}_\mathrm{RV}^{\ast}$\\[1pt]
+    returns $p_\mathrm{RV}$%
+  };
+
+  % Bottom row — Robin supports (green accent).
+  \node[card-green, minimum width=44mm] (epi) at (-5.4, -2.6) {%
+    {\bfseries epicardium}\\[3pt]
+    Robin spring\\[1pt]
+    normal direction only%
+  };
+  \node[card-green, minimum width=44mm] (base) at (5.4, -2.6) {%
+    {\bfseries base}\\[3pt]
+    partial Dirichlet\\[1pt]
+    Robin spring%
+  };
+
+  % Constraint arrows — top to centre.
+  \draw[flow-blue] (lv.south east) to[bend left=14]
+    node[edge-label, text=uioblue1, pos=0.55] {constraint}
+    (body.north west);
+  \draw[flow-blue] (rv.south west) to[bend right=14]
+    node[edge-label, text=uioblue1, pos=0.55] {constraint}
+    (body.north east);
+
+  % Support arrows — bottom to centre.
+  \draw[flow-green] (epi.north east) to[bend right=14]
+    node[edge-label, text=uiogreen1!60!black, pos=0.55] {support}
+    (body.south west);
+  \draw[flow-green] (base.north west) to[bend left=14]
+    node[edge-label, text=uiogreen1!60!black, pos=0.55] {support}
+    (body.south east);
+
+\end{tikzpicture}
+\end{document}

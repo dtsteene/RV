@@ -9,13 +9,22 @@ Each model ingredient answers a limitation of a simpler description. The geometr
 
 The coupling can be summarized in one sentence: the circulation asks the finite-element heart to realize a pair of cavity volumes, and the finite-element heart solves for the mesh displacement and the pressures required to do so. Volumes therefore pass from the zero-dimensional circulation model to the three-dimensional mechanics model; pressures pass back in the opposite direction. Stress, strain, and work are then evaluated from the solved displacement field and material law. This volume-controlled formulation is the backbone of the simulations reported here.
 
-The implementation combines three open-source components. `cardiac-geometries` {cite}`cardiac_geometries` generates and labels the biventricular mesh. `fenicsx-pulse` {cite}`fenicsx_pulse` solves the finite-strain mechanics problem, including cavity-volume constraints, active stress, boundary conditions, and prestressing. `circulation` {cite}`circulation` provides the closed-loop four-chamber circulation model of Regazzoni et al. {cite}`regazzoni2022cardiac`. {numref}`fig-pipeline` shows how these pieces are used in one end-to-end run.
+The implementation combines three open-source components. `cardiac-geometries` {cite}`cardiac_geometries` generates and labels the biventricular mesh. `fenicsx-pulse` {cite}`fenicsx_pulse` solves the finite-strain mechanics problem, including cavity-volume constraints, active stress, boundary conditions, and prestressing. `circulation` {cite}`circulation` provides the closed-loop four-chamber circulation model of Regazzoni et al. {cite}`regazzoni2022cardiac`. The pipeline runs in two stages: a one-time preparation phase that constructs the simulation state, then the coupled time loop that advances it. The five preparation steps are summarised in {numref}`fig-pipeline-prep`.
 
-```{figure} ../figures/fig_2_0_pipeline_overview.png
-:name: fig-pipeline
+```{figure} ../figures/fig_2_0a_preparation.png
+:name: fig-pipeline-prep
 :width: 100%
 
-End-to-end simulation pipeline. The geometry and fibre fields define the finite-element heart. A zero-dimensional circulation pre-run establishes a periodic hemodynamic state and a fixed mesh-to-circulation volume scaling. Prestressing constructs the unloaded reference configuration. During the main loop, the circulation sends target LV and RV volumes to the mechanics solver, active tension is prescribed, and the solver returns cavity pressures. Stress-strain quantities are recorded from the solved state.
+Preparation pipeline. The geometry and fibre fields define the finite-element heart; the 0D circulation pre-run establishes a periodic hemodynamic state and a fixed mesh-to-circulation volume scaling; prestressing constructs the unloaded reference configuration. The five steps run once, before the coupled solve begins.
+```
+
+Once preparation has produced a calibrated reference configuration, the coupled solve advances one time step at a time. The 0D circulation requests target LV and RV cavity volumes; the mechanics solver finds the displacement field that satisfies these volumes under the prescribed active tension and returns the corresponding cavity pressures as Lagrange multipliers. {numref}`fig-pipeline-loop` shows this exchange together with the auxiliary input and output streams.
+
+```{figure} ../figures/fig_2_0b_coupled_solve.png
+:name: fig-pipeline-loop
+:width: 80%
+
+Coupled 3D--0D time step. The 0D circulation sends target LV and RV cavity volumes to the mechanics solver; active tension is prescribed by the Blanco waveform; the solver returns cavity pressures. Stress, strain, and work-density metrics are recorded from the solved state.
 ```
 
 The model description follows this pipeline. {ref}`sec-geometry-anatomical-model` defines the mesh and anatomical tags. {ref}`sec-fibers` explains how the local fibre-sheet-normal frame is assigned. {ref}`sec-3d-mechanics` gives the finite-strain kinematics, passive Holzapfel-Ogden material law, active-stress contribution, equilibrium problem, and boundary/support conditions. {ref}`sec-active-contraction` then focuses on the time course and spatial assignment of active tension, and {ref}`sec-0d-circulation` gives the standalone 0D model and the 3D--0D coupling.

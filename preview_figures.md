@@ -10,7 +10,9 @@ This page is intentionally plain: open it with VS Code's Markdown Preview to ins
 
 ![fig_1_0_pv_loops_regazzoni_default](figures/fig_1_0_pv_loops_regazzoni_default.png)
 
-![fig_2_0_pipeline_overview](figures/fig_2_0_pipeline_overview.png)
+![fig_2_0a_preparation](figures/fig_2_0a_preparation.png)
+
+![fig_2_0b_coupled_solve](figures/fig_2_0b_coupled_solve.png)
 
 ![fig_2_10_0d_network](figures/fig_2_10_0d_network.png)
 
