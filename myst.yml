@@ -2,7 +2,7 @@
 version: 1
 project:
   id: c5b76a7e-0b48-4131-8e7e-837e5a0d79b3
-  title: "Pressure Proxies for Biventricular Myocardial Work: A Finite Element Study"
+  title: "Pressure Proxies for Biventricular Myocardial Work"
   description: A finite-element study of pressure-strain proxies for biventricular myocardial work.
   keywords: [
     "cardiac mechanics",
@@ -17,9 +17,20 @@ project:
       affiliation: "University of Oslo"
     }
   ]
+  exports:
+    - format: pdf
+      template: ./_templates/uio_thesis
+      output: _build/exports/thesis.pdf
+      thesis_subtitle: "A Finite Element Study"
+      supervisors: "Henrik Nicolay Finsberg \\and Samuel Wall \\and Javad Sadeghinia \\and Kent-Andre Mardal"
+      program: "Computational Science: Applied Mathematics and Risk Analysis"
+      department: "Department of Mathematics"
+      faculty: "Faculty of Mathematics and Natural Sciences"
+      color: blue
   github: https://github.com/dtsteene/RV
   # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
   toc:
+    - file: landing.md
     - file: intro.md
     - file: 01_the_question/The Scientific Question.md
     - file: 02_the_model/overview.md

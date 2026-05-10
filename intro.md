@@ -1,5 +1,6 @@
 ---
-title: Pressure Proxies for Biventricular Myocardial Work
+title: Introduction
+label: chap-introduction
 ---
 
 +++{"part" : "abstract"}
@@ -7,9 +8,6 @@ Clinical pressure-strain work combines an estimated cavity pressure with regiona
 
 The comparison is performed in the left-ventricular free wall, RV free wall, and septum during a 16-case RV pressure-loading sweep. The primary sweep uses capped RV end-diastolic pressure during inverse unloading, while keeping the image-derived end-diastolic geometry as the target, to avoid an implausibly collapsed RV unloaded reference in the severe fixed-geometry cases. In the free walls, where each wall is mainly loaded by one adjacent cavity, the adjacent-pressure proxy preserves the LV/RV work-density ratio and the RV pressure-longitudinal-strain index tracks RV free-wall stress-strain work across the sweep. The septum behaves differently because it is shared tissue with LV pressure on one side and RV pressure on the other. In the septum, transmural pressure is mechanically meaningful for net pressure difference but performs poorly as a work-density proxy: it gives the weakest ranking correlation in the primary sweep and the largest septum/free-wall magnitude error. LV pressure gives the best fixed-candidate magnitude result for the longitudinal proxy, while two-sided pressure choices become most faithful in the model-side fibre-strain diagnostic. The conclusion is therefore not a universal septal pressure formula. Pressure-strain work is most defensible in one-pressure free walls, while septal work in RV pressure overload should be interpreted as a shared-wall problem whose proxy performance depends on the validation metric and reference-state assumptions.
 +++
-
-(chap-introduction)=
-# Introduction
 
 The heart is, at the most reductive level, a mechanical pump. For each beat the left ventricle displaces roughly 70 mL of blood against a systemic arterial pressure near 100 mmHg, which amounts to about one joule of mechanical work per stroke; the right ventricle moves the same volume into the pulmonary circulation in parallel, at a fraction of that pressure.
 

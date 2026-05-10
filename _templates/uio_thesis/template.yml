@@ -1,0 +1,66 @@
+jtex: v1
+title: UiO Master Thesis
+description: UiO master's thesis with the official front page from uiomasterfp
+version: 1.0.0
+license: CC-BY-4.0
+authors:
+  - name: Daniel Steeneveldt
+    affiliations:
+      - University of Oslo
+tags:
+  - thesis
+  - uio
+parts:
+  - id: abstract
+    description: Thesis abstract; rendered after the inner UiO front page.
+  - id: preface
+    description: Preface and acknowledgements.
+  - id: ai_declaration
+    description: Declaration of the use of generative AI.
+doc:
+  - id: title
+    required: true
+  - id: authors
+    required: true
+  - id: date
+  - id: bibliography
+options:
+  - id: thesis_subtitle
+    type: string
+    title: Subtitle
+  - id: supervisors
+    type: string
+    title: Supervisors (LaTeX-style, separated by \and)
+  - id: program
+    type: string
+    title: Programme name
+  - id: department
+    type: string
+    title: Department
+    default: "Department of Mathematics"
+  - id: faculty
+    type: string
+    title: Faculty
+    default: "Faculty of Mathematics and Natural Sciences"
+  - id: color
+    type: string
+    title: Cover band colour (blue, gray, green, orange, pink)
+    default: blue
+files:
+  - template.tex
+  - uiomasterfp.sty
+  - uio-fp-navn-eng.pdf
+  - uio-fp-segl.pdf
+packages:
+  - geometry
+  - hyperref
+  - datetime
+  - graphicx
+  - natbib
+  - babel
+  - inputenc
+  - fontenc
+  - eso-pic
+  - xifthen
+  - keyval
+  - color

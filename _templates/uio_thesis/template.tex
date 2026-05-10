@@ -1,0 +1,106 @@
+\documentclass[a4paper, UKenglish, 11pt]{report}
+\usepackage[T1]{fontenc}
+\usepackage[UKenglish]{babel}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{datetime}
+\usepackage{graphicx}
+\usepackage{natbib}
+\bibliographystyle{abbrvnat}
+\usepackage{uiomasterfp}
+\renewcommand{\arraystretch}{0.95}
+
+[-IMPORTS-]
+
+% colors for hyperlinks
+\hypersetup{colorlinks=true, allcolors=blue}
+
+% MyST emits \section for each top-level page heading. In a `report`-class
+% thesis we want top-level to be \chapter. Save the originals first, then
+% remap one level up so the existing MyST heading stream becomes
+%   \section -> \chapter
+%   \subsection -> \section
+%   \subsubsection -> \subsection
+%   \paragraph -> \subsubsection
+\let\reportsection\section
+\let\reportsubsection\subsection
+\let\reportsubsubsection\subsubsection
+\let\reportparagraph\paragraph
+\let\section\chapter
+\let\subsection\reportsection
+\let\subsubsection\reportsubsection
+\let\paragraph\reportsubsubsection
+
+\title{[-doc.title-]}
+
+\author{[-doc.authors|join(" \\and ", "name")-]}
+
+\newdate{articleDate}{[-doc.date.day-]}{[-doc.date.month-]}{[-doc.date.year-]}
+\date{\displaydate{articleDate}}
+
+\begin{document}
+
+\uiomasterfp[
+  program={[- options.program | default("") -]},
+  dept={[- options.department | default("Department of Mathematics") -]},
+  fac={[- options.faculty | default("Faculty of Mathematics and Natural Sciences") -]},
+  supervisors={[- options.supervisors | default("") -]},
+  color={[- options.color | default("blue") -]},
+  subtitle={[- options.thesis_subtitle | default("") -]},
+  long
+]
+
+[# if parts.abstract #]
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+[-parts.abstract-]
+[# endif #]
+
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+
+This thesis was written at the Department of Mathematics, University of Oslo, as part of the master's programme in Computational Science: Applied Mathematics and Risk Analysis. The simulation work was carried out at Simula Research Laboratory's Department of Computational Physiology.
+
+My largest debt is to Henrik Finsberg at Simula. He has been my main sparring partner throughout the project, and is the person I have leaned on most for the technically hardest parts of the setup --- the inverse-unloading workflow, the field-level stress check that uncovered the compressible-library bug in the volumetric strain handling, and the broader 3D--0D postprocessing pipeline that produces the work-density reference used throughout the thesis. The project would have stalled in several places without him.
+
+Javad Sadeghinia taught me solid mechanics in a setting I had not worked in before starting this thesis. Much of what I now assume about cardiac tissue mechanics I learned from him, and his engineering perspective shaped how I think about checking model outputs against something physical.
+
+Samuel Wall provided perspective at a higher level: where this project sits next to other work in the group, where the assumptions matter clinically, and where they do not. Those conversations helped me see the thesis as part of a larger argument rather than a single case study.
+
+Kent-Andre Mardal at the Department of Mathematics is my formal internal supervisor at UiO. Although our direct contact during the thesis itself was limited, the finite-element course he taught in my second semester is the foundation everything else here is built on.
+
+I also want to thank Espen Remme at the Institute for Surgical Research, who is not formally a supervisor on this project but whose feedback on the clinical framing --- how the pressure-strain proxy is actually used in echocardiography, and what cardiologists trust --- meaningfully shaped how the scientific question is posed.
+
+Finally, thanks to my fellow students and to the staff at Simula for an environment in which a project like this could be done.
+
+\noindent Daniel Steeneveldt\\
+Oslo, May 2026
+
+\chapter*{Declaration of the use of generative artificial intelligence}
+\addcontentsline{toc}{chapter}{Declaration of the use of generative artificial intelligence}
+
+In this scientific work, generative artificial intelligence (AI) has been used. All data and personal information have been processed in accordance with the University of Oslo's regulations, and I, as the author of the document, take full responsibility for its content, claims, and references. An overview of the use of generative AI is provided below.
+
+\begin{itemize}
+  \item \textbf{Writing and editing.} Generative AI was used as a writing assistant throughout the thesis: rewriting paragraphs, suggesting structural reorganisation, tightening prose, flagging redundancies, and proposing alternative phrasings. All AI-generated text was read, edited, and approved by me before inclusion, and the substantive content, claims, references, and conclusions are my own.
+  \item \textbf{Mathematical and pedagogical discussion.} Standard continuum-mechanics derivations and other unfamiliar material were worked through with AI to help me build the necessary intuition; the resulting derivations and statements were then verified against the cited primary sources.
+  \item \textbf{Drafting of supporting code.} A small number of Python scripts used for postprocessing checks and figure generation were drafted with AI assistance and then tested, reviewed, and integrated by me. The simulation pipeline itself, the FEniCSx mechanics setup, and the production runs were not AI-generated.
+  \item \textbf{Project-level discussion and debugging.} During development, AI was used as a discussion partner alongside my supervisors when simulation outputs did not match expectations. At this point in modern research workflows the boundaries between author, supervisor, and AI input are not always sharp, and I have tried to acknowledge each where it is clearest.
+  \item \textbf{Drafting of the preface and this declaration.} The preface and this declaration were initially drafted by AI based on my notes and then edited by me before inclusion.
+\end{itemize}
+
+No AI-generated images appear in the thesis. All figures were produced by me from simulation outputs, except those explicitly attributed in their captions. No personal or patient data were processed through AI tools. Several mainstream generative AI tools were used at different points during the project.
+
+\noindent Daniel Steeneveldt\\
+Oslo, May 2026
+
+\tableofcontents
+\newpage
+
+[-CONTENT-]
+
+
+[# if doc.bibliography #]
+\bibliography{[- doc.bibliography | join(", ") -]}
+[# endif #]
+\end{document}
