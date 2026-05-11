@@ -134,7 +134,14 @@ $$
 
 This subtraction matches the clinical convention that strain is measured relative to the end-diastolic frame. It does not change the pressure-strain loop area, because $w_{\text{PS},ll}$ uses increments $\Delta\varepsilon_{ll,j}$; it only fixes the displayed zero level of the strain trace. The same projection and start-of-beat increment convention are applied per cell during postprocessing. The pressure used in $w_{\text{PS},ll}$ is the solver cavity pressure — the Lagrange multiplier that enforces the cavity-volume constraint in the mechanics problem — not the standalone zero-dimensional circulation pressure.
 
-The pressure assignment is straightforward only in the free walls. The LV free wall is paired with $p_\text{LV}$ and the RV free wall with $p_\text{RV}$. The septum is shared tissue with LV pressure on one face and RV pressure on the other, and assigning one scalar pressure to it is already a mechanical assumption.
+The pressure assignment is straightforward only in the free walls. The LV free wall is paired with $p_\text{LV}$ and the RV free wall with $p_\text{RV}$. The septum is shared tissue with LV pressure on one face and RV pressure on the other, and assigning one scalar pressure to it is already a mechanical assumption. {numref}`fig-freewall-septum-schematic` shows this asymmetry directly.
+
+```{figure} ../figures/fig_5_0_freewall_vs_septum_schematic.png
+:name: fig-freewall-septum-schematic
+:width: 85%
+
+The pressure assignment is mechanically simple for a free wall and ambiguous for the septum. A free wall has one adjacent cavity pressure. The septum is shared tissue with LV pressure on one face and RV pressure on the other, so pressure difference, mean pressure, and through-wall weighted pressure are all mechanically plausible but answer different questions.
+```
 
 For the septum, the tested pressure choices are defined from the two solver cavity pressures and, for the spatially varying choices, from a transventricular coordinate. The one-sided choices are $p_\text{LV}$ and $p_\text{RV}$. The transmural choice is $p_\text{LV}-p_\text{RV}$, the mean choice is $\tfrac{1}{2}(p_\text{LV}+p_\text{RV})$, and the nearest-side choice assigns $p_\text{LV}$ to cells on the LV side and $p_\text{RV}$ to cells on the RV side. The through-wall weighted choice uses a scalar $\lambda(\mathbf{X})$ that is one on the LV side and zero on the RV side, so that
 
