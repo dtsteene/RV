@@ -1,0 +1,96 @@
+⚠️  myst.yml 'config' extra keys ignored: execute, bibtex_bibfiles, sphinx (at myst.yml)
+
+The HOST environment variable is set to "x86_64-conda-linux-gnu", we are overwriting this to "localhost".
+To keep this value use the `--keep-host` flag.
+
+
+building myst-cli session with API URL: https://api.mystmd.org
+🍡 Execution parallelism set to: 63
+🌎 Building MyST site
+Building the base site.
+To set a baseurl (e.g. GitHub pages) use "BASE_URL" environment variable.
+📖 Built 01_the_question/The Scientific Question.md in 760 ms.
+📖 Built 02_the_model/overview.md in 793 ms.
+📖 Built 02_the_model/geometry.md in 857 ms.
+📖 Built 02_the_model/fibers.md in 937 ms.
+📖 Built 02_the_model/3D_mechanics.md in 1.05 s.
+📖 Built 02_the_model/active_contraction.md in 1.08 s.
+📖 Built 02_the_model/0D_circulation.md in 1.14 s.
+📖 Built 02_the_model/software.md in 1.18 s.
+📖 Built 03_implementation/implementation.md in 1.2 s.
+📖 Built 04_tuning/tuning.md in 1.24 s.
+📖 Built 05_results/results.md in 1.32 s.
+📖 Built 06_discussion/discussion.md in 1.41 s.
+📖 Built 07_conclusion/conclusion.md in 1.4 s.
+📖 Built 08_appendix/circulation_calibration.md in 1.48 s.
+📖 Built 08_appendix/numerical_robustness.md in 1.51 s.
+📖 Built landing.md in 1.8 s.
+📖 Built intro.md in 1.89 s.
+📖 Built 08_appendix/energy_identity_derivation.md in 1.77 s.
+📚 Built 18 pages for project in 3.77 s.
+
+
+	✨✨✨  Starting Book Theme  ✨✨✨
+
+
+
+🔌 Server started on port 3002!  🥳 🎉
+
+
+	👉  http://localhost:3002  👈
+
+
+
+   ╭────────────────────────────────────────────╮
+   │                                            │
+   │     Update available! v1.8.2 ≫ v1.9.0      │
+   │                                            │
+   │   Run `pip install -U mystmd` to update.   │
+   │                                            │
+   │      Follow @mystmd.org for updates!       │
+   │    https://bsky.app/profile/mystmd.org     │
+   │                                            │
+   ╰────────────────────────────────────────────╯
+
+💌 GET  / 200 - - 82.576 ms
+GET /overview 200 - - 132.536 ms
+GET /the-scientific-question 200 - - 119.916 ms
+GET /geometry 200 - - 148.310 ms
+GET /intro 200 - - 181.091 ms
+💌 GET  /active-contraction 200 - - 142.265 ms
+GET /fibers 200 - - 131.587 ms
+GET /d-mechanics 200 - - 138.798 ms
+💌 GET  /d-circulation 200 - - 129.245 ms
+💌 GET  /software 200 - - 107.480 ms
+💌 GET  /tuning 200 - - 171.507 ms
+GET /implementation 200 - - 211.067 ms
+💌 GET  /results 200 - - 137.764 ms
+💌 GET  /discussion 200 - - 104.252 ms
+💌 GET  /conclusion 200 - - 125.876 ms
+💌 GET  /index.json 200 - - 98.732 ms
+GET /energy-identity-derivation 200 - - 125.666 ms
+GET /circulation-calibration 200 - - 147.659 ms
+💌 GET  /numerical-robustness 200 - - 167.454 ms
+💌 GET  /intro.json 200 - - 71.974 ms
+💌 GET  /fibers.json 200 - - 59.570 ms
+GET /overview.json 200 - - 135.950 ms
+GET /the-scientific-question.json 200 - - 144.520 ms
+💌 GET  /geometry.json 200 - - 77.195 ms
+💌 GET  /d-mechanics.json 200 - - 36.915 ms
+💌 GET  /active-contraction.json 200 - - 20.224 ms
+GET /software.json 200 - - 24.797 ms
+GET /d-circulation.json 200 - - 26.419 ms
+GET /implementation.json 200 - - 16.587 ms
+💌 GET  /conclusion.json 200 - - 11.430 ms
+GET /tuning.json 200 - - 20.267 ms
+GET /discussion.json 200 - - 16.251 ms
+💌 GET  /results.json 200 - - 24.681 ms
+💌 GET  /robots.txt 200 - - 1.242 ms
+💌 GET  /circulation-calibration.json 200 - - 27.125 ms
+💌 GET  /sitemap_style.xsl 200 - - 1.005 ms
+GET /sitemap.xml 200 - - 14.194 ms
+GET /myst-theme.css 200 - - 20.078 ms
+💌 GET  /energy-identity-derivation.json 200 - - 27.990 ms
+GET /numerical-robustness.json 200 - - 25.941 ms
+💌 GET  /favicon.ico 200 - - 79.447 ms
+

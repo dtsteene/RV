@@ -76,7 +76,7 @@ $$
 
 This $w_\text{int}[\Omega_j]$ is the model-side reference quantity in the thesis: not a patient-level ground truth, but the internally consistent stress-strain work density produced by the chosen geometry, material law, activation, boundary conditions, and circulation coupling.
 
-The sign convention is kept explicit because the raw loop integrals are signed. With the strain convention used here, systolic shortening in a loaded direction gives a negative strain increment, so the accumulated stress-strain work and pressure-strain loop areas are often negative when written directly as $\int p\,d\varepsilon$ or $\int \mathbf{S}:\dot{\mathbf{E}}\,dt$. The analysis therefore uses the signed quantities when discussing component balances or loop orientation, but reports positive work-density magnitudes for ratios and magnitude errors by taking absolute values consistently across both integrals. When a figure shows signed plateau values, the caption states this directly.
+Both cycle integrals come out negative under the natural convention because systolic shortening in a loaded direction gives a negative strain increment. We report absolute magnitudes throughout; where a figure or component-balance discussion uses signed values, the caption says so.
 
 The pressure-longitudinal-strain proxy lives on the same density scale by construction. For a region $\Omega_j$ and an assigned pressure $p_j(t)$,
 
