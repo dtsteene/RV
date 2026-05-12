@@ -114,13 +114,13 @@ The solution is inverse elasticity, also called prestressing: given a deformed c
 
 This prestressing step is numerically delicate. The boundary conditions must be carefully chosen — a Robin condition on the epicardium with springs of stiffness $k_\text{epi} = 10^5$ Pa/m and a Dirichlet condition fixing the base prevent rigid body motion while allowing physiological deformation. The inverse problem typically requires 10–15 iterations to converge to a sufficiently stress-free reference.
 
-#### Metrics Calculation and the DG1 Projection Problem
+#### Energy-Consistent Postprocessing
 
-A significant amount of time was spent debugging what appeared to be a catastrophic energy imbalance in the simulation results. The computed internal mechanical work was returning values roughly three times lower than the external work done by the pressure forces — a violation of the first law of thermodynamics that seemed to indicate a fundamental flaw in the simulation.
+A significant amount of time was spent debugging what appeared to be a catastrophic energy imbalance: the computed internal mechanical work was returning values roughly three times lower than the external work done by the pressure forces. The first-pass explanation blamed DG1 projection of stress and strain for introducing oscillations in the thin septum. That explanation turned out to be wrong, and the real causes were three coincident bugs: the deviatoric-stress evaluation described above, the pressure history used in the boundary-work term, and the boundary-work bookkeeping itself.
 
-The source of this discrepancy was a subtle numerical artifact in how quantities were being projected between function spaces for post-processing. The stress $\mathbf{S}$ and strain $\mathbf{E}$ are computed at quadrature points inside each element. When these fields were projected to a first-order discontinuous Galerkin (DG1) space for storage and visualization, the projection introduced oscillations at the interfaces between elements. The DG1 projection assigns nodal values, and for the thin septum in particular — where steep gradients exist between the LV and RV sides — these oscillations were severe enough to cause sign changes in the integrand of the work calculation. Integrating an oscillating field over a thin region can produce a result with the wrong sign and wildly incorrect magnitude.
+Once those were fixed, replay tests showed that DG1 reproduces Quadrature-6 integrated regional stress-strain work to within about 1.2% in the septum and tighter elsewhere. DG0 is in fact the *less* faithful projection for high-pressure cases: it underestimates septal stress-strain work by 7.7% in sPAP60 and 15.4% in sPAP95. The thesis quantities are projection-independent because the current pipeline (`compute_per_cell.py`) evaluates the current stress directly from the UFL constitutive expression at quadrature, stores previous stress and strain in a degree-six quadrature space matching the integration rule, and uses DG0 only as a cellwise test-function partition of unity. A scalar cross-check enforces that the DG0 per-cell sum equals the independent scalar domain integral to machine precision.
 
-The fix was to use a piecewise-constant DG0 projection instead, where each cell in the mesh is assigned a single average value. This eliminates the oscillations entirely. The trade-off is spatial resolution, but for integrated quantities like total regional work, the DG0 approach is actually more accurate because it does not introduce spurious gradients.
+The DG0 fields exported to `derived_visual_fields/*/visual_fields.h5` are therefore a purely cosmetic post-projection for ParaView, not a load-bearing scientific choice. Detailed numbers are in `08_appendix/numerical_robustness.md`.
 
 ---
 
@@ -195,7 +195,7 @@ The conclusion should be brief. It restates the main finding in concrete terms, 
 - `02_the_model/3D_mechanics.md`: **WRITTEN.** Full kinematics → HO model → weak form → BCs. Compressible formulation choice explained. Bold definition-list style removed.
 - `02_the_model/active_contraction.md`: **WRITTEN** (file renamed from typo `active_contaction.md`). Active stress decomposition, Blanco activation model, spatially varying peak tension per zone.
 - `02_the_model/0D_circulation.md`: **WRITTEN.** Table removed. Prose description of Regazzoni model, Windkessel, volume ratio coupling, callback structure.
-- `03_implementation/implementation.md`: **WRITTEN.** New file. Covers prestressing, the deviatoric stress bug, DG1 projection error, heart rate calibration.
+- `03_implementation/implementation.md`: **WRITTEN.** New file. Covers prestressing, the deviatoric stress bug, energy-consistent postprocessing (Quadrature-6 + DG0 partition; the DG1-oscillation story was retracted — see appendix), heart rate calibration.
 - `myst.yml`: **FIXED.** Removed deleted `meeting.md`, fixed `active_contraction.md` name, fixed bib reference to `refrences.bib`, added `03_implementation/implementation.md`.
 
 ## What Still Needs to Be Created
