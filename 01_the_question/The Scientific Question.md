@@ -136,7 +136,7 @@ This subtraction matches the clinical convention that strain is measured relativ
 
 The pressure assignment is straightforward only in the free walls. The LV free wall is paired with $p_\text{LV}$ and the RV free wall with $p_\text{RV}$. The septum is shared tissue with LV pressure on one face and RV pressure on the other, and assigning one scalar pressure to it is already a mechanical assumption. {numref}`fig-freewall-septum-schematic` shows this asymmetry directly.
 
-```{figure} ../figures/fig_5_0_freewall_vs_septum_schematic.png
+```{figure} ../figures/fig_1_2_freewall_septum.png
 :name: fig-freewall-septum-schematic
 :width: 85%
 

@@ -51,7 +51,7 @@ The external work terms were also matched to the solver formulation. Cavity work
 (sec-app-mesh-convergence)=
 ## Mesh Convergence
 
-The primary capped-reference sweep was also audited directly before being promoted to the main result set. All 16 cases in the capped shared-L5 sweep use a single 5 mm reference tetrahedralisation ($n=8070$ cells) and a single set of region tags, integrated under the reference-tag protocol of {ref}`sec-reference-tag-postprocessing`. The pressure histories have shape `(4800, 2)`, the per-cell arrays are finite, and the geometric septum is 1269 cells while the tag-3 septum is 1266 cells in every case (a 0.1% volume difference shared across the sweep). The capped sweep is therefore numerically usable as a complete regional production set with one-to-one cell correspondence across cases.
+The primary capped-reference sweep was also audited directly before being promoted to the main result set. All 16 cases in the capped shared-L5 sweep use the same 5 mm reference mesh ($n=8070$ cells) and the same region tag set (see {ref}`sec-reference-tag-postprocessing`). The pressure histories have shape `(4800, 2)`, the per-cell arrays are finite, and the geometric septum is 1269 cells while the tag-3 septum is 1266 cells in every case (a 0.1% volume difference shared across the sweep). The capped sweep is therefore numerically usable as a complete regional production set with one-to-one cell correspondence across cases.
 
 The separate mesh-convergence study repeated three representative pressure cases, sPAP22, sPAP60, and sPAP95, using characteristic lengths of 10, 7.5, 5, and 3.75 mm. The 3.75 mm runs were used as the finest available reference.
 
@@ -106,7 +106,42 @@ A more targeted correction was then tested by keeping the same end-diastolic mes
 | sPAP95 | 72.2% | 75.8% | 20.9% | 65.3% |
 ```
 
+The most quantitative argument for the cap comes from a round-trip check: forward-simulating from the inferred unloaded reference back to end diastole should reproduce the imaged ED, since this is what the inverse problem is defined to solve. In the most severe uncapped case (sPAP95) this round-trip fails — the forward-simulated ED differs from the imaged ED by 9.4 mm whole-mesh mean and 13.9 mm at the septum (maximum local discrepancy 32 mm), while cavity volume is recovered exactly through the Lagrange-multiplier coupling. With the cap applied to the same case the residual drops to 3.7 mm whole-mesh mean and 4.3 mm at the septum, below typical CMR in-plane voxel resolution. The discrepancy is septum-localised in the uncapped case: septum residual is roughly 1.5 times the LV free-wall (9.0 mm) and RV free-wall (8.2 mm) means, consistent with the septum being the region whose deformation mode is most sensitive to the unloaded reference. The cap therefore restores round-trip consistency between the inverse-unloading and forward-inflation problems; without it the two solvers honour the cavity volume but disagree on the end-diastolic shape, particularly at the septum.
+
 This capped-unloading result is the most defensible fixed-geometry path among the tested options, and it is therefore used as the primary sweep in the thesis. It preserves the logic of inverse unloading from an end-diastolic image mesh, avoids treating passive stiffness as a free post-hoc target, and removes much of the severe RV reference collapse. The effect on work density was not a simple downward correction: in the severe sPAP80--92 block, mean RV stress-strain work density increased from 4.68 to 6.20 kPa and mean septal stress-strain work density from 2.26 to 5.53 kPa. The important conclusion is therefore reference-state sensitivity, not a guaranteed direction of bias. Acute fixed-reference loading was also tested as the opposite limit, by reusing the low-pressure reference configuration while increasing RV pressure, but high-pressure cases produced non-finite stress-strain work values even with circulation preconditioning and pressure/volume ramping. That failure is informative: the model needs a compatible pre-stressed reference state, but the original high-RV-EDP unloading target was too aggressive. The capped-RV-EDP sweep is therefore a bounded sensitivity model, not a claim that the fixed UKB anatomy has become a remodeled PAH heart.
+
+A complementary observation about the capped versus uncapped choice comes from the regional work-component decomposition. In the uncapped pre-cap sweep the septum's fibre share drifts from about 78% at low RV pressure down to 67% at high RV pressure, with the sheet-normal share rising from 31% to 40% and the cross-axis share climbing from about $-2\%$ to $+10\%$ across the same range. The capped sweep keeps these proportions flat: septum fibre share at about 80%, sheet-normal at about 32%, and cross near zero across all sixteen cases. The free walls show no such drift in either sweep. The septum is the only region where the decomposition is sensitive to the reference-state choice, because it is the only region whose deformation mode is strongly dictated by how the unloaded shape is inferred. The capped sweep brings every case to a similar unloaded reference, so case-to-case variation reduces to differences in cycle loading; the uncapped sweep lets each case re-infer its own unloaded shape from its own end-diastolic-pressure target, and the very small unloaded RV that this produces in the severe cases drives transmural stretch on the septum that shifts work out of fibre. Which sweep represents physiology better is not directly decidable from the data alone — both are different calibration choices for sixteen cases against the same image-derived mesh. The capped sweep operates as the bounded sensitivity model already described above; the uncapped sweep behaves more like sixteen independent re-calibrations whose calibration-side variation propagates into the cycle results.
+
+The cap value itself was also tested for sensitivity. {numref}`fig-app-cap-sensitivity-unloading` shows the per-case unloaded RV fraction at four cap values (3, 5, 8, 10 mmHg) across the sweep. Above 5 mmHg the inferred unloaded RV collapses toward the same regime as the uncapped pilot — at 10 mmHg severe cases unload to 33--37% of ED, and at 8 mmHg they fall to 41--47%. Below 5 mmHg the unloading is mild and uniform across the sweep (80--84%). The 5 mmHg production cap sits at the boundary where severe cases just begin to enter the small-unloaded-reference regime.
+
+```{figure} ../figures/fig_app_cap_sensitivity_unloading.png
+:name: fig-app-cap-sensitivity-unloading
+:width: 80%
+
+Sensitivity of the inferred unloaded RV fraction to the cap value, across the sixteen capped-reference sweep cases. Each line is one case, coloured by achieved RV systolic pressure. Above 5 mmHg the severe cases enter the small-unloaded-reference regime; below 5 mmHg the unloading is mild and uniform. The 5 mmHg production cap sits at the boundary.
+```
+
+To check that the central septum result does not depend on the exact cap value, six representative cases (sPAP22, sPAP45, sPAP65, sPAP80, sPAP92, sPAP95) were re-run with a 3 mmHg cap and compared to the matching cap=5 cases. {numref}`fig-app-cap-sensitivity-cycle` and {numref}`tab-app-cap-sensitivity-cycle` show the result: the transmural pressure-strain proxy correlation stays negative ($r=-0.07$ at cap=3 versus $r=-0.47$ on the same six cases at cap=5; the full 16-case cap=5 sweep gives $r=-0.33$). The septum magnitude ranking is preserved across cap values — LV pressure remains the best single-pressure choice and transmural pressure remains the worst at both cap=3 and cap=5. The qualitative septum conclusion is therefore robust to the cap value within the bracketing band.
+
+```{figure} ../figures/fig_app_cap_sensitivity_cycle.png
+:name: fig-app-cap-sensitivity-cycle
+:width: 95%
+
+Cap-value sensitivity on the cycle results. *Left:* transmural pressure-strain proxy as a function of achieved RV systolic pressure, comparing cap=3 mmHg (blue) and cap=5 mmHg (red) on the six representative cases. The trend is negative at both cap values; no sign flip toward positive correlation. *Right:* septum ratio-error $\eta$ per pressure choice at cap=3 (blue) versus cap=5 (red). The qualitative magnitude ranking (LV best, transmural worst) is preserved.
+```
+
+```{table} Cycle-level cap sensitivity for the six-case subset (sPAP22, sPAP45, sPAP65, sPAP80, sPAP92, sPAP95). Septum $\eta$ values are mean absolute log-ratio errors for the septum/free-wall ratio under the tangent-longitudinal pressure-strain proxy.
+:name: tab-app-cap-sensitivity-cycle
+:align: left
+
+| Cap (mmHg) | $r$ (transmural proxy, septum FE work) | Septum $\eta$ pLV | Septum $\eta$ pRV | Septum $\eta$ trans | Septum $\eta$ mean |
+|---:|---:|---:|---:|---:|---:|
+| 3 | -0.074 | 0.751 | 1.095 | 2.105 | 0.905 |
+| 5 (six-case subset) | -0.468 | 0.798 | 1.144 | 2.159 | 0.952 |
+| 5 (full 16-case, reference) | -0.331 | 0.805 | 1.171 | 2.075 | 0.969 |
+```
+
+The unloading bracket and the cycle robustness together justify the 5 mmHg choice: it cannot move much higher without re-entering the small-unloaded-reference regime, and it does not need to move lower because the central septum conclusion holds at cap=3.
 
 The changed reference-state path also changed the septal proxy ranking, which is why the capped sweep replaces the pre-cap sweep in the main results. {numref}`tab-app-precap-capped-septum` keeps the older sweep visible as a sensitivity result, while making clear that the rightmost capped columns are the production result used in {ref}`chap-results`.
 
@@ -126,7 +161,7 @@ The changed reference-state path also changed the septal proxy ranking, which is
 
 The table shows why the old pre-cap ranking should not be carried into the main thesis narrative. In that path, transmural pressure ranked the sweep well, but it already preserved magnitudes poorly. After the capped unloading correction, transmural pressure is poor by both tests, while LV, mean, nearest-side, and through-wall weighted pressure choices preserve a moderate positive ranking signal of $r \approx 0.53$--$0.55$. The common result across both sweeps is therefore not a universal best septal pressure. It is the weaker and more defensible claim used in the thesis: septal pressure-strain work is sensitive to loading and reference-state choices, and magnitude preservation is a safer diagnostic than sweep ranking alone.
 
-The shift from a weakly positive transmural ranking ($r=0.222$ under per-case canonical tagging) to a negative one ($r=-0.331$ under shared-tag postprocessing) had a specific methodological cause rather than a change in the underlying simulations. In the per-case-canonical analysis the geometric septum varied from 1203 to 1278 cells across the sixteen cases, and that case-to-case drift was sufficient to inject a spurious positive correlation that the shared-tag protocol of {ref}`sec-reference-tag-postprocessing` — which fixes the geometric septum at 1269 cells in every case — removes. An independent check confirms the negative correlation is not an artefact of the proxy construction either: the Pearson correlation between the achieved peak transmural pressure $p_\text{LV,ES}-p_\text{RV,ES}$ and the finite-element septal stress-strain work density across the sweep is $r=-0.56$, more negative than the proxy's $-0.331$.
+The shift from a weakly positive transmural ranking ($r=0.222$ under per-case canonical tagging) to a negative one ($r=-0.331$ under reference-tag postprocessing) had a specific methodological cause rather than a change in the underlying simulations. In the per-case-canonical analysis the geometric septum varied from 1203 to 1278 cells across the sixteen cases, and that case-to-case drift was sufficient to inject a spurious positive correlation that the reference-tag postprocessing of {ref}`sec-reference-tag-postprocessing` — which fixes the geometric septum at 1269 cells in every case — removes. An independent check confirms the negative correlation is not an artefact of the proxy construction either: the Pearson correlation between the achieved peak transmural pressure $p_\text{LV,ES}-p_\text{RV,ES}$ and the finite-element septal stress-strain work density across the sweep is $r=-0.56$, more negative than the proxy's $-0.331$.
 
 Despite the sign flip of the case-ranking correlation between sweeps, the qualitative magnitude story is preserved: in both pre-cap and capped sweeps, transmural pressure is the worst single-pressure magnitude candidate and LV pressure the best. The cap choice is load-bearing only for case-ranking correlations and severe-case absolute work magnitudes, not for the central LV-best / transmural-worst septum/free-wall magnitude conclusion.
 
@@ -169,6 +204,15 @@ $$
 This topological epicardial exclusion removes cells on the outer boundary of the ventricular wall. The reason for keeping it in the production definition is practical: near the LV/RV junction, the free wall becomes thin and an epicardial boundary cell can satisfy the relaxed distance criterion even though it is still part of the outer wall surface. Excluding epicardial-touching cells makes the relaxed sweep a conservative interior-septum envelope.
 
 The opposite convention was tested by using only $d_\mathrm{LV}+d_\mathrm{RV}\leq 22$ mm. This epi-inclusive envelope is anatomically defensible if the goal is to let the geometric parametrization grow the septal mask all the way to the outer wall. The earlier pre-cap version of this check gave a high transmural-pressure ranking correlation, but that was a reference-state and loading-path result rather than a production robustness result. The sweep below was therefore recomputed from the capped shared-L5 per-cell arrays. The two definitions are identical at the actual geometric septum cutoff and first diverge only at about $t=+4.5$ mm. The difference is therefore not a change to the reported primary septum; it is a sensitivity of the far relaxed sweep tail.
+
+{numref}`fig-app-septum-mask-sweep` shows the geometric picture of the mask as $t$ varies; the quantitative effect on proxy correlations is then shown in {numref}`fig-app-septum-epi-envelope`.
+
+```{figure} ../figures/fig_app_septum_mask_sweep.png
+:name: fig-app-septum-mask-sweep
+:width: 95%
+
+Geometric septum mask under the boundary-relaxation sweep. Each panel shows the cells assigned to the septum (red) at threshold $t \in \{-5, -3, -1, 0, +1, +3, +5, +10\}$ mm on the biventricular mesh. At $t<0$ the mask is shrunk away from the LV/RV junction; at $t>0$ it grows into adjacent free-wall tissue. The quantitative effect on proxy correlations is shown in {numref}`fig-app-septum-epi-envelope`.
+```
 
 ```{figure} ../figures/fig_app_septum_epi_envelope_comparison.png
 :name: fig-app-septum-epi-envelope

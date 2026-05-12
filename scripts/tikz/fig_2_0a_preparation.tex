@@ -5,41 +5,53 @@
 
 \begin{document}
 \begin{tikzpicture}[
-    node distance=16mm,
+    node distance=18mm and 18mm,
     every node/.append style={font=\small},
   ]
 
   \tikzset{
     prep/.style={
-      minimum width=28mm, minimum height=11mm,
-      font=\small\bfseries,
+      minimum width=34mm, minimum height=14mm,
+      font=\normalsize\bfseries,
     },
     transition/.style={
-      font=\scriptsize,
+      font=\small,
       fill=white, inner xsep=2pt, inner ysep=1pt,
       midway,
     },
   }
 
+  % Row 1: Geometry -> Fibres -> 0D warm-up
   \node[card-green,  prep] (geom) {Geometry};
   \node[card-orange, prep, right=of geom]  (fib)   {Fibres};
   \node[card-blue,   prep, right=of fib]   (warm)  {0D warm-up};
-  \node[card-gray,   prep, right=of warm]  (scale) {Scale};
-  \node[card-pink,   prep, right=of scale] (pre)   {Prestress};
 
+  % Row 2: Scale -> Prestress (below row 1, starts under geom)
+  \node[card-gray,   prep, below=22mm of geom] (scale) {Scale};
+  \node[card-pink,   prep, right=of scale]     (pre)   {Prestress};
+
+  % Row 1 horizontal arrows
   \draw[flow-gray, line width=0.9pt]
     (geom) -- node[transition] {mesh, tags} (fib);
   \draw[flow-gray, line width=0.9pt]
     (fib) -- node[transition] {$\mathbf{f}_0,\mathbf{s}_0,\mathbf{n}_0$} (warm);
-  \draw[flow-gray, line width=0.9pt]
-    (warm) -- node[transition] {$\mathbf{y}_\text{0D}^{ED}$} (scale);
+
+  % Wrap-around elbow: warm.south -> down -> left -> down to scale.north
+  \coordinate (cornerR) at ($(warm.south) + (0,-11mm)$);
+  \coordinate (cornerL) at (cornerR -| scale.north);
+  \draw[flow-gray, line width=0.9pt, rounded corners=4pt]
+    (warm.south) -- (cornerR) -- (cornerL) -- (scale.north);
+  \node[fill=white, font=\small, inner xsep=2pt, inner ysep=1pt]
+    at ($(cornerR)!0.5!(cornerL)$) {$\mathbf{y}_\text{0D}^{ED}$};
+
+  % Row 2 horizontal arrow
   \draw[flow-gray, line width=0.9pt]
     (scale) -- node[transition] {$s_\text{LV},\,s_\text{RV}$} (pre);
 
   % Outgoing artefact that the coupled solve consumes.
   \draw[flow-gray, line width=0.9pt, dashed]
-    (pre.east) -- ++(14mm, 0)
-    node[right, font=\scriptsize, text=black!70] {$\mathcal{B}_0$};
+    (pre.east) -- ++(16mm, 0)
+    node[right, font=\small, text=black!70] {$\mathcal{B}_0$};
 
 \end{tikzpicture}
 \end{document}

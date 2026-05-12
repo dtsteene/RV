@@ -62,7 +62,7 @@ This page is intentionally plain: open it with VS Code's Markdown Preview to ins
 
 ## Results
 
-![fig_5_0_freewall_vs_septum_schematic](figures/fig_5_0_freewall_vs_septum_schematic.png)
+![fig_freewall_vs_septum_schematic](figures/fig_freewall_vs_septum_schematic.png)
 
 ![fig_5_0b_work_components_vs_rvsp](figures/fig_5_0b_work_components_vs_rvsp.png)
 
@@ -82,13 +82,13 @@ This page is intentionally plain: open it with VS Code's Markdown Preview to ins
 
 ![fig_5_3b_septum_strain_direction_diagnostic](figures/fig_5_3b_septum_strain_direction_diagnostic.png)
 
-![fig_5_3c_septum_layer_mechanics](figures/fig_5_3c_septum_layer_mechanics.png)
+![fig_5_3c_septum_layer_mechanics](figures/archive/fig_5_3c_septum_layer_mechanics.png)
 
 ![fig_5_4_septum_lambda_scan](figures/fig_5_4_septum_lambda_scan.png)
 
 ![fig_5_5_h10_to_h5_nonseptal_shift](figures/fig_5_5_h10_to_h5_nonseptal_shift.png)
 
-![fig_5_6_septum_sweep](figures/fig_5_6_septum_sweep.png)
+![fig_app_septum_mask_sweep](figures/fig_app_septum_mask_sweep.png)
 
 ## Appendix And Other Figures
 

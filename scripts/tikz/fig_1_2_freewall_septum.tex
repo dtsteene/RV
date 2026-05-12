@@ -1,0 +1,72 @@
+\documentclass[border=8pt]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath, amssymb, bm}
+\input{_uio_style}
+
+\begin{document}
+\begin{tikzpicture}[
+    every node/.append style={font=\small},
+  ]
+
+  \tikzset{
+    cavity-lv/.style={fill=uioblue3, draw=none},
+    cavity-rv/.style={fill=uiopink3!55!white, draw=none},
+    wall-box/.style={
+      fill=black!8, draw=black!55, line width=0.7pt,
+      rounded corners=2pt,
+    },
+    pressure-lv/.style={
+      -{Stealth[length=3mm, width=2.4mm]},
+      line width=1.4pt, color=uioblue1,
+    },
+    pressure-rv/.style={
+      -{Stealth[length=3mm, width=2.4mm]},
+      line width=1.4pt, color=uiopink1,
+    },
+    paneltitle/.style={font=\large\bfseries},
+    panelcaption/.style={font=\footnotesize, text=black!65, align=center},
+    axislabel/.style={font=\scriptsize, text=black!60},
+  }
+
+  %% ---------------- FREE WALL PANEL ----------------
+  \begin{scope}
+    % cavity (LV-coloured)
+    \fill[cavity-lv] (0, 0) rectangle (3.0, 3.6);
+    % wall
+    \draw[wall-box] (3.0, 0) rectangle (5.0, 3.6);
+    % in-panel labels
+    \node[text=uioblue1!85!black] at (1.5, 1.8) {cavity};
+    \node[text=black!80] at (4.0, 1.8) {wall};
+    % pressure arrow into wall
+    \draw[pressure-lv] (2.0, 2.7) -- (2.95, 2.7);
+    \node[text=uioblue1, above=0pt] at (2.48, 2.8) {$P_\text{cav}$};
+    % panel title and caption
+    \node[paneltitle] at (2.5, 4.1) {Free wall};
+    \node[panelcaption] at (2.5, -0.5) {one cavity pressure};
+  \end{scope}
+
+  %% ---------------- SEPTUM PANEL ----------------
+  \begin{scope}[xshift=8.5cm]
+    % LV cavity
+    \fill[cavity-lv] (0, 0) rectangle (2.4, 3.6);
+    % septum
+    \draw[wall-box] (2.4, 0) rectangle (4.0, 3.6);
+    % RV cavity
+    \fill[cavity-rv] (4.0, 0) rectangle (6.4, 3.6);
+    % in-panel labels
+    \node[text=uioblue1!85!black] at (1.2, 1.8) {LV};
+    \node[text=black!80] at (3.2, 1.8) {septum};
+    \node[text=uiopink1!85!black] at (5.2, 1.8) {RV};
+    % LV pressure arrow into septum (upper)
+    \draw[pressure-lv] (1.45, 2.75) -- (2.35, 2.75);
+    \node[text=uioblue1, above=0pt] at (1.9, 2.85) {$P_\text{LV}$};
+    % RV pressure arrow into septum (lower)
+    \draw[pressure-rv] (4.95, 0.85) -- (4.05, 0.85);
+    \node[text=uiopink1, above=0pt] at (4.5, 0.95) {$P_\text{RV}$};
+    % panel title
+    \node[paneltitle] at (3.2, 4.1) {Septum};
+    \node[panelcaption] at (3.2, -0.5) {shared tissue, two-sided loading};
+  \end{scope}
+
+\end{tikzpicture}
+\end{document}

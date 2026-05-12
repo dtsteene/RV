@@ -60,5 +60,5 @@ axes[1].text(0.50, 0.08, "shared tissue, two-sided loading", ha="center", va="ce
 fig.subplots_adjust(wspace=0.20, left=0.04, right=0.98, top=0.84, bottom=0.12)
 
 for suffix in ("png", "pdf"):
-    fig.savefig(OUT / f"fig_5_0_freewall_vs_septum_schematic.{suffix}", bbox_inches="tight")
+    fig.savefig(OUT / f"fig_freewall_vs_septum_schematic.{suffix}", bbox_inches="tight")
 

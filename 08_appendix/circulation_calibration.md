@@ -41,33 +41,36 @@ $$
 p(\mathcal{V}, t) = (\mathcal{E}_A - \mathcal{E}_B) a(t) (\mathcal{V} - \mathcal{V}_0) + \frac{\mathcal{E}_B}{k_E} \bigl(e^{k_E (\mathcal{V} - \mathcal{V}_0)} - 1\bigr).
 $$
 
-Here $k_E$ controls the curvature of the passive filling response; as $k_E \to 0$, the expression reduces to the linear passive law. This was used as a calibration degree of freedom, not as a patient-specific stiffness measurement. The evidence for retaining it was modest and practical: linear and nonlinear variants produced similar pressure-target errors and nearly identical 0D--FEM pressure drift, but the nonlinear variant reduced the worst end-diastolic volume mismatch and slightly reduced the worst coupled RV systolic pressure miss. Because all proxy analyses use the achieved coupled pressures and volumes, the EDPVR choice enters the thesis only through the calibrated loading path, not as an interpreted myocardial material result.
+Here $k_E$ controls the curvature of the passive filling response; as $k_E \to 0$, the expression reduces to the linear passive law. This is a calibration degree of freedom, not a patient-specific stiffness measurement: an earlier methodological audit on a subset of severity cases compared linear and Klotz-style passive laws, and the Klotz form was retained because it reduced the worst-case standalone end-diastolic-volume mismatch on the fixed UKB mesh while leaving pressure-target errors essentially unchanged. All sixteen capped production cases use the Klotz form. Because all proxy analyses use the achieved coupled pressures and volumes, the EDPVR choice enters the thesis only through the calibrated loading path, not as an interpreted myocardial material result. {numref}`tab-edpvr-ab-audit` summarises the achieved standalone and coupled calibration quality across the production sweep.
 
-```{list-table} Linear and nonlinear EDPVR audit from the saved 0D calibrations and coupled FEM handover runs.
+```{list-table} Production calibration audit across the sixteen capped-reference sweep cases, all using the Klotz-style exponential EDPVR. Standalone rows compare the optimizer's last-beat 0D values against the calibration targets (six pressure targets per case) or against the fixed mesh end-diastolic volumes. Coupled-FEM rows compare the last-beat coupled values against either the same target or against the standalone 0D last-beat value at the same parameter set. Mean and worst are taken across the sixteen cases.
 :name: tab-edpvr-ab-audit
 :header-rows: 1
 
-* - Check
-  - Linear EDPVR
-  - Klotz-style nonlinear EDPVR
-  - Interpretation
-* - Corrected 8-case standalone 0D calibration: mean absolute pressure-target error
-  - 1.25 mmHg
-  - 1.22 mmHg
-  - Essentially identical
-* - Corrected 8-case standalone 0D calibration: mean / worst EDV mismatch
-  - 3.67% / 16.9%
-  - 3.28% / 8.6%
-  - Nonlinear reduced the worst volume mismatch
-* - Corrected 8-case coupled FEM handover: mean / worst RV systolic pressure miss
-  - 4.61 / 11.4 mmHg
-  - 4.55 / 8.8 mmHg
-  - Only a small nonlinear advantage
-* - Corrected 8-case coupled FEM handover: mean LV / RV pressure drift
-  - 0.35 / 0.17 mmHg
-  - 0.35 / 0.17 mmHg
-  - No meaningful difference in pressure consistency
+* - Quantity
+  - Mean across 16 cases
+  - Worst case
+* - Standalone 0D mean absolute pressure-target error
+  - 0.97 mmHg
+  - 4.23 mmHg (sPAP30)
+* - Standalone 0D LV end-diastolic-volume mismatch vs mesh
+  - 5.0%
+  - 33.0% (sPAP70)
+* - Standalone 0D RV end-diastolic-volume mismatch vs mesh
+  - 3.2%
+  - 11.1% (sPAP30)
+* - Coupled FEM LV systolic-pressure miss vs target
+  - 7.1 mmHg
+  - 14.7 mmHg (sPAP22)
+* - Coupled FEM RV systolic-pressure miss vs target
+  - 9.0 mmHg
+  - 17.0 mmHg (sPAP80)
+* - Coupled minus standalone RV peak pressure
+  - 7.4 mmHg
+  - 16.9 mmHg (sPAP80)
 ```
+
+The table makes two patterns visible. The standalone 0D calibration meets the six pressure targets to about 1 mmHg on average. The volume mismatches absorbed by the mesh-to-circulation ratio are typically a few percent, with one sPAP70 LV outlier (the same case flagged in {ref}`sec-app-coupling-robustness`). The coupled-minus-standalone shifts are larger than the calibration-vs-target misses, which is exactly the standalone-versus-coupled operating-point shift discussed in {ref}`sec-app-coupling-residual` below: the FEM steady state can sit roughly 7 mmHg higher than the standalone 0D steady state on the RV side, and up to 17 mmHg higher in the severe cases.
 
 (sec-app-calibration-optimization)=
 ## Optimization Procedure
@@ -81,6 +84,17 @@ The final search used CMA-ES through Optuna {cite}`akiba2019optuna,hansen2001com
 
 The optimizer above runs only the 0D Regazzoni circulation. The finite-element mechanics solve is not invoked during parameter selection — each Optuna trial advances the standalone elastance--Windkessel system to a periodic steady state and reads off the pressures, flows, and ejection fractions used in the cost. Coupling to the FEM happens only after calibration, when the parameter set chosen by Optuna is supplied to the bidirectional loop described in {ref}`sec-3d-0d-coupling`.
 
-This standalone calibration leaves a residual when the model is coupled. The 0D ascribes a chamber pressure $\mathcal{E}(t)\,(\mathcal{V}-\mathcal{V}_0)$ via the time-varying elastance fitted by Optuna, while the FEM ascribes a chamber pressure equal to the cavity-volume Lagrange multiplier produced by the Holzapfel-Ogden material with the prescribed active tension $T_a$. These are two independent mechanical descriptions of the same chamber, anchored to the same physiological scale but not to each other. In the eight-case audit reported in {numref}`tab-edpvr-ab-audit`, the achieved-versus-target RV systolic pressure miss was 4.55 mmHg mean and 8.8 mmHg worst under the nonlinear EDPVR; in the production sPAP70 case the intra-beat agreement between the elastance prediction and the Lagrange multiplier was 5.76 mmHg, which translates into a 2.8% (28 mJ on 1000 mJ) discrepancy in cumulative cavity work and motivates the choice of solver pressure for all work calculations ({ref}`sec-solver-pressure`). The coupled steady state runs at the FEM's operating point; the 0D adapts to whatever pressure the FEM returns. The residual therefore reflects how far the standalone-calibrated elastance sits from the FEM's mechanics at the same volume, not a numerical error.
+This standalone calibration leaves a residual when the model is coupled. The 0D ascribes a chamber pressure $\mathcal{E}(t)\,(\mathcal{V}-\mathcal{V}_0)$ via the time-varying elastance fitted by Optuna, while the FEM ascribes a chamber pressure equal to the cavity-volume Lagrange multiplier produced by the Holzapfel-Ogden material with the prescribed active tension $T_a$. These are two independent mechanical descriptions of the same chamber, anchored to the same physiological scale but not to each other. The residual has two distinct views and they differ in size by roughly a factor of three.
+
+The first view is the *intra-beat* agreement between the two pressure predictions evaluated at the same coupled volume trajectory. In the production sPAP70 case this is 5.76 mmHg mean over the beat, translating into a 2.8% (28 mJ on 1000 mJ) discrepancy in cumulative cavity work — small, and what motivates the choice of solver pressure for all work calculations ({ref}`sec-solver-pressure`). The second view is the *standalone-versus-coupled operating-point shift*: the standalone 0D pre-run settles into one periodic state at the calibrated parameters, while the coupled simulation settles into a different one. {numref}`fig-pv-standalone-vs-coupled` shows the same parameters running standalone and coupled in the sPAP70 case. The LV loop shifts modestly (peak pressure 117 → 110 mmHg, end-diastolic volume 74 → 77 mL). The RV loop shifts substantially: peak pressure 69 → 86 mmHg (+17 mmHg), end-diastolic volume 77 → 103 mL (+26 mL). The FEM's stiffness, fibre architecture, and active-tension scale together pull the closed-loop steady state away from the elastance-only equilibrium that the optimizer targeted.
+
+```{figure} ../figures/fig_pv_standalone_vs_coupled_sPAP70.png
+:name: fig-pv-standalone-vs-coupled
+:width: 95%
+
+Standalone 0D (grey dashed) versus coupled 3D--0D (solid) pressure-volume loops at the calibrated parameters of the sPAP70 case, last beat of each. The LV loop shifts modestly between standalone and coupled (peak pressure $117 \to 110$ mmHg). The RV loop shifts substantially: peak pressure rises by 17 mmHg ($69 \to 86$ mmHg) and end-diastolic volume by 26 mL ($77 \to 103$ mL). This operating-point shift is the larger of the two coupling residuals; the intra-beat agreement between the elastance prediction and the Lagrange multiplier at the same coupled volume is much smaller (5.76 mmHg for this case).
+```
+
+The operating-point shift is what makes the `sPAP*` case names calibration shorthand for the standalone-targeted RV systolic pressure rather than the achieved coupled value: the standalone calibration hits the clinical target to within 1--2 mmHg by construction, but the coupled steady state can sit 10--20 mmHg higher on the RV side in the severe cases. The chapter's pressure axes, correlations, and proxies use the coupled-achieved pressures directly, so this shift does not propagate into the proxy comparison; it does, however, mean that case labels should not be read as achieved RV systolic pressures.
 
 Two alternatives to standalone calibration were considered and rejected. Running the FEM inside the optimizer loop would replace each cheap 0D evaluation with a full coupled solve, raising the calibration cost by orders of magnitude and adding solver-failure modes to the cost surface. Tuning the Holzapfel-Ogden parameters or active-tension scale to make FEM pressures match the standalone 0D's targets would couple tissue mechanics to circulation calibration, breaking the proxy comparison's premise that material and contraction are independent of loading.
