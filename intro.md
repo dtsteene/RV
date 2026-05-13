@@ -19,7 +19,7 @@ At a resting heart rate the heart does something on the order of $10^5$ J of wor
 :name: fig-anatomy
 :width: 75%
 
-Anatomy of the four-chamber heart and the labels used throughout this thesis. The left ventricle (LV) pumps blood to the systemic circulation, the right ventricle (RV) pumps blood to the pulmonary circulation, and the *interventricular septum* separates the LV and RV cavities as a shared wall loaded from both sides. The *endocardium* is the inner, cavity-facing surface of the wall, the *epicardium* the outer surface, the *base* the plane at which the great vessels and valves attach, and the *apex* the opposite pole. The atria, left atrium (LA) and right atrium (RA), are shown for anatomical context but are not part of the three-dimensional domain. Figure adapted from {cite}`finsberg2017phd`.
+Anatomy of the four-chamber heart and the labels used throughout this thesis. The left and right ventricles (LV, RV) are the chambers central here; the *septum* is the shared wall loaded from both sides. *Endocardium*: inner cavity-facing surface; *epicardium*: outer surface; *base*: plane where the great vessels and valves attach; *apex*: opposite pole. The atria (LA, RA) are shown for context but are not part of the three-dimensional domain. Adapted from {cite}`finsberg2017phd`.
 ```
 
 Before reducing that beat to equations, it is useful to fix the anatomical language used throughout the thesis. Figure {numref}`fig-anatomy` shows the four-chamber heart, with the left ventricle, right ventricle, and interventricular septum forming the biventricular regions that are central here.
@@ -28,11 +28,13 @@ The heart wall is layered. The *endocardium* lines the blood-facing cavity surfa
 
 With those labels in place, what this thesis models is not only a pressure-volume circuit. It is a deforming biventricular finite-element heart, driven through filling, contraction, ejection, and relaxation by a coupled circulation model. The two parts exchange volumes and pressures at every step: the circulation prescribes the target cavity volumes that the ventricles must match, and the finite-element solver returns the cavity pressures that enforce those volumes, which in turn advance the circulation. On top of those chamber-level signals, the finite-element model also gives the stress and strain fields inside the myocardial wall.
 
+{numref}`fig-intro-beating-heart` shows what this looks like in practice: ten snapshots spaced through one simulated beat at the baseline calibration, read left-to-right along the top row and continued along the bottom row. The mesh is cut open so both cavities and the septum between them are visible. Colour is the local displacement from the end-diastolic position, so blue marks tissue that has barely moved — where the cycle starts and ends — and warm colours mark the regions undergoing the largest wall motion at peak contraction in the middle of the sequence. The geometry and cycle phases shown here are exactly the ones the pressure-volume loops below are computed on, and the regional work densities reported later in the thesis are integrals over the same mesh.
+
 ```{figure} figures/fig_intro_beating_heart.png
 :name: fig-intro-beating-heart
 :width: 95%
 
-Cutaway snapshots from one simulated beat of the baseline pressure-loading case. Colour shows displacement magnitude relative to end diastole, so blue marks the start and end of the beat and warmer colours mark larger wall motion during contraction. The flat horizontal cut at the top is the basal clip used in the model; the vertical cut is a visualization cutaway that opens the mesh so the two cavities and wall motion can be seen.
+Ten snapshots spaced through one simulated beat at the baseline calibration; read left-to-right along the top row, continued along the bottom row. The horizontal cut is the basal clip used throughout the thesis; the vertical cut opens the mesh so the LV cavity, RV cavity, and shared septum are visible. Colour shows local wall displacement relative to end-diastole — blue where little has moved (cycle start and end), warm where contraction has produced the largest wall motion (peak systole, mid-sequence).
 ```
 
 The basal clip, basal support, cavity-volume constraints, fibre assignment, and circulation coupling are described in {ref}`chap-model`.
@@ -45,7 +47,7 @@ Frank's pressure-volume description applies to either ventricle, because the hea
 :name: fig-intro-pv-loops
 :width: 95%
 
-Pressure-volume loops for the left and right ventricles from a ten-beat simulation of the baseline closed-loop circulation model used throughout this thesis. The left ventricle (left panel) pumps oxygenated blood into the systemic circulation; the right ventricle (right panel) pumps the same volume of deoxygenated blood into the pulmonary circulation against a much lower arterial pressure. The shaded area in each panel is the stroke work transferred from that ventricular wall to the blood during one beat.
+Pressure-volume loops for the LV (left panel) and RV (right panel) from a ten-beat simulation of the baseline closed-loop circulation model. Shaded area in each panel: stroke work for that ventricle.
 ```
 
 The beat in each panel of {numref}`fig-intro-pv-loops` starts in the bottom right corner and moves counter-clockwise. The ventricle first fills at low pressure as blood arrives from its atrium, then contracts at nearly fixed volume so pressure rises rapidly, then ejects blood as the outlet valve opens and volume falls, and finally relaxes back to low pressure before the next filling phase begins. Both ventricles trace this same four-phase cycle, but the left-ventricular peak pressure reaches roughly five times the right-ventricular peak because the pulmonary circulation is normally a low-pressure system {cite}`kovacs2009pulmonary`. The positive area enclosed by each loop is the stroke work of that ventricle,

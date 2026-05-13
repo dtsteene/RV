@@ -13,7 +13,7 @@ $$
 =\mathbf{X}+\mathbf{u}(\mathbf{X},t),
 $$
 
-where $\mathbf{u}$ is the displacement field.
+where $\mathbf{u}$ is the displacement field ({numref}`fig-reference-current-configuration`).
 
 ```{figure} ../figures/fig_intro_reference_current_configuration.png
 :name: fig-reference-current-configuration
@@ -161,9 +161,9 @@ p_\lambda(t,\mathbf{X})
 + [1-\lambda(\mathbf{X})]p_\text{RV}(t).
 $$
 
-In the reference-tag postprocessing ({ref}`sec-reference-tag-postprocessing`), $\lambda$ is the saved LV-to-RV Laplace scalar — a smooth function from 1 on the LV side to 0 on the RV side.
+In the reference-tag postprocessing ({ref}`sec-reference-tag-postprocessing`), $\lambda$ is the saved LV-to-RV Laplace scalar — a smooth function from 1 on the LV side to 0 on the RV side, visualized in {numref}`fig-lv-rv-partition`.
 
-The model layers that produce these stress and strain estimates — a transversely isotropic Holzapfel-Ogden passive law with rule-based fibres, prescribed Blanco active tension along $\mathbf{f}_0$, epicardial Robin springs and a partial basal Dirichlet support, two-way coupling to a closed-loop 0D circulation, and an inverse-elasticity prestressing step — are developed in {ref}`chap-model` and {ref}`chap-implementation`. Each affects the stress and strain returned to $w_\text{int}[\Omega_j]$. The model is intentionally hyperelastic and slightly compressible, with a bulk-modulus penalty rather than strict $J=1$ incompressibility. Activation is uniform with no electrophysiology, the base is clipped, and pericardial support is provided by Robin springs without contact or fluid-structure interaction. The thesis therefore tests the pressure-strain proxy in this scope, not in a fully resolved electromechanical heart-thorax model.
+The model layers that produce these stress and strain estimates — a transversely isotropic Holzapfel-Ogden passive law with rule-based fibres, prescribed Blanco active tension along $\mathbf{f}_0$, epicardial Robin springs and a partial basal Dirichlet support, two-way coupling to a closed-loop 0D circulation, and an inverse-elasticity prestressing step — are developed in {ref}`chap-model` and {ref}`chap-implementation`. Each affects the stress and strain returned to $w_\text{int}[\Omega_j]$. The model is hyperelastic and uses a nearly-incompressible penalty formulation ($\kappa = 1000$ kPa) rather than strict $J=1$ incompressibility. Activation is uniform with no electrophysiology, the base is clipped, and pericardial support is provided by Robin springs without contact or fluid-structure interaction. The thesis therefore tests the pressure-strain proxy in this scope, not in a fully resolved electromechanical heart-thorax model.
 
 (sec-energy-identity)=
 ## Energy Identity
@@ -184,7 +184,7 @@ The derivation is a standard divergence-theorem argument; the full proof is in {
 :name: fig-energy-balance
 :width: 85%
 
-Whole-heart energy-balance check on the synthetic UK Biobank baseline. The cumulative stress-strain work $\int_0^t\!\int_\Omega \mathbf{S}:\dot{\mathbf{E}}\,dV_0\,dt'$ (red) and the cumulative cavity pressure work plus Robin support work (black dashed) overlap throughout the cycle, with a final-time residual on the order of $10^{-5}$ relative. The discretized model preserves the continuum identity to numerical tolerance.
+Whole-heart energy-balance check on the synthetic UK Biobank baseline. Cumulative stress-strain work (red) and cumulative cavity pressure plus Robin support work (black dashed) overlap throughout the cycle; final-time residual $\sim 10^{-5}$ relative.
 ```
 
 (sec-literature-gap)=
@@ -203,13 +203,13 @@ The controlled pressure-loading sweep is designed for that mechanical test. The 
 
 One way to make the proxy reduction visible is to remove mechanical information step by step in a diagnostic baseline case — the synthetic UK Biobank mean geometry at the lowest-pressure production loading. {numref}`fig-cascade` shows this cascade as four cumulative work-density curves, each one a different stage of the reduction from full stress-strain work down to the clinical pressure-longitudinal-strain proxy. The pressure-for-stress substitution accounts for the bulk of the magnitude loss; the directional projections are smaller corrections.
 
-In this baseline diagnostic, the myocardium is split into two analysis regions by the same LV-to-RV Laplace scalar $\lambda$ defined above ($\lambda=1$ on the LV endocardium, $\lambda=0$ on the RV endocardium); cells with $\lambda>0.5$ are assigned to the LV-side region and cells with $\lambda\leq0.5$ to the RV-side region. The pressure-based steps use the corresponding cavity pressure, denoted $p_\text{cav}$.
+In this baseline diagnostic, the myocardium is split into two analysis regions by the same LV-to-RV Laplace scalar $\lambda$ defined above ($\lambda=1$ on the LV endocardium, $\lambda=0$ on the RV endocardium; see {numref}`fig-lv-rv-partition`); cells with $\lambda>0.5$ are assigned to the LV-side region and cells with $\lambda\leq0.5$ to the RV-side region. The pressure-based steps use the corresponding cavity pressure, denoted $p_\text{cav}$.
 
 ```{figure} ../figures/fig_cascade_cumulative.png
 :name: fig-cascade
 :width: 80%
 
-Cascade of work-density measures from the full tensor contraction down to the clinical pressure-strain proxy, shown for the LV-side $\lambda$-split region on the synthetic UK Biobank baseline. In this diagnostic split, every myocardial cell is assigned to either the LV-side or RV-side region, so this is not the anatomical LV free wall defined in {ref}`sec-geometry-anatomical-model` and used in the later free-wall ratio tests. $\mathbf{S}:\dot{\mathbf{E}}$ is the full double contraction; $S_{ff}\,\dot E_{ff}$ is the fibre-normal component alone; $p_\text{cav}\,\dot E_{ff}$ is a model-side intermediate that substitutes cavity pressure for the fibre stress; $p_\text{cav}\,\dot\varepsilon_{ll}$ is the clinical pressure-longitudinal-strain proxy. Signed end-of-cycle plateau values: $-8.4$, $-7.4$, $-1.9$, $-1.5$ kPa. The pressure-for-stress substitution accounts for the bulk of the magnitude loss.
+Cascade of cumulative work-density measures over the cardiac cycle on the synthetic UK Biobank baseline, LV-side $\lambda$-split region (a diagnostic partition, not the anatomical LV free wall). Curves descend from $\mathbf{S}:\dot{\mathbf{E}}$ through $S_{ff}\,\dot E_{ff}$ and $p_\text{cav}\,\dot E_{ff}$ to the clinical proxy $p_\text{cav}\,\dot\varepsilon_{ll}$. Signed end-of-cycle plateau values: $-8.4$, $-7.4$, $-1.9$, $-1.5$ kPa.
 ```
 
 The starting quantity is the full tensor contraction $\mathbf{S}:\dot{\mathbf{E}}$ integrated over the region. This is the complete local work density within the model: every stress component acts through every conjugate strain component, including fibre, cross-fibre, sheet, sheet-normal, and shear contributions. Nothing has been thrown away yet.
@@ -228,7 +228,7 @@ The same cascade can also be viewed as a sequence of loop shapes. Once the work 
 :name: fig-cascade-loops
 :width: 95%
 
-Loop-space view of the simplification cascade on the synthetic UK Biobank baseline. Rows show the LV-side and RV-side $\lambda$-split regions; columns show the fibre stress-strain loop $S_{ff}$ versus $E_{ff}$, the pressure-fibre-strain loop $p_\text{cav}$ versus $E_{ff}$, and the clinical pressure-longitudinal-strain loop $p_\text{cav}$ versus $\varepsilon_{ll}$. Arrows indicate the direction of time around the cardiac cycle, and the marked point is the first sampled state. The signed areas inside these loops are the final accumulated work-density values shown in {numref}`fig-cascade`. The figure makes visible how the pressure-for-stress substitution and the strain-direction reduction change the loop geometry, not only its final accumulated area.
+Loop-space view of the cascade on the synthetic UK Biobank baseline. Rows: LV-side and RV-side $\lambda$-split regions. Columns: $S_{ff}$ vs $E_{ff}$, $p_\text{cav}$ vs $E_{ff}$, $p_\text{cav}$ vs $\varepsilon_{ll}$. Arrows indicate cycle direction; the marked point is the first sampled state. Signed areas are the plateau values in {numref}`fig-cascade`.
 ```
 
 (sec-scientific-question)=

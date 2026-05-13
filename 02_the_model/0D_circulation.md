@@ -31,7 +31,7 @@ $$
 \mathcal{E}(t) = \mathcal{E}_B + (\mathcal{E}_A - \mathcal{E}_B) f(t),
 $$
 
-where $\mathcal{E}_A$ is the peak systolic elastance, $\mathcal{E}_B$ is the passive diastolic elastance, and $f(t)$ is the same piecewise-cosine activation waveform defined in {ref}`sec-active-contraction`, parametrized by the contraction onset $t_C$, contraction duration $T_C$, and relaxation duration $T_R$. {numref}`fig-elastance` shows the resulting time-varying elastance $\mathcal{E}(t)$ for both ventricles at the healthy calibration over two cardiac cycles, with the asymptotic passive values $\mathcal{E}_B$ marked. The LV elastance peaks roughly six times higher than the RV — the structural reflection of the systemic versus pulmonary pressure regimes the two chambers operate against.
+where $\mathcal{E}_A$ is the peak systolic elastance, $\mathcal{E}_B$ is the passive diastolic elastance, and $f(t)$ is the same piecewise-cosine activation waveform defined in {ref}`sec-total-stress-active`, parametrized by the contraction onset $t_C$, contraction duration $T_C$, and relaxation duration $T_R$. {numref}`fig-elastance` shows the resulting time-varying elastance $\mathcal{E}(t)$ for both ventricles at the healthy calibration over two cardiac cycles, with the asymptotic passive values $\mathcal{E}_B$ marked. The LV elastance peaks roughly six times higher than the RV — the structural reflection of the systemic versus pulmonary pressure regimes the two chambers operate against.
 
 In the coupled 3D--0D simulations, this elastance law is not used as the mechanical pressure law for the LV and RV myocardium. Instead, the 0D model advances the closed-loop circulation and sends target LV and RV volumes to the finite-element solver; the FEM cavity-volume constraints then return the mechanically consistent LV and RV pressures. The elastance formulation remains important for the standalone circulation warm-up, for the atrial chambers, and for defining the calibrated hemodynamic state that the coupled model follows.
 
@@ -48,7 +48,7 @@ $$
 Q_\text{valve} = \frac{p_\text{up} - p_\text{down}}{R(p_\text{up}, p_\text{down})}, \qquad R = \begin{cases} R_\text{min} & p_\text{up} > p_\text{down}, \\ R_\text{max} & \text{otherwise}. \end{cases}
 $$
 
-The systemic and pulmonary Windkessel models are each represented by two compartments — arterial and venous — connected by resistive and inductive elements. Each arterial compartment has a scalar compliance $C_\text{AR}$, a resistance $R_\text{AR}$, and an inductance $L_\text{AR}$ that captures the inertia of blood in the large vessels; the venous compartment is analogous with parameters $C_\text{VEN}$, $R_\text{VEN}$, and $L_\text{VEN}$. Here $C$ denotes vascular compliance, not the right Cauchy-Green tensor $\mathbf{C}$ used in {ref}`sec-kinematics`.
+The systemic and pulmonary Windkessel models are each represented by two compartments — arterial and venous — connected by resistive and inductive elements. Each arterial compartment has a scalar compliance $C_\text{AR}$, a resistance $R_\text{AR}$, and an inductance $L_\text{AR}$ that captures the inertia of blood in the large vessels; the venous compartment is analogous with parameters $C_\text{VEN}$, $R_\text{VEN}$, and $L_\text{VEN}$. Here $C$ denotes vascular compliance, not the right Cauchy-Green tensor $\mathbf{C}$ used in {ref}`sec-mechanics-notation`.
 
 ```{table} Main variables and parameters in the closed-loop 0D circulation model.
 :name: tab-0d-symbols

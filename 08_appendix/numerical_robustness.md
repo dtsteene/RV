@@ -5,13 +5,13 @@ This appendix collects the numerical checks that support the main pressure-strai
 
 ## Production Configuration
 
-The production simulations use the compressible biventricular mechanics formulation, second-order tetrahedral displacement elements, a characteristic mesh length of 5 mm, and six coupled beats. Regional stress-strain work density is computed offline from the saved displacement checkpoints over the final beat. The current stress is evaluated from the UFL constitutive expression at quadrature points, previous stress and strain states are stored in a degree-six quadrature space, and DG0 test functions are used only to extract cellwise integrals from the quadrature-level work density.
+The production simulations use the nearly-incompressible penalty formulation ($\kappa = 1000$ kPa; pulse's `Compressible2`), second-order tetrahedral displacement elements, a characteristic mesh length of 5 mm, and six coupled beats. Regional stress-strain work density is computed offline from the saved displacement checkpoints over the final beat. The current stress is evaluated from the UFL constitutive expression at quadrature points, previous stress and strain states are stored in a degree-six quadrature space, and DG0 test functions are used only to extract cellwise integrals from the quadrature-level work density.
 
 The basal support combines Robin springs on the epicardium and base with a partial basal Dirichlet condition that fixes only the base-normal/global-x displacement component. It is not a full basal clamp. The remaining two displacement components on the basal surface are free to slide.
 
-The robustness checks are summarized in {numref}`tab-numerical-robustness-summary`. Direct production audits are separated from related numerical-method and historical sensitivity checks. Only the direct capped shared-L5 checks are used as evidence for the numerical values in {ref}`chap-results`; the older pre-cap and exploratory checks are retained to explain why the final interpretation became more conservative. The main pattern is consistent across the checks: hemodynamics and free-wall ratios are comparatively stable, while septal absolute work density is the quantity that most deserves caution.
+The robustness checks are organised into two tables. The direct production audits in {numref}`tab-numerical-robustness-summary` are the ones used as evidence for the numerical values in {ref}`chap-results`; the related numerical-method and historical sensitivity checks in {numref}`tab-numerical-robustness-sensitivity` are retained to explain why the final interpretation became more conservative. The main pattern is consistent across the checks: hemodynamics and free-wall ratios are comparatively stable, while septal absolute work density is the quantity that most deserves caution.
 
-```{table} Summary of numerical checks supporting the production configuration.
+```{table} Direct production audits supporting the production configuration.
 :name: tab-numerical-robustness-summary
 :align: left
 
@@ -25,6 +25,14 @@ The robustness checks are summarized in {numref}`tab-numerical-robustness-summar
 | Periodic convergence | Beat-to-beat relative change between beats 5 and 6 of the coupled simulation: mean 0.4% on peak pressures and 0.4% on end-diastolic volumes across the 16 production cases; worst-case 1.5% peak pressure and 1.8% stroke volume in sPAP70 | The analysed sixth beat has settled to a near-periodic state; remaining drift is small relative to the proxy and reference quantities used in the comparison |
 | Postprocessing space replay | DG1 stays within about 1.2% of Quadrature6 for integrated regional stress-strain work; DG0 underestimates high-pressure septal work | DG1 is adequate for integrated regional totals in this check; DG0 is too crude for septal work; Quadrature6 is retained as the conservative production path |
 | Basal support audit | The production condition fixes only the base-normal/global-x component; tangential basal sliding remains | The model does not use a full basal clamp |
+```
+
+```{table} Numerical-method and historical sensitivity checks.
+:name: tab-numerical-robustness-sensitivity
+:align: left
+
+| Check | Evidence | Consequence for interpretation |
+|---|---|---|
 | No-Dirichlet variants | Endpoint cases failed during end-diastolic inflation after removing the basal displacement constraint | The partial constraint is a stabilizing modelling choice in this production setup |
 | Robin work budget | Signed net Robin work is below about 0.2% of cavity boundary work in checked endpoint cases | Robin springs are part of the model definition but do not dominate the reported work-density results |
 | 3D--0D coupling interface | Volume ratio sits within a few percent of unity in most production cases; a controlled pulmonary-compliance sweep shows the interface remains usable at right-ventricular ratios as low as 0.26 | Bounds the 0D-parameter range over which the volume-coupling design is reliable |

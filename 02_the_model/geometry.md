@@ -1,18 +1,18 @@
-# Geometry and Simulation Cases
-
 (sec-geometry-anatomical-model)=
-## The Anatomical Model Used In This Study
+# Geometry
 
-The main production analyses in this thesis run on one biventricular geometry, built in three steps. The shape comes from the UK Biobank statistical atlas of Mauger et al. {cite}`mauger2019right`, taking the mean of a healthy sub-cohort of 630 cardiac MR scans as the baseline. The atlas is then cut at a single flat plane below the valves so that the basal boundary of the simulation domain is one planar surface rather than the irregular valve-annulus geometry — a standard simplification in finite-element ventricular mechanics {cite}`finsberg2018efficient,pluijmert2017determinants`. What remains is meshed and labelled by `cardiac-geometries` {cite}`cardiac_geometries`: the endocardial (inner, cavity-facing) and epicardial (outer) surfaces, the basal cap, and a cell-level partition of LV free wall, RV free wall, and septum. {numref}`fig-mesh-regions` shows the result.
+The main production analyses in this thesis run on one biventricular geometry, built in three steps. The shape comes from the UK Biobank statistical atlas of Mauger et al. {cite}`mauger2019right`, at end-diastole, taking the mean of a healthy sub-cohort of 630 cardiac MR scans as the baseline. The atlas is then cut at a single flat plane below the valves so that the basal boundary of the simulation domain is one planar surface rather than the irregular valve-annulus geometry — a standard simplification in finite-element ventricular mechanics {cite}`finsberg2018efficient,pluijmert2017determinants`.
 
-```{figure} ../figures/fig_2_1_mesh_regions.png
-:name: fig-mesh-regions
-:width: 70%
+What remains is meshed and labelled by `cardiac-geometries` {cite}`cardiac_geometries`, which tags the endocardial (inner, cavity-facing) and epicardial (outer) surfaces along with the basal cap. These are thin lining layers, not separate volumetric materials in the model; they matter here as surfaces. The endocardium carries the cavity pressure load, the epicardium carries Robin support springs, and both surfaces define transmural coordinates for fibre assignment. {numref}`fig-surface-tags` shows the four boundary surfaces that carry these roles.
 
-Cell-level region tags on the clipped biventricular UK Biobank baseline mesh. Short-axis cut through mid-ventricle exposing the LV cavity (right), the RV cavity (left), and the wall thickness, with the LV free wall (blue), RV free wall (pale yellow), and interventricular septum (red) visible as separate tagged regions. The mesh stops at a single planar base just below the atrioventricular valves; the atria, the valves themselves, and the RV outflow tract above the pulmonary valve are not represented; see the next figure for the basal clip. The same colour mapping is reused everywhere region-resolved quantities are shown.
+```{figure} ../figures/fig_2_6_surface_tags.png
+:name: fig-surface-tags
+:width: 65%
+
+Boundary surface tags on the clipped biventricular mesh: LV endocardium (deep blue), RV endocardium (light teal), epicardial surface (orange-tan), basal cap (red rim).
 ```
 
-The septal region used in {ref}`chap-results` is defined directly from the three endocardial and epicardial surface tags. For an interior point $x$, write $d_\text{LV}(x)$, $d_\text{RV}(x)$, $d_\text{epi}(x)$ for the Euclidean distances from $x$ to the LV endocardium, the RV endocardium, and the epicardium. The septum is the set of points for which both endocardial surfaces are closer than the epicardium:
+The septum is defined directly from the surface tags. For an interior point $x$, write $d_\text{LV}(x)$, $d_\text{RV}(x)$, $d_\text{epi}(x)$ for the Euclidean distances from $x$ to the LV endocardium, the RV endocardium, and the epicardium. The septum is the set of points for which both endocardial surfaces are closer than the epicardium:
 
 $$
 \Omega_\text{sept} \;=\; \{\, x \in \Omega \;:\; \max(d_\text{LV}(x),\, d_\text{RV}(x)) < d_\text{epi}(x) \,\}.
@@ -20,46 +20,33 @@ $$
 
 The remaining cells are LV free wall (closer to the LV endocardium) or RV free wall (closer to the RV endocardium). The red region in {numref}`fig-mesh-regions` is exactly $\Omega_\text{sept}$.
 
-The endocardium and epicardium are thin lining layers, not separate volumetric materials in this model. They matter here as surfaces: blood pressure acts on the endocardial cavity boundaries, epicardial springs support the outer boundary, and both surfaces define transmural coordinates for fibre assignment. {numref}`fig-surface-tags` shows the four boundary surfaces that carry these roles.
+```{figure} ../figures/fig_2_1_mesh_regions.png
+:name: fig-mesh-regions
+:width: 70%
 
-```{figure} ../figures/fig_2_6_surface_tags.png
-:name: fig-surface-tags
-:width: 65%
-
-Boundary surface tags on the clipped biventricular mesh, generated automatically by `cardiac-geometries`, which labels each connected patch of the clipped surface: the LV endocardium (deep blue), the RV endocardium (light teal), the epicardial surface (orange-tan), and the basal cap (red rim). Each tag drives a different boundary condition in the mechanics solve and is reused as Dirichlet data for the LDRB Laplace problems in {ref}`sec-fibers`; details are given in {ref}`sec-mesh-generation` below.
+Cell-level region tags on the clipped biventricular UK Biobank baseline mesh, short-axis cut through mid-ventricle: LV free wall (blue), RV free wall (pale yellow), septum (red); LV cavity at right, RV cavity at left. The same colour mapping is reused for all region-resolved quantities in this thesis.
 ```
 
-The basal-plane clip is not anatomically neutral. The discarded material — the upper outflow tracts, valve regions, atria, and great vessels — is not represented spatially; its hemodynamic role is carried by the 0D circulation model in {ref}`sec-0d-circulation`.
-
-Within the kept geometry the RV loses far more cavity volume than the LV, because its outflow geometry extends further toward the base. Closed-cavity volumes on the unclipped UKB atlas give 119.6 mL for the LV and 128.7 mL for the RV. After the clip the LV cavity drops to 111.5 mL — a 6.8% loss — while the RV cavity drops to 76.9 mL, a 40% loss. Volumes are computed by applying the divergence theorem to a closed surface: the endocardium plus the valve-opening caps for the unclipped atlas, the endocardium plus the basal plane for the simulation mesh. {numref}`fig-volume-clipped` shows the discarded material directly, with the unclipped atlas surface (red) sitting on top of the simulation mesh (gray).
-
-The 3D--0D coupling in {ref}`sec-3d-0d-coupling` absorbs this mismatch with a fixed mesh-to-circulation volume scaling, but the simulation still runs on the clipped crescent-shaped RV shown in {numref}`fig-mesh-regions`.
+The basal clip is not symmetric: the RV cavity loses far more than the LV, because the RV outflow geometry extends further toward the base. The RV cavity drops by 40% (128.7 → 76.9 mL), while the LV cavity drops by only 6.8% (119.6 → 111.5 mL). {numref}`fig-volume-clipped` shows the discarded material directly — outflow tracts, valve regions, atria, great vessels — sitting on top of the simulation mesh.
 
 ```{figure} ../figures/fig_2_3_volume_clipped.png
 :name: fig-volume-clipped
 :width: 95%
 
-Basal clipping in three beats. *Left:* the full UK Biobank atlas, with the four valve openings (mitral, aortic, tricuspid, pulmonary) visible as colour-tagged rings on the red epicardial surface. *Middle:* the same atlas (red) sitting on top of the retained ventricular bulk (gray) — the basal-plane cut is the boundary between them. *Right:* the simulation mesh used in the rest of this thesis. The grayish patches showing through the red cap in the middle panel are a rendering glitch where the two meshes meet along the basal cut, not actual overlap.
+Basal clipping in three panels. *Left:* the full UK Biobank atlas, with the four valve openings (mitral, aortic, tricuspid, pulmonary) visible as colour-tagged rings on the red epicardial surface. *Middle:* the same atlas (red) sitting on top of the retained ventricular bulk (gray) — the basal-plane cut is the boundary between them. *Right:* the simulation mesh used in the rest of this thesis. Grayish patches in the middle panel are a rendering glitch along the basal cut, not actual overlap.
 ```
 
 ```{figure} ../figures/fig_2_3b_side_views.png
 :name: fig-volume-clipped-side
 :width: 90%
 
-Side views of the full UK Biobank atlas (*left*) and the simulation mesh (*right*). The RV cavity reaches well above the basal plane, into the pulmonary outflow tract, while the LV cavity tapers earlier. The basal-plane cut therefore removes a larger fraction of the RV cavity than of the LV cavity.
+Side views of the full UK Biobank atlas (*left*) and the simulation mesh (*right*). The RV cavity reaches well above the basal plane into the pulmonary outflow tract, while the LV cavity tapers earlier.
 ```
 
 The RV cavity surface in the simulation mesh is not exactly the RV surface in the atlas. The UKB atlas exports the RV cavity as two separately segmented pieces — septum-side and free-wall-side endocardia — and the meshing pipeline merges them and applies a Laplacian smoothing pass (100 iterations, relaxation 0.1) before tetrahedralization. The unsmoothed atlas surface in the left panel of {numref}`fig-volume-clipped-side` looks fine as a render, but the volume tetrahedra that have to fit between the cavity and epicardial surfaces degrade at the seam between the two atlas pieces unless the seam is smoothed first.
 
-The smoothing displaces the RV endocardial surface by 0.9 mm on average (up to about 7 mm locally near the seam) and thickens the RV wall against the unchanged epicardium by 1.2 mm on average — roughly a 19% relative thickening on the RV side. The LV endocardium and the epicardium are single-piece atlas surfaces and are not smoothed, so the LV wall thickness is exactly what the atlas defines.
+The smoothing displaces the RV endocardial surface by 0.9 mm on average (up to about 7 mm locally near the seam) and thickens the RV wall against the unchanged epicardium by 1.2 mm on average. The LV endocardium and the epicardium are single-piece atlas surfaces and are not smoothed, so the LV wall thickness is exactly what the atlas defines.
 
-Using one geometry is a deliberate restriction. It lets the longitudinal pressure-strain proxy be tested under controlled loading changes without simultaneously changing wall thickness, cavity size, septal curvature, or the noise of any one patient's segmentation: when the proxy changes across the sweep, the change comes from the imposed circulation and the resulting deformation, not from a different anatomy. The cost is that the sweep should not be read as a real PAH disease trajectory. Real PAH remodelling changes geometry and material properties together with pressure {cite}`vonk2013right,vonk2017relationship,humbert2022esc`, and that is exactly what the controlled-anatomy design is built to avoid. Patient-specific healthy and PAH meshes from the wider project enter only as exploratory geometry-sensitivity checks; {ref}`chap-discussion` returns to them as preliminary evidence that geometry and remodelling matter for the absolute magnitudes.
-
-(sec-mesh-generation)=
-## Mesh Generation
+On the production mesh this leaves an end-diastolic free-wall thickness of about 2.9 mm at the RV and 6.8 mm at the LV (median vertex-to-epicardium distance), so the RV/LV thickness ratio in the simulation is roughly 0.4. The RV is therefore still the thinner free wall, and the qualitative asymmetry that motivates the separate RV fibre rule and the lower RV pressure scale is preserved. The smoothed RV nevertheless sits at the upper edge of healthy adult anatomical ratios (typically 0.3–0.5), so quantitative RV-versus-LV thickness contrasts inferred from these simulations should be read as a mild underestimate of the in-vivo asymmetry rather than an exact reproduction of it.
 
 Mesh generation is handled by `cardiac_geometries.mesh.ukb()` from the `cardiac-geometries` library {cite}`cardiac_geometries`, which calls the `ukb-atlas` pipeline described above and tetrahedralizes the resulting closed surface with `gmsh`. The production mesh uses a target element edge length of 5 mm, giving 8070 tetrahedral cells; a finer convergence check at 3.75 mm (around 15000 cells) is also run as an endpoint comparison. At the production resolution the mesh resolves the LV free wall, RV free wall, and septum as integration regions, but it is not designed to resolve detailed septal transmural layers — a limitation that matters for the through-wall septal diagnostics in {ref}`chap-results`.
-
-The four boundary tags of {numref}`fig-surface-tags` each drive a different boundary condition in the mechanics solve. The LV and RV endocardial tags carry the cavity-volume constraints, with cavity pressures returning as Lagrange multipliers. The epicardial and basal tags carry the Robin spring supports, and the basal tag also carries the partial Dirichlet constraint that removes the remaining rigid-body mode. The full boundary-condition treatment is given in {ref}`sec-3d-mechanics`.
-
-The LV / RV / septum partition is applied at the cell level: each tetrahedron is tagged once according to the surface-distance rule above, and that tag is what the integration in {ref}`chap-results` uses. A separate Laplace-based LV/RV scalar appears later as an intermediate field inside the LDRB fibre rule ({ref}`sec-fibers`); it is not used outside that step.
