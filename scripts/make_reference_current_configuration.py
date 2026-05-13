@@ -27,10 +27,10 @@ def add_blob(ax: plt.Axes, cx: float, cy: float, sx: float, sy: float, color: st
 
 def main() -> None:
     setup()
-    fig, ax = plt.subplots(figsize=(7.0, 3.0))
+    fig, ax = plt.subplots(figsize=(7.0, 2.25))
     ax.set_axis_off()
     ax.set_xlim(0, 10)
-    ax.set_ylim(0, 4)
+    ax.set_ylim(1.0, 4.0)
 
     ref_color = "#3f6f8f"
     cur_color = "#9a6234"
@@ -58,9 +58,6 @@ def main() -> None:
     ax.add_patch(cur_patch)
     ax.text(2.45, 1.42, r"$dV$", ha="center", va="center", fontsize=10, color=ref_color)
     ax.text(8.40, 1.36, r"$dv$", ha="center", va="center", fontsize=10, color=cur_color)
-
-    ax.text(2.0, 0.70, r"work density: $\mathbf{S}:\dot{\mathbf{E}}$", ha="center", va="center", fontsize=10)
-    ax.text(8.0, 0.70, r"work density: $\boldsymbol{\sigma}:\mathbf{d}$", ha="center", va="center", fontsize=10)
 
     save(fig, FIGURES / "fig_intro_reference_current_configuration")
 
