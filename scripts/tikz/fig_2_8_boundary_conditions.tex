@@ -1,56 +1,144 @@
-\documentclass[border=8pt]{standalone}
+\documentclass[border=10pt]{standalone}
 \usepackage{tikz}
 \usepackage{amsmath, amssymb, bm}
 \input{_uio_style}
+\usetikzlibrary{decorations.pathmorphing, calc}
 
 \begin{document}
-\begin{tikzpicture}[node distance=10mm and 16mm]
+\begin{tikzpicture}[
+    every node/.append style={font=\small},
+    cavity-lv-fill/.style={fill=uioblue3, draw=none},
+    cavity-rv-fill/.style={fill=uiopink3!55!white, draw=none},
+    wall-fill/.style={fill=black!7, draw=none},
+    edge-epi/.style={draw=uiogreen1!55!black, line width=1.1pt},
+    edge-lv/.style={draw=uioblue1, line width=1.3pt},
+    edge-rv/.style={draw=uiopink1, line width=1.3pt},
+    edge-base/.style={draw=uioorange1!90!black, line width=1.3pt},
+    pressure-lv/.style={-{Stealth[length=2.6mm,width=2.0mm]}, line width=1.1pt, color=uioblue1},
+    pressure-rv/.style={-{Stealth[length=2.6mm,width=2.0mm]}, line width=1.1pt, color=uiopink1},
+    spring/.style={
+      decorate,
+      decoration={coil, aspect=0.4, segment length=1.6mm, amplitude=0.9mm},
+      draw=uiogreen1!55!black, line width=0.7pt,
+    },
+    spring-base/.style={
+      decorate,
+      decoration={coil, aspect=0.4, segment length=1.6mm, amplitude=0.9mm},
+      draw=uioorange1!85!black, line width=0.7pt,
+    },
+    pin-tri/.style={draw=uioorange1!90!black, fill=uioorange3, line width=0.6pt},
+    gamma/.style={font=\footnotesize},
+  ]
 
-  % Central node — the mechanics body.
-  \node[hub, minimum width=46mm, minimum height=22mm] (body) at (0, 0) {%
-    {\small\bfseries biventricular mechanics}\\[5pt]
-    $\bm{u},\ p_\mathrm{LV},\ p_\mathrm{RV}$%
-  };
+  %% ---------------------------------------------------------------
+  %% Geometry: long-axis cross-section, viewer-perspective.
+  %% Patient's left = LV (right side of figure), patient's right = RV
+  %% (left side of figure). Basal plane horizontal at top (y = 3);
+  %% apex at bottom (y ~= -3). Both cavities open into the basal plane.
+  %% ---------------------------------------------------------------
 
-  % Top row — cavity-volume constraints (blue accent).
-  \node[card-blue, minimum width=46mm] (lv) at (-5.4, 2.6) {%
-    $\Gamma_\mathrm{LV}$\,\ {\bfseries LV endocardium}\\[3pt]
-    $\mathcal{V}_\mathrm{LV}=\mathcal{V}_\mathrm{LV}^{\ast}$\\[1pt]
-    returns $p_\mathrm{LV}$%
-  };
-  \node[card-blue, minimum width=46mm] (rv) at (5.4, 2.6) {%
-    $\Gamma_\mathrm{RV}$\,\ {\bfseries RV endocardium}\\[3pt]
-    $\mathcal{V}_\mathrm{RV}=\mathcal{V}_\mathrm{RV}^{\ast}$\\[1pt]
-    returns $p_\mathrm{RV}$%
-  };
+  % Outer boundary (epicardium): flat top + curved sides + rounded apex.
+  \def\epipath{
+    (-3.6, 3.0) -- (3.6, 3.0)
+    .. controls (4.0, 1.5) and (3.6, -1.6) .. (2.3, -2.7)
+    .. controls (1.4, -3.2) and (-1.4, -3.2) .. (-2.3, -2.7)
+    .. controls (-3.6, -1.6) and (-4.0, 1.5) .. (-3.6, 3.0)
+    -- cycle
+  }
 
-  % Bottom row — Robin supports (green accent).
-  \node[card-green, minimum width=46mm] (epi) at (-5.4, -2.6) {%
-    $\Gamma_\mathrm{epi}$\,\ {\bfseries epicardium}\\[3pt]
-    Robin spring\\[1pt]
-    normal direction only%
-  };
-  \node[card-green, minimum width=46mm] (base) at (5.4, -2.6) {%
-    $\Gamma_\mathrm{base}$\,\ {\bfseries base}\\[3pt]
-    $u_n = 0$\\[1pt]
-    Robin spring%
-  };
+  % LV cavity (right side, patient's left as viewer sees it).
+  % Open at the top into the basal plane; flares outward toward the base.
+  \def\lvfill{
+    (0.55, 3.0)
+    .. controls (0.4, 1.5) and (0.45, -0.4) .. (1.05, -1.5)
+    .. controls (1.55, -2.0) and (2.3, -2.0) .. (2.75, -1.0)
+    .. controls (2.95, 0.5) and (3.1, 2.0) .. (3.25, 3.0)
+    -- cycle
+  }
+  \def\lvstroke{
+    (0.55, 3.0)
+    .. controls (0.4, 1.5) and (0.45, -0.4) .. (1.05, -1.5)
+    .. controls (1.55, -2.0) and (2.3, -2.0) .. (2.75, -1.0)
+    .. controls (2.95, 0.5) and (3.1, 2.0) .. (3.25, 3.0)
+  }
 
-  % Constraint arrows — top to centre.
-  \draw[flow-blue] (lv.south east) to[bend left=14]
-    node[edge-label, text=uioblue1, pos=0.55] {constraint}
-    (body.north west);
-  \draw[flow-blue] (rv.south west) to[bend right=14]
-    node[edge-label, text=uioblue1, pos=0.55] {constraint}
-    (body.north east);
+  % RV cavity (left side, patient's right as viewer sees it).
+  % Wider opening at the basal plane → thinner RV free wall, as in anatomy.
+  \def\rvfill{
+    (-0.55, 3.0)
+    .. controls (-0.4, 1.5) and (-0.45, -0.2) .. (-1.05, -1.2)
+    .. controls (-1.55, -1.7) and (-2.3, -1.55) .. (-2.7, -0.5)
+    .. controls (-2.9, 0.8) and (-3.1, 2.0) .. (-3.3, 3.0)
+    -- cycle
+  }
+  \def\rvstroke{
+    (-0.55, 3.0)
+    .. controls (-0.4, 1.5) and (-0.45, -0.2) .. (-1.05, -1.2)
+    .. controls (-1.55, -1.7) and (-2.3, -1.55) .. (-2.7, -0.5)
+    .. controls (-2.9, 0.8) and (-3.1, 2.0) .. (-3.3, 3.0)
+  }
 
-  % Support arrows — bottom to centre.
-  \draw[flow-green] (epi.north east) to[bend right=14]
-    node[edge-label, text=uiogreen1!60!black, pos=0.55] {support}
-    (body.south west);
-  \draw[flow-green] (base.north west) to[bend left=14]
-    node[edge-label, text=uiogreen1!60!black, pos=0.55] {support}
-    (body.south east);
+  %% Fills.
+  \fill[wall-fill]      \epipath;
+  \fill[cavity-lv-fill] \lvfill;
+  \fill[cavity-rv-fill] \rvfill;
+
+  %% In-cavity labels (LV right, RV left).
+  \node[text=uioblue1!85!black,  font=\small\bfseries] at ( 1.7, 0.4) {LV};
+  \node[text=black!70,           font=\small]           at ( 0.0, 0.4) {septum};
+  \node[text=uiopink1!85!black,  font=\small\bfseries] at (-1.5, 0.4) {RV};
+
+  %% Boundary strokes.
+  % Epicardium (omit the flat top — drawn as Γ_base in orange below).
+  \draw[edge-epi]
+    (3.6, 3.0)
+    .. controls (4.0, 1.5) and (3.6, -1.6) .. (2.3, -2.7)
+    .. controls (1.4, -3.2) and (-1.4, -3.2) .. (-2.3, -2.7)
+    .. controls (-3.6, -1.6) and (-4.0, 1.5) .. (-3.6, 3.0);
+  % Basal plane.
+  \draw[edge-base] (-3.6, 3.0) -- (3.6, 3.0);
+  % LV / RV endocardia (open at top — they meet the basal line).
+  \draw[edge-lv] \lvstroke;
+  \draw[edge-rv] \rvstroke;
+
+  %% Pressure arrows — pointing OUTWARD from each cavity to the endocardium.
+  %% Tips placed at the cavity boundary so they "hit" the wall, not stop short.
+  % LV (right cavity): one arrow into LV free wall (right), one into septum (left).
+  \draw[pressure-lv] (2.05,  1.4) -- (3.05,  1.4);
+  \draw[pressure-lv] (1.50, -0.7) -- (0.75, -0.7);
+  \node[text=uioblue1, font=\footnotesize, anchor=south west] at (2.10, 1.45) {$p_\mathrm{LV}$};
+
+  % RV (left cavity): one arrow into RV free wall (left), one into septum (right).
+  \draw[pressure-rv] (-1.95,  1.4) -- (-3.10,  1.4);
+  \draw[pressure-rv] (-1.50, -0.5) -- (-0.75, -0.5);
+  \node[text=uiopink1, font=\footnotesize, anchor=south east] at (-2.00, 1.45) {$p_\mathrm{RV}$};
+
+  %% Epicardial Robin springs.
+  \draw[spring] (-3.95,  1.2) -- (-4.6,  1.2);
+  \draw[spring] (-3.55, -1.4) -- (-4.15, -1.95);
+  \draw[spring] ( 0.0,  -3.15) -- ( 0.0,  -3.85);
+  \draw[spring] ( 3.55, -1.4) -- ( 4.15, -1.95);
+  \draw[spring] ( 3.95,  1.2) -- ( 4.6,   1.2);
+  \node[text=uiogreen1!50!black, font=\footnotesize, align=center]
+    at (5.25, 0.3) {$k_\mathrm{epi}$\\$=10^{5}$\,Pa/m};
+
+  %% Basal Robin springs (closer to the basal line).
+  \draw[spring-base] (-1.6, 3.0) -- (-1.6, 3.6);
+  \draw[spring-base] ( 1.6, 3.0) -- ( 1.6, 3.6);
+  \node[text=uioorange1!85!black, font=\footnotesize, align=center]
+    at (2.95, 3.4) {$k_\mathrm{base}$\\$=10^{6}$\,Pa/m};
+
+  %% Basal Dirichlet pin (u_n = 0) — placed clearly higher than the basal Robin springs.
+  \draw[pin-tri] (0.0, 3.05) -- (-0.22, 3.45) -- (0.22, 3.45) -- cycle;
+  \draw[uioorange1!90!black, line width=0.5pt] (-0.4, 3.45) -- (0.4, 3.45);
+  \node[text=uioorange1!85!black, font=\footnotesize, align=center]
+    at (0.0, 4.15) {$u_n = 0$\quad(Dirichlet)};
+
+  %% Γ-region labels.
+  \node[text=uiogreen1!50!black,  gamma] at (-4.55, 2.4) {$\Gamma_\mathrm{epi}$};
+  \node[text=uioorange1!90!black, gamma] at (-4.10, 3.0) {$\Gamma_\mathrm{base}$};
+  \node[text=uioblue1,            gamma] at ( 2.05, -1.6) {$\Gamma_\mathrm{LV}$};
+  \node[text=uiopink1,            gamma] at (-2.05, -1.55) {$\Gamma_\mathrm{RV}$};
 
 \end{tikzpicture}
 \end{document}

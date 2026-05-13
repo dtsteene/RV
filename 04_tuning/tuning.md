@@ -1,11 +1,9 @@
 (chap-calibration)=
 # Pressure-Loading Sweep
 
-This chapter defines the pressure-loading sweep used in the results. The sweep is not a separate disease model and it is not a patient-specific PAH progression. It is a controlled loading experiment: the same biventricular finite-element heart is driven by different zero-dimensional circulation parameter sets so that RV pressure rises while the mechanical model itself remains fixed.
+This chapter defines the pressure-loading sweep used in the results. The sweep is a controlled mechanics experiment that drives the same biventricular finite-element heart through a range of RV pressure loads; it is not a patient-specific PAH progression, and the nominal case labels are not clinical severity classes {cite}`humbert2022esc,benza2010reveal`. The achieved pressures and volumes from the coupled simulations, not the nominal labels, are the quantities used in {ref}`chap-results`.
 
-The calibration tunes the 0D Regazzoni circulation and chamber parameters in isolation: the 3D finite-element solve is not invoked during parameter selection, and the 3D mechanical model is left untouched. Across the pressure sweep, the biventricular mesh geometry, passive material law, fibre architecture, basal support condition, cavity-volume coupling formulation, ventricular activation timing, and 3D active tension are held fixed. What changes is the effective 0D circulation required to generate pressure-volume histories that are compatible with the fixed mesh. The residual that this standalone calibration leaves when the resulting parameter set is coupled to the FEM is documented in {ref}`sec-app-coupling-residual`.
-
-The nominal case labels identify pressure-loading scenarios. They should not be read as clinical severity classes, because contemporary PAH risk models are not organized by systolic pulmonary pressure alone {cite}`humbert2022esc,benza2010reveal`. The achieved pressures and volumes from the coupled simulations, not the nominal labels, are the quantities used in {ref}`chap-results`.
+The calibration tunes the 0D Regazzoni circulation parameters in isolation: the 3D finite-element solve is not invoked during parameter selection, and the 3D mechanical model is left untouched. Parameters are tuned via Optuna; targets, optimizer, and the per-case calibration audit are in {ref}`chap-appendix-circulation-calibration`.
 
 ## What Is Fixed and What Varies
 
@@ -20,7 +18,7 @@ The sweep separates the mechanical question from the circulation-fitting problem
 | 0D vascular and chamber elastance/volume parameters | Recalibrated per pressure case | Generates compatible pressure-volume histories for each loading scenario |
 | Independent loading axis | Achieved RV systolic pressure | Provides the pressure range used in the proxy tests |
 
-This distinction is important for interpretation. The calibrated 0D parameters are effective engineering constants, not direct measurements of vascular structure, myocardial stiffness, or contractile state in a specific patient. Their role is to provide plausible macroscopic boundary data for a fixed-geometry mechanics experiment. The detailed target set, target-source audit, passive EDPVR comparison, and optimizer procedure are collected in {ref}`chap-appendix-circulation-calibration`.
+The calibrated 0D parameters are effective engineering constants, not direct measurements of vascular structure, myocardial stiffness, or contractile state in a specific patient. Their role is to provide plausible macroscopic boundary data for a fixed-geometry mechanics experiment.
 
 ## Loading Targets and Achieved Pressures
 
@@ -38,6 +36,25 @@ The clearest summary of the sweep is the pressure-volume loop family in {numref}
 
 Pressure-volume loops from the primary capped-reference pressure-loading spectrum, using the FEM cavity pressures returned by the volume-constrained mechanics solve. The RV loop rises from near-normal pressure toward systemic pressure, while the LV loop remains comparatively preserved. The visualized loops are more important for the proxy analysis than the nominal severity labels: all results use the achieved pressures and volumes from these coupled simulations.
 ```
+
+## Target Correction From the Exploratory Sweep
+
+The corrected target set differs from an earlier exploratory predecessor in one important way. The exploratory targets varied several left-sided and systemic quantities across the RV pressure spectrum together: declining LV systolic pressure, falling LV filling pressure, lower aortic diastolic pressure, and a sliding LV ejection-fraction floor. A source audit ({ref}`sec-app-calibration-targets`) found no primary-source support for those ramps, so they were dropped from the corrected sweep.
+
+The correction matters mechanically. A declining LV pressure target does part of the work of reducing septal transmural pressure $p_\text{LV,ES}-p_\text{RV,ES}$. With LV pressure held stable, the transmural reduction across the corrected sweep is driven mainly by the imposed RV pressure rise. The earlier exploratory simulations are retained only as a loading-path sensitivity check: they show that a septal correlation ranking can change when the LV pressure path changes. The main results use the corrected 16-case circulation path.
+
+## Passive EDPVR Choice
+
+The standard Regazzoni chamber model uses a linear passive end-diastolic pressure-volume relation. On the fixed UKB mesh this tied the standalone end-diastolic pressure and volume too tightly: once the unstressed volume was chosen, changing the passive slope moved both the filling pressure and the mesh-compatible filling volume together. The corrected calibration therefore lets the LV and RV passive terms use a Klotz-style exponential pressure-volume relation {cite}`klotz2006single`; the equation and per-case calibration audit are in {ref}`sec-app-calibration-edpvr`. The Klotz form is a calibration degree of freedom, not a patient-specific stiffness measurement. The proxy analyses use only the achieved coupled pressures and volumes, so this choice enters the thesis through the loading path it produces, not as an interpreted myocardial material result.
+
+(sec-coupling-residual)=
+## Coupling Residual
+
+The standalone 0D calibration leaves a residual when the model is coupled to the FEM. The 0D ascribes a chamber pressure $\mathcal{E}(t)(\mathcal{V}-\mathcal{V}_0)$ via the time-varying elastance fitted by the optimizer, while the FEM ascribes a chamber pressure equal to the cavity-volume Lagrange multiplier produced by the Holzapfel-Ogden material with the prescribed active tension. These are two independent mechanical descriptions of the same chamber, anchored to the same physiological scale but not to each other.
+
+The residual has two distinct views and they differ in size by roughly a factor of three. The first is *intra-beat agreement*: at the same coupled volume trajectory, the elastance prediction and the Lagrange multiplier sit 5.76 mmHg apart on average over the beat in the production sPAP70 case, equivalent to a 2.8% discrepancy in cumulative cavity work. The second is the *standalone-versus-coupled operating-point shift*: the standalone 0D pre-run settles into one periodic state and the coupled simulation settles into a different one. In sPAP70 the LV loop shifts modestly (peak pressure $117\to110$ mmHg) while the RV loop shifts substantially (peak $69\to86$ mmHg, EDV $77\to103$ mL). Across the severe cases the RV operating-point shift can be 10--20 mmHg. The per-case breakdown and the standalone-vs-coupled PV figure are in {ref}`sec-app-coupling-residual`.
+
+Two consequences for the rest of the thesis. First, all work calculations use the solver Lagrange-multiplier pressure rather than the 0D elastance pressure, since the multiplier is what acts on the variational boundary and the 2.8% intra-beat work discrepancy already shows the cost of the wrong choice. Second, the `sPAP*` case names are calibration shorthand for the standalone-targeted RV systolic pressure, not for the achieved coupled value; the pressure axes, correlations, and proxies in {ref}`chap-results` use the coupled-achieved pressures directly, so this shift does not propagate into the proxy comparison.
 
 ## Interpretation Limits
 

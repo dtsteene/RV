@@ -192,7 +192,7 @@ Whole-heart energy-balance check on the synthetic UK Biobank baseline. Cumulativ
 
 Clinical validation studies usually test pressure-strain work against patient-relevant endpoints. That is appropriate, but those endpoints do not isolate the pressure-for-stress approximation. Glucose uptake and oxygen use ask whether tissue paid a metabolic cost. Contractility asks whether the ventricle can generate pressure for its loading conditions. These are important physiological questions, but they are not direct measurements of local myocardial stress-strain work.
 
-Finite-element stress-strain work has been used before. Regional fibre work and full stress-strain work have been studied in LV, biventricular, perfusion, dyssynchrony, and CRT settings {cite}`finsberg2017phd,wang2012myocardial,pluijmert2017determinants,ahmadbakir2018multiphysics,craine2024successful`. Patient-specific biventricular mechanics frameworks have been used to estimate regional stress and contractility in healthy subjects and in pulmonary arterial hypertension {cite}`finsberg2018efficient,finsberg2019computational`. Coupled 3D--0D frameworks provide the pressure-volume loading context for such mechanics models {cite}`kerckhoffs2007coupling,regazzoni2022cardiac,piersanti2022closed`.
+Regional fibre work and full stress-strain work have been used in several cardiac settings; the field is reviewed in {ref}`chap-introduction`.
 
 The gap addressed here is narrower than "regional work has not been modelled." What is missing is a quantitative check of how a clinical-style pressure-longitudinal-strain proxy behaves when compared with finite-element stress-strain work in the RV free wall and the septum specifically — the two biventricular cases beyond the well-validated LV setting.
 

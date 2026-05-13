@@ -49,7 +49,7 @@ $$
 + \frac{a_{fs}}{2b_{fs}}\left(e^{b_{fs} I_{8fs}^2} - 1\right),
 $$
 
-where $a_f$, $b_f$, $a_s$, $b_s$, $a_{fs}$, $b_{fs}$ are additional material parameters. The Macaulay bracket switches the fibre and sheet terms off in compression, reflecting the observation that fibres and collagen sheets offer little resistance to compression along their length. For the transversely isotropic parameter set used here, $a_s = a_{fs} = 0$, so the sheet and fibre-sheet terms vanish and the passive directional stiffening is fibre-dominated. This is the standard simplification in patient-specific cardiac FEM where biaxial / shear data to identify the full orthotropic parameter set are unavailable {cite}`pluijmert2017determinants,finsberg2017phd`. It is conservative for the proxy-validity question: real myocardium is orthotropic {cite}`holzapfel2009constitutive`, so dropping the sheet and fibre-sheet terms only reduces the cross-fibre stress-strain work that a longitudinal-strain proxy cannot recover, putting the gap reported here on the low side.
+where $a_f$, $b_f$, $a_s$, $b_s$, $a_{fs}$, $b_{fs}$ are additional material parameters. The Macaulay bracket switches the fibre and sheet terms off in compression, reflecting the observation that fibres and collagen sheets offer little resistance to compression along their length. For the transversely isotropic parameter set used here, $a_s = a_{fs} = 0$, so the sheet and fibre-sheet terms vanish and the passive directional stiffening is fibre-dominated. This is the standard simplification when full orthotropic parameter identification data are unavailable {cite}`pluijmert2017determinants,finsberg2017phd`; it is conservative for the proxy-validity question, because a fully orthotropic $\Psi$ would only widen the cross-fibre work gap that a longitudinal-strain proxy cannot recover.
 
 The volumetric term penalizes deviations from the incompressible limit:
 
@@ -121,7 +121,7 @@ The same waveform and 100 kPa amplitude are used in all three regions (LV free w
 (sec-cavity-boundary)=
 ## Cavity Constraints and Boundary Conditions
 
-The boundary $\partial\mathcal{B}_0$ is partitioned into four non-overlapping regions. The left and right ventricular endocardial surfaces $\Gamma_\text{LV}$ and $\Gamma_\text{RV}$ define the cavity-volume constraints
+The boundary $\partial\mathcal{B}_0$ is partitioned into four regions. The left and right ventricular endocardial surfaces $\Gamma_\text{LV}$ and $\Gamma_\text{RV}$ define the cavity-volume constraints
 
 $$
 \mathcal{V}_\text{LV}(\mathbf{u}) = \mathcal{V}_\text{LV}^*(t),
@@ -129,15 +129,15 @@ $$
 \mathcal{V}_\text{RV}(\mathbf{u}) = \mathcal{V}_\text{RV}^*(t),
 $$
 
-where $\mathcal{V}_\text{LV}^*$ and $\mathcal{V}_\text{RV}^*$ are the target cavity volumes supplied by the circulation model after the fixed mesh-to-circulation volume scaling in {ref}`sec-3d-0d-coupling`. The associated Lagrange multipliers are the solver cavity pressures. Their virtual-work contribution is equivalent to pressure tractions of the form
+where $\mathcal{V}_\text{LV}^*$ and $\mathcal{V}_\text{RV}^*$ are the target cavity volumes supplied by the circulation model ({ref}`sec-3d-0d-coupling`). The associated Lagrange multipliers are the solver cavity pressures. Their virtual-work contribution is equivalent to pressure tractions of the form
 
 $$
 \mathbf{T} = -p_\text{LV} J \mathbf{F}^{-\top}\mathbf{N} \quad \text{on } \Gamma_\text{LV}, \qquad \mathbf{T} = -p_\text{RV} J \mathbf{F}^{-\top}\mathbf{N} \quad \text{on } \Gamma_\text{RV},
 $$
 
-where $\mathbf{N}$ is the outward unit normal in the reference configuration and the factor $J\mathbf{F}^{-\top}\mathbf{N}$ maps it to the current configuration via Nanson's formula {cite}`holzapfel2000nonlinear`. This pressure-traction expression is useful for interpreting the mechanics and for prestressing. In the main coupled simulation, however, the volumes are imposed and the pressures are returned by the finite-element solve.
+where $\mathbf{N}$ is the outward unit normal in the reference configuration and the factor $J\mathbf{F}^{-\top}\mathbf{N}$ maps it to the current configuration via Nanson's formula {cite}`holzapfel2000nonlinear`. The pressure thus acts as a follower load normal to the deformed endocardium.
 
-The basal plane $\Gamma_\text{base}$ is constrained by a partial Dirichlet condition. In the mesh orientation used here, the base-normal direction is the $x$ direction, and only the basal $x$-displacement is fixed; the remaining displacement components are allowed to move. This removes the rigid-body mode associated with base-normal translation without fully clamping the basal surface.
+The basal plane $\Gamma_\text{base}$ is constrained by a partial Dirichlet condition: the displacement component perpendicular to the basal plane (along the apex-to-base axis) is fixed to zero, while in-plane displacement is allowed. This removes the rigid-body mode associated with base-normal translation without fully clamping the basal surface.
 
 The epicardial surface $\Gamma_\text{epi}$ and the base carry Robin-type spring conditions that model the pericardial constraint and surrounding tissue. The spring resists displacement in the direction normal to the deformed surface, using the same Nanson mapping as the pressure traction to track the current surface orientation:
 
@@ -145,27 +145,41 @@ $$
 \mathbf{T}_\text{robin} = -k \, (\mathbf{u} \cdot \mathbf{n}) \, \mathbf{n} \quad \text{on } \Gamma_\text{epi} \cup \Gamma_\text{base},
 $$
 
-where $\mathbf{n} = J\mathbf{F}^{-\top}\mathbf{N} / |J\mathbf{F}^{-\top}\mathbf{N}|$ is the unit outward normal in the current configuration. The spring stiffnesses are $k_\text{epi} = 10^5$ Pa/m and $k_\text{base} = 10^6$ Pa/m. Because the spring acts only in the normal direction, tangential sliding of the epicardium is unresisted. This is a phenomenological support condition intended to mimic pericardial and surrounding-tissue restraint, not a detailed anatomical model of the attachments. {numref}`fig-bc-schematic` summarises the four boundary regions and the conditions imposed on each.
+where $\mathbf{n} = J\mathbf{F}^{-\top}\mathbf{N} / |J\mathbf{F}^{-\top}\mathbf{N}|$ is the unit outward normal in the current configuration. The spring stiffnesses are $k_\text{epi} = 10^5$ Pa/m and $k_\text{base} = 10^6$ Pa/m. The springs resist displacement perpendicular to the surface but not motion along it; this mimics pericardial constraint and prevents the heart from drifting freely through space, without imposing a stiff anatomical attachment. {numref}`fig-bc-schematic` summarises the four boundary regions and the conditions imposed on each.
 
 ```{figure} ../figures/fig_2_8_boundary_conditions.png
 :name: fig-bc-schematic
 :width: 80%
 
-Boundary and cavity conditions on the biventricular reference mesh. The LV and RV endocardial surfaces $\Gamma_\text{LV}, \Gamma_\text{RV}$ define the cavity-volume constraints; the associated pressures are the Lagrange multipliers returned by the mechanics solve. The targets $\mathcal{V}_\text{LV}^{*}, \mathcal{V}_\text{RV}^{*}$ are supplied each step by the 0D circulation. On the basal plane $\Gamma_\text{base}$, the displacement component along the base normal, $u_n = \mathbf{u}\cdot\mathbf{n}$, is fixed to zero, while the in-plane components are left free and lightly resisted by stiff Robin springs. The epicardial surface $\Gamma_\text{epi}$ is supported by softer Robin springs acting along the deformed surface normal, modelling the pericardial constraint while allowing tangential sliding.
+Schematic cross-section of the biventricular reference mesh with the four boundary regions and their conditions. The LV and RV endocardia $\Gamma_\text{LV}, \Gamma_\text{RV}$ (blue, pink) carry the cavity-volume constraints; the associated pressures $p_\text{LV}, p_\text{RV}$ are Lagrange multipliers returned by the solve and act as outward pressure tractions on each endocardial surface (arrows). The epicardium $\Gamma_\text{epi}$ (green) carries Robin springs $k_\text{epi} = 10^5$ Pa/m acting along the deformed surface normal, allowing tangential sliding. The basal plane $\Gamma_\text{base}$ (orange) carries the same kind of normal-direction Robin spring at higher stiffness $k_\text{base} = 10^6$ Pa/m, together with a single Dirichlet pin that fixes the base-normal displacement component $u_n = \mathbf{u}\cdot\mathbf{n} = 0$ and removes the corresponding rigid-body mode.
 ```
 
 (sec-equilibrium-problem)=
 ## The Equilibrium Problem
 
-The governing equations follow from the balance of linear momentum. In the absence of body forces and with inertial effects neglected — the quasi-static approximation appropriate for a cardiac simulation where the timescales of interest are much longer than elastic wave propagation — the strong form in the reference configuration reads
+The governing equations follow from the balance of linear momentum. In the absence of body forces and with inertia neglected — the quasi-static approximation, since elastic waves cross the wall in milliseconds while the cardiac cycle takes about a second — the strong form in the reference configuration reads
 
 $$
-\text{Div}\,\mathbf{P} = \mathbf{0} \quad \text{in } \mathcal{B}_0,
+\nabla_\mathbf{X}\cdot\mathbf{P} = \mathbf{0} \quad \text{in } \mathcal{B}_0,
 $$
 
-where $\mathbf{P} = \mathbf{F}\mathbf{S}$ is the first Piola-Kirchhoff stress tensor and Div denotes the divergence with respect to the reference coordinates $\mathbf{X}$. This equation is supplemented by the cavity-volume constraints, Robin support, and basal Dirichlet condition defined in {ref}`sec-cavity-boundary` above.
+where $\mathbf{P} = \mathbf{F}\mathbf{S}$ is the first Piola-Kirchhoff stress tensor. This equation is supplemented by the cavity-volume constraints, Robin support, and basal Dirichlet condition defined above.
 
-The displacement solution is sought in a kinematic space $\mathscr{V}$ of $H^1$ vector fields satisfying the basal displacement constraint. Test functions lie in the corresponding homogeneous space $\mathscr{V}_0$, so $\delta\mathbf{u}\in\mathscr{V}_0$ satisfies the same zero Dirichlet condition at the base. Multiplying the strong form by $\delta\mathbf{u}$ and integrating by parts yields a nonlinear weak form. If the cavity pressures are written as scalar pressure variables $p_\text{LV}$ and $p_\text{RV}$, the mechanical residual has the schematic form
+The trial and test spaces coincide because the basal Dirichlet is homogeneous:
+
+$$
+V = \{\,\mathbf{v} \in [H^1(\mathcal{B}_0)]^3 \;:\; \mathbf{v}\cdot\mathbf{N} = 0 \text{ on } \Gamma_\text{base}\,\}.
+$$
+
+We seek $\mathbf{u} \in V$ with test functions $\delta\mathbf{u} \in V$.
+
+Multiplying the strong form $\nabla_\mathbf{X}\cdot\mathbf{P} = \mathbf{0}$ by $\delta\mathbf{u}$ and integrating by parts over $\mathcal{B}_0$ gives
+
+$$
+\int_{\mathcal{B}_0} \mathbf{P}:\nabla\delta\mathbf{u}\,dV_0 = \int_{\partial\mathcal{B}_0} (\mathbf{P}\mathbf{N})\cdot\delta\mathbf{u}\,dA.
+$$
+
+The volume term reduces to $\int_{\mathcal{B}_0} \mathbf{S}:\delta\mathbf{E}\,dV_0$ by the symmetry of $\mathbf{S}$ and the kinematic identity $\mathbf{P}:\nabla\delta\mathbf{u} = \mathbf{S}:\delta\mathbf{E}$. The boundary integrals split by surface: the cavity-pressure tractions on $\Gamma_\text{LV}$ and $\Gamma_\text{RV}$ become $-p_\text{LV}\delta\mathcal{V}_\text{LV}$ and $-p_\text{RV}\delta\mathcal{V}_\text{RV}$ (the variations of the cavity-volume functionals); the Robin tractions on $\Gamma_\text{epi}\cup\Gamma_\text{base}$ become the virtual-work contribution $G_\text{Robin}$; and the normal-direction boundary contribution on $\Gamma_\text{base}$ vanishes because $\delta\mathbf{u}\cdot\mathbf{N} = 0$ there. Collecting these gives the mechanical residual
 
 $$
 \begin{aligned}
@@ -173,25 +187,28 @@ G(\mathbf{u},p_\text{LV},p_\text{RV}; \delta\mathbf{u})
 &= \int_{\mathcal{B}_0} \mathbf{S}(\mathbf{u}) : \delta\mathbf{E}(\mathbf{u}; \delta\mathbf{u}) \, dV_0 \\
 &\quad - p_\text{LV}\,\delta \mathcal{V}_\text{LV}(\mathbf{u};\delta\mathbf{u})
 - p_\text{RV}\,\delta \mathcal{V}_\text{RV}(\mathbf{u};\delta\mathbf{u})
-+ G_\text{Robin}(\mathbf{u};\delta\mathbf{u}) = 0.
++ G_\text{Robin}(\mathbf{u};\delta\mathbf{u}) = 0,
 \end{aligned}
 $$
 
-Here $\delta\mathbf{E} = \frac{1}{2}(\mathbf{F}^\top \nabla\delta\mathbf{u} + \nabla\delta\mathbf{u}^\top \mathbf{F})$ is the variation of the Green-Lagrange strain; $\delta\mathcal{V}_\text{LV}$ and $\delta\mathcal{V}_\text{RV}$ are the variations of the cavity-volume functionals introduced above, and $G_\text{Robin}$ is the virtual-work contribution of the Robin springs.
+where $\delta\mathbf{E} = \frac{1}{2}(\mathbf{F}^\top \nabla\delta\mathbf{u} + \nabla\delta\mathbf{u}^\top \mathbf{F})$ is the variation of the Green-Lagrange strain.
 
 (sec-newton-method)=
 ## Linearization and Newton's Method
 
-The nonlinear system is solved by Newton's method. In the coupled cavity problem, the unknowns include both the displacement degrees of freedom and the cavity-pressure multipliers, while the target cavity volumes enter as constraints. Written only for the displacement part of the residual, a Newton increment $\Delta\mathbf{u}$ satisfies the linearized problem
+The nonlinear system is solved by Newton's method. The coupled cavity problem has a $2\times 2$ saddle-point block structure: displacement degrees of freedom and cavity-pressure multipliers, with the cavity-volume constraints as the off-diagonal coupling. Below we display only the displacement block of the linearization; a Newton increment $\Delta\mathbf{u}$ satisfies
 
 $$
-DG(\mathbf{u}^k; \delta\mathbf{u})[\Delta\mathbf{u}] = -G(\mathbf{u}^k; \delta\mathbf{u}) \quad \forall \, \delta\mathbf{u} \in \mathscr{V}_0,
+DG(\mathbf{u}^k; \delta\mathbf{u})[\Delta\mathbf{u}] = -G(\mathbf{u}^k; \delta\mathbf{u}) \quad \forall \, \delta\mathbf{u} \in V,
 $$
 
 where $DG$ is the directional derivative of the residual with respect to $\mathbf{u}$ in the direction $\Delta\mathbf{u}$:
 
 $$
-DG(\mathbf{u}; \delta\mathbf{u})[\Delta\mathbf{u}] = \int_{\mathcal{B}_0} \left(\delta\mathbf{E} : \mathbb{C} : \Delta\mathbf{E} + \mathbf{S} : \Delta\delta\mathbf{E}\right) dV_0 + \text{boundary terms},
+\begin{aligned}
+DG(\mathbf{u}; \delta\mathbf{u})[\Delta\mathbf{u}] &= \int_{\mathcal{B}_0} \left(\delta\mathbf{E} : \mathbb{C} : \Delta\mathbf{E} + \mathbf{S} : \Delta\delta\mathbf{E}\right) dV_0 \\
+&\quad + \text{pressure-traction and Robin-spring linearizations},
+\end{aligned}
 $$
 
 with $\mathbb{C} = 4 \frac{\partial^2 \Psi}{\partial \mathbf{C} \partial \mathbf{C}}$ the fourth-order material tangent tensor and $\Delta\delta\mathbf{E} = \frac{1}{2}(\nabla\delta\mathbf{u}^\top \nabla\Delta\mathbf{u} + \nabla\Delta\mathbf{u}^\top \nabla\delta\mathbf{u})$ the second variation of the strain. The first term in the integrand is the material stiffness, which captures how the stress changes with strain; the second is the geometric stiffness, which accounts for the change in the strain measure itself as the body deforms. Both contributions are essential for the quadratic convergence rate of Newton's method at large deformations.
@@ -199,16 +216,6 @@ with $\mathbb{C} = 4 \frac{\partial^2 \Psi}{\partial \mathbf{C} \partial \mathbf
 (sec-fe-discretization)=
 ## Finite Element Discretization
 
-The continuous displacement space $\mathscr{V}$ is approximated by a finite-dimensional subspace $\mathscr{V}_h\subset\mathscr{V}$ spanned by finite element basis functions. The displacement field is written as $\mathbf{u}_h = \sum_A N_A(\mathbf{X}) \, \mathbf{u}_A$, where $N_A$ are the shape functions and $\mathbf{u}_A$ are nodal displacement vectors. Inserting this representation into the weak form and choosing basis test functions reduces the continuous variational problem to a nonlinear algebraic system
+The displacement field is approximated by second-order tetrahedral elements (P2), giving a finite-dimensional subspace $V_h \subset V$ of quadratic polynomial fields with ten nodes per element. P2 elements can represent a linearly varying displacement gradient within each cell, which matters because transmural stress gradients arise when the wall is constrained by cavity volume on the endocardial side and Robin support on the epicardial side {cite}`logg2012automated`. The production mesh uses a characteristic length of 5 mm (8070 cells); a finer 3.75 mm mesh (~15000 cells) is used as the mesh-convergence reference in {ref}`sec-app-mesh-convergence`.
 
-$$
-\mathbf{R}(\mathbf{u}_h) = \mathbf{0},
-$$
-
-where the residual vector $\mathbf{R}$ assembles the element-level contributions from the internal stress, cavity-pressure multiplier terms, and Robin springs. The Newton update at each iteration solves the tangent system $\mathbf{K}\,\Delta\mathbf{u}_h = -\mathbf{R}$, where $\mathbf{K}$ is the assembled tangent stiffness matrix.
-
-The mesh uses second-order tetrahedral elements (P2), in which the displacement field is a quadratic polynomial with ten nodes per element — four at vertices and six at edge midpoints. Compared with linear tetrahedra, quadratic elements can represent a linearly varying displacement gradient within each element {cite}`logg2012automated`. That matters here because transmural stress gradients arise when the wall is constrained by cavity volume on the endocardial side and Robin support on the epicardial or basal side. The production mesh uses a characteristic length of 5 mm (8070 cells); a finer 3.75 mm mesh (~15000 cells) is used as the mesh-convergence reference in {ref}`sec-app-mesh-convergence`.
-
-The integrals in the weak form are evaluated by Gauss quadrature over each element and assembled by DOLFINx {cite}`baratta2023dolfinx`. The tangent system is solved by the sparse direct solver MUMPS {cite}`amestoy2001mumps` through PETSc {cite}`petsc2026manual`, which converges robustly even for the ill-conditioned systems that arise when the bulk modulus $\kappa$ is large relative to the shear stiffness.
-
-In the FEniCSx implementation, the strain energy, stress, residual, and linearization are expressed symbolically in the Unified Form Language (UFL). The FFCx form compiler differentiates the energy automatically to produce the residual and tangent forms, which are then compiled into optimized kernels {cite}`baratta2023dolfinx`. This means that changes to the constitutive model require only editing the UFL expression for $\Psi$; the linearization, assembly, and solution infrastructure remain untouched.
+Substituting $\mathbf{u}_h \in V_h$ into the weak form gives a nonlinear algebraic system $\mathbf{R}(\mathbf{u}_h) = \mathbf{0}$, solved by Newton's method with the sparse direct linear solver MUMPS {cite}`amestoy2001mumps` through PETSc {cite}`petsc2026manual`. Full implementation details — DOLFINx assembly, symbolic UFL forms, automatic linearization via FFCx — are described in {ref}`sec-software-stack`.
