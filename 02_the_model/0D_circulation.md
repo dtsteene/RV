@@ -80,7 +80,7 @@ $$
 \end{aligned}
 $$
 
-where $Q_\text{MV}, Q_\text{AV}, Q_\text{TV}, Q_\text{PV}$ are the valve flows computed from the diode model above. Conservation of volume in the vascular compartments, using the scalar constitutive relation $\mathcal{V} = C p$ for the elastic vessels, gives the pressure dynamics:
+where $Q_\text{MV}, Q_\text{AV}, Q_\text{TV}, Q_\text{PV}$ are the valve flows computed from the diode model above. The vascular compartments use a linear constitutive relation $\mathcal{V} = C p$ with constant compliance and zero unstressed volume, in contrast to the chamber elastance law which retains an unstressed offset $\mathcal{V}_0$ and a time-varying $\mathcal{E}(t)$. Combined with mass conservation, this gives $\dot{p} = \dot{\mathcal{V}}/C$ and the pressure equations:
 
 $$
 \begin{aligned}
@@ -102,7 +102,7 @@ $$
 \end{aligned}
 $$
 
-This is a system of twelve coupled ODEs — four volume equations, four pressure equations, and four flow equations. The large ratio between $R_\text{min}$ and $R_\text{max}$ produces rapid transitions in the flow signals at valve opening and closure. In the standalone calibration stage, the circulation model is advanced until the last-beat pressure-volume loops are periodic to the tolerance used by the optimizer.
+This is a system of twelve coupled ODEs — four volume equations, four pressure equations, and four flow equations. The inertance terms $L$ represent the inertia of blood in the large vessels and smooth the rapid flow transitions across the valve diodes. The large ratio between the closed and open valve resistances $R_\text{max}/R_\text{min}$ makes the system stiff; the `circulation` package integrates it with a small fixed time step. In the standalone calibration stage, the model is advanced until the last-beat pressure-volume loops satisfy the periodicity tolerance used by the optimizer.
 
 (sec-3d-0d-coupling)=
 ## Coupling the 3D and 0D Models

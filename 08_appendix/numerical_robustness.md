@@ -17,7 +17,7 @@ The basal support combines Robin springs on the epicardium and base with a parti
 |---|---|
 | Energy-consistent postprocessing | Quadrature-level stress-strain work closes the whole-heart boundary-work budget to about $10^{-5}$–$10^{-4}$ relative error |
 | Primary capped sweep audit | All 16 capped shared-L5 cases completed strict canonical quadrature-level postprocessing on the same 8070-cell reference mesh, with finite pressure histories and per-cell work arrays |
-| Capped septum envelope sweep | Epi-excluded and epi-inclusive relaxed septum envelopes were recomputed on the capped shared-L5 sweep; the geometric septum cutoff is unchanged and transmural pressure remains a poor capped-sweep ranking proxy |
+| Capped septum envelope sweep | Epi-excluded and epi-inclusive septum envelopes were recomputed from $t=-10$ to $+20$ mm on the capped shared-L5 sweep; the geometric septum cutoff is unchanged, and tight-core transmural ranking does not translate into magnitude preservation |
 | Principal-strain replay | All 16 capped cases were replayed from displacement checkpoints; fibre direction was closer to septal principal shortening than longitudinal strain, while principal shortening itself did not remove the pressure-choice ambiguity |
 | Mesh convergence | h=5 differs from h=3.75 by less than 0.8% for hemodynamics and less than about 3% for free-wall ratios in the endpoint mesh study; severe septal work differs by about 5–7% |
 | Periodic convergence | Beat-to-beat relative change between beats 5 and 6: mean 0.4% on peak pressures and 0.4% on end-diastolic volumes across the 16 production cases; worst-case 1.5% peak pressure and 1.8% stroke volume in sPAP70 |
@@ -145,7 +145,7 @@ The topological epicardial exclusion removes cells on the outer boundary of the 
 
 The opposite convention was tested by using only $d_\mathrm{LV}+d_\mathrm{RV}\leq 22$ mm. This epi-inclusive envelope is anatomically defensible if the goal is to let the geometric parametrization grow the septal mask all the way to the outer wall. The two definitions are identical at the actual geometric septum cutoff and first diverge only at about $t=+4.5$ mm. The difference is therefore not a change to the reported primary septum; it is a sensitivity of the far relaxed sweep tail.
 
-{numref}`fig-app-septum-mask-sweep` shows the geometric picture of the mask as $t$ varies; the quantitative effect on proxy correlations is in {numref}`fig-app-septum-epi-envelope` and {numref}`tab-app-septum-epi-envelope`.
+{numref}`fig-app-septum-mask-sweep` shows the geometric picture of the mask as $t$ varies; the quantitative effect on proxy correlations is in {numref}`fig-app-septum-epi-envelope` and {numref}`tab-app-septum-epi-envelope`. The sweep was recomputed over $t=-10$ to $+20$ mm so that negative thresholds test a genuinely smaller, deeper septal core rather than only relaxed masks.
 
 ```{figure} ../figures/fig_app_septum_mask_sweep.png
 :name: fig-app-septum-mask-sweep
@@ -161,19 +161,25 @@ Geometric septum mask under the boundary-relaxation sweep. Each panel shows the 
 Effect of allowing epicardial-touching cells into the relaxed septum sweep in the capped shared-L5 production set. Solid lines use the production epi-excluded envelope; dashed lines use the epi-inclusive envelope. The lower panel shows the inclusive-minus-excluded correlation change. The definitions coincide through the geometric cutoff and separate only when the relaxed mask reaches the outer wall.
 ```
 
-```{table} Selected thresholds from the capped shared-L5 epi-excluded and epi-inclusive septum sweep comparison. Correlations are Pearson correlations between volume-integrated septal stress-strain work and longitudinal pressure-strain proxies across the 16 capped production cases.
+The table also reports $\eta$, the mean absolute log error in the septum/free-wall work-density ratio, for the epi-excluded production envelope. This separates case ranking from magnitude preservation.
+
+```{table} Selected thresholds from the capped shared-L5 epi-excluded and epi-inclusive septum sweep comparison. Correlations are Pearson correlations between volume-integrated septal stress-strain work and longitudinal pressure-strain proxies across the 16 capped production cases. The $\eta$ columns use the epi-excluded production envelope.
 :name: tab-app-septum-epi-envelope
 :align: left
 
-| $t$ (mm) | Cells excl. -> incl. | $r(p_\mathrm{LV})$ | $r(p_\mathrm{RV})$ | $r(p_\mathrm{LV}-p_\mathrm{RV})$ | $r(p_\mathrm{mean})$ |
-|---:|---:|---:|---:|---:|---:|
-| 0 | 1269 -> 1269 | 0.540 -> 0.540 | 0.528 -> 0.528 | -0.333 -> -0.333 | 0.535 -> 0.535 |
-| +5 | 1555 -> 1558 | 0.600 -> 0.602 | 0.542 -> 0.543 | -0.358 -> -0.358 | 0.568 -> 0.569 |
-| +10 | 1955 -> 2140 | 0.714 -> 0.723 | 0.578 -> 0.585 | -0.333 -> -0.349 | 0.635 -> 0.642 |
-| +20 | 2592 -> 3112 | 0.865 -> 0.889 | 0.667 -> 0.641 | -0.351 -> -0.292 | 0.752 -> 0.745 |
+| $t$ (mm) | Cells excl. -> incl. | $r(p_\mathrm{LV})$ | $r(p_\mathrm{RV})$ | $r(p_\mathrm{LV}-p_\mathrm{RV})$ | $r(p_\mathrm{mean})$ | $\eta(p_\mathrm{LV})$ | $\eta(p_\mathrm{LV}-p_\mathrm{RV})$ | $\eta(p_\mathrm{mean})$ |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| -10 | 733 -> 733 | 0.567 -> 0.567 | 0.556 -> 0.556 | 0.533 -> 0.533 | 0.563 -> 0.563 | 1.581 | 3.338 | 1.675 |
+| -5 | 1008 -> 1008 | 0.514 -> 0.514 | 0.524 -> 0.524 | 0.071 -> 0.071 | 0.520 -> 0.520 | 1.222 | 2.621 | 1.359 |
+| 0 | 1269 -> 1269 | 0.540 -> 0.540 | 0.528 -> 0.528 | -0.333 -> -0.333 | 0.535 -> 0.535 | 0.805 | 2.075 | 0.969 |
+| +5 | 1555 -> 1558 | 0.600 -> 0.602 | 0.542 -> 0.543 | -0.358 -> -0.358 | 0.568 -> 0.569 | 0.507 | 1.683 | 0.691 |
+| +10 | 1955 -> 2140 | 0.714 -> 0.723 | 0.578 -> 0.585 | -0.333 -> -0.349 | 0.635 -> 0.642 | 0.298 | 1.436 | 0.492 |
+| +20 | 2592 -> 3112 | 0.865 -> 0.889 | 0.667 -> 0.641 | -0.351 -> -0.292 | 0.752 -> 0.745 | 0.171 | 1.286 | 0.369 |
 ```
 
-Adding the epicardial-touching cells lets the relaxed septal region grow farther toward the outer LV/RV junction, but it does not restore transmural pressure as a work-density pressure scale. At $t=+20$ mm, the inclusive sweep adds 520 cells per case, increasing the region from 2592 to 3112 cells; $r(p_\mathrm{LV})$ changes from 0.865 to 0.889, while $r(p_\mathrm{LV}-p_\mathrm{RV})$ changes only from -0.351 to -0.292. The geometric septum used in the primary result is not affected by the epicardial-envelope convention.
+Two cautions follow. First, a very tight central-septum mask can make transmural pressure rank the cases positively: at $t=-10$ mm, $r(p_\mathrm{LV}-p_\mathrm{RV})=0.533$. That ranking is not a good work-density proxy, because the same threshold gives the largest magnitude error in the table ($\eta=3.338$). The true septum/free-wall ratio is close to one in that tight core, while the transmural-pressure ratio is much smaller because the pressure difference cancels when both cavities are pressurised.
+
+Second, positive thresholds increasingly mix the septum with junctional free-wall tissue. At $t=+20$ mm, the inclusive sweep adds 520 cells per case, increasing the region from 2592 to 3112 cells; $r(p_\mathrm{LV})$ changes from 0.865 to 0.889, while $r(p_\mathrm{LV}-p_\mathrm{RV})$ changes only from -0.351 to -0.292. This tail behaviour is useful as a mask-sensitivity check, but it is not the primary septum definition. The geometric septum used in the main result remains $t=0$, where the epi-excluded and epi-inclusive definitions coincide and transmural pressure is poor by both ranking and magnitude.
 
 ## Basal Boundary Condition
 

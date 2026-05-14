@@ -118,6 +118,8 @@ Blanco activation function $a(t)$ over two cardiac cycles: a piecewise cosine ri
 
 The same waveform and 100 kPa amplitude are used in all three regions (LV free wall, RV free wall, septum), so activation is spatially synchronous and contractile drive is not a region-specific tuning parameter. The amplitude is of the same order as related coupled cardiac active-stress models {cite}`regazzoni2022cardiac,piersanti2022closed`; the different LV and RV pressure regimes then arise from geometry, boundary conditions, and circulatory loading rather than from a prescribed RV/LV tension difference. Heart rate and Blanco timing are nominal resting-state values held fixed across simulations; they scale the temporal axis but do not enter the per-beat work-density comparison.
 
+In this formulation, $T_a$ is a function of time only. Stretch changes the passive stress and the deformation through which the active stress works, while the prescribed active drive remains the same.
+
 (sec-cavity-boundary)=
 ## Cavity Constraints and Boundary Conditions
 

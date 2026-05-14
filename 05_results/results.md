@@ -25,7 +25,7 @@ $$
 R_\text{proxy}(A,B) = \frac{w_\text{PS}(A)}{w_\text{PS}(B)}.
 $$
 
-Here $W_\text{int}[\Omega_A]$ is the volume-integrated stress-strain work over region $\Omega_A$, and $|\Omega_{A,0}|$ is that region's reference volume. Both $w_\text{int}$ and the pressure-strain loop area $w_\text{PS}$ are density-like quantities with units of pressure: J/m$^3$ = Pa, reported here in kPa. The pressure-strain proxy is already treated as a density-like index, so it has no additional regional volume factor.
+Here $W_\text{int}[\Omega_A]$ is the volume-integrated stress-strain work over region $\Omega_A$, and $|\Omega_{A,0}|$ is that region's reference volume. Both $w_\text{int}$ and the pressure-strain loop area $w_\text{PS}$ are density-like quantities with units of pressure: J/m$^3$ = Pa, reported here in kPa. The pressure-strain proxy is already treated as a density-like index, so it has no additional regional volume factor. All pressure-strain proxies are computed cellwise — per-cell loop area against the cell's assigned pressure — and then volume-integrated over the region; for spatially varying septal pressure choices (nearest-side and through-wall weighted), pressure varies cell-by-cell within the septum.
 
 The free-wall ratio $R = w_\text{LV}/w_\text{RV}$ sits above one across the sweep, so we report the absolute error $|R_\text{proxy}-R_\text{FE}|$, averaged over the sixteen cases.
 
@@ -40,11 +40,20 @@ averaged across both ratios and all sixteen cases. The scale is multiplicative: 
 
 Throughout the chapter, the longitudinal-strain proxy uses the tangent-longitudinal definition from {ref}`sec-work-definitions`. The raw apico-basal direction is projected into the local wall tangent plane before evaluating $\varepsilon_{ll}$, so the proxy does not count the through-wall component of the LDRB apex-gradient field as longitudinal strain. Fibre-aligned diagnostics use the model-side Green-Lagrange fibre strain $E_{ff}=\mathbf{E}:(\mathbf{f}_0\otimes\mathbf{f}_0)$ and are treated as mechanical checks rather than competing clinical proxies.
 
+Before the ratio analyses, {numref}`fig-ps-loops-sweep` shows the regional pressure-strain loops that the proxy actually integrates across the sweep. The LV free-wall loops cluster across cases; the RV free-wall loops grow with achieved RV pressure; the septum loops have a smaller longitudinal-strain swing throughout. The proxy $w_\text{PS}$ is the signed area enclosed by each loop.
+
+```{figure} ../figures/fig_5_0c_ps_loops_sweep.png
+:name: fig-ps-loops-sweep
+:width: 100%
+
+Regional pressure-strain loops across the sixteen capped-reference sweep cases (last simulated beat). Left: LV free wall against $p_\text{LV}$. Middle: RV free wall against $p_\text{RV}$. Right: septum against $p_\text{LV}$ (the best single-pressure choice for septal work-density preservation per {numref}`tab-septum-proxies`). X-axis: regional mean tangent-longitudinal Green-Lagrange strain $\varepsilon_{ll}$. Y-axis: cavity pressure (mmHg). Colour: achieved peak RV systolic pressure (mmHg).
+```
+
 These ratios are tested first in the free walls, where pressure assignment is simple, and then in the septum, where it is not. The conceptual asymmetry between the two cases is the one introduced in {numref}`fig-freewall-septum-schematic`.
 
 The central finding is summarised before the detailed analyses below, free walls first, then septum.
 
-{numref}`fig-freewall-ratio-headline` shows the free-wall result. The adjacent-pressure proxy (using $p_\text{LV}$ for the LV wall and $p_\text{RV}$ for the RV wall) clusters tightly along the identity line, with mean absolute error 0.16 across the sweep. Free-wall LV/RV work-density ratios are preserved.
+{numref}`fig-freewall-ratio-headline` shows the free-wall result. The adjacent-pressure proxy (using $p_\text{LV}$ for the LV wall and $p_\text{RV}$ for the RV wall) clusters tightly along the identity line, with mean absolute error 0.16 (raw $|R_\text{proxy}-R_\text{FE}|$) across the sweep. Free-wall LV/RV work-density ratios are preserved.
 
 ```{figure} ../figures/fig_5_0_freewall_headline.png
 :name: fig-freewall-ratio-headline
@@ -53,7 +62,7 @@ The central finding is summarised before the detailed analyses below, free walls
 LV/RV free-wall work-density ratio across the sixteen capped-reference sweep cases. Each marker is one simulation; the dashed grey line is the identity $y=x$. The adjacent-pressure proxy ($p_\text{LV}$ for the LV wall, $p_\text{RV}$ for the RV wall) clusters along the identity line.
 ```
 
-The septum picture is different. {numref}`fig-septum-ratio-headline` shows the septum/LV-free-wall and septum/RV-free-wall ratios for three septal pressure choices. Transmural pressure departs from the identity line in every one of the sixteen cases — the proxy is systematically too small because $p_\text{LV}-p_\text{RV}$ is a small number relative to either cavity pressure alone — while LV pressure and mean pressure stay closer. The combined septum log-ratio errors $\eta_\text{ratio}$ are 0.805 for LV pressure, 0.969 for mean pressure, and 2.075 for transmural pressure: transmural is more than two-and-a-half times worse than the next-worst single-pressure choice.
+The septum picture is different. {numref}`fig-septum-ratio-headline` shows the septum/LV-free-wall and septum/RV-free-wall ratios for three septal pressure choices. Transmural pressure departs from the identity line in every one of the sixteen cases — the proxy is systematically too small because $p_\text{LV}-p_\text{RV}$ is a small number relative to either cavity pressure alone — while LV pressure and mean pressure stay closer. The combined septum log-ratio errors $\eta_\text{ratio}$ are 0.805 for LV pressure, 0.969 for mean pressure, and 2.075 for transmural pressure: transmural is more than twice as bad as the next-worst single-pressure choice.
 
 ```{figure} ../figures/fig_5_0_septum_headline.png
 :name: fig-septum-ratio-headline
@@ -80,16 +89,7 @@ Component breakdown of finite-element stress-strain work density across the prim
 
 The simplest case is the comparison between the LV free wall and the RV free wall, with the septum excluded from both. Each free wall faces one cavity, so the pressure assignment is mechanically natural: $p_\text{LV}$ for the LV free wall and $p_\text{RV}$ for the RV free wall. This is the cleanest setting for the pressure assignment; failure here would point to a more basic limitation than septal pressure ambiguity.
 
-For the lowest-pressure UKB baseline case in the primary sweep, the finite-element stress-strain work density in the LV free wall was 3.75 times the RV free-wall value. The tangent-longitudinal proxy using adjacent cavity pressure gave an LV/RV ratio of 3.88, close to the finite-element reference. Assigning the same pressure to both free walls lost the balance: LV pressure everywhere gave a ratio of 1.85, and RV pressure everywhere gave 1.09. Replacing the pressure magnitude with the same pressure trace scaled to unit peak — keeping the time shape but dropping the magnitude — also collapsed the LV/RV balance. The result is shown in {numref}`fig-freewall-single`.
-
-```{figure} ../figures/fig_5_1_freewall_single_case_ratio.png
-:name: fig-freewall-single
-:width: 90%
-
-Free-wall LV/RV work-density ratio in the lowest-pressure UKB baseline case. The dashed line is the finite-element stress-strain work-density ratio. For the longitudinal-strain proxy, adjacent cavity pressure gives the closest ratio; using one pressure everywhere or removing pressure magnitude loses the LV/RV work-density balance.
-```
-
-The same pattern holds across the primary pressure-loading sweep. The mean absolute error in the free-wall LV/RV ratio was 0.16 for the adjacent-pressure tangent-longitudinal proxy, compared with 0.68 for LV pressure everywhere and 0.87 for RV pressure everywhere. The sweep result is shown in {numref}`fig-freewall-spectrum`. Adjacent cavity pressure remains the best of the tested longitudinal pressure assignments for the free-wall ratio.
+For the lowest-pressure UKB baseline case in the primary sweep, the finite-element stress-strain work density in the LV free wall was 3.75 times the RV free-wall value. The tangent-longitudinal proxy using adjacent cavity pressure gave an LV/RV ratio of 3.88, close to the finite-element reference. Assigning the same pressure to both free walls lost the balance: LV pressure everywhere gave a ratio of 1.85, and RV pressure everywhere gave 1.09. Replacing the pressure magnitude with the same pressure trace scaled to unit peak, $\hat p(t)=p(t)/\max_t |p(t)|$, so that the proxy reduces to $\oint \hat p\,d\varepsilon$ — keeping the time shape but dropping the magnitude — also collapsed the LV/RV balance. The same pattern holds across the primary pressure-loading sweep. The mean absolute error in the free-wall LV/RV ratio (raw $|R_\text{proxy}-R_\text{FE}|$) was 0.16 for the adjacent-pressure tangent-longitudinal proxy, compared with 0.68 for LV pressure everywhere and 0.87 for RV pressure everywhere. The sweep result is shown in {numref}`fig-freewall-spectrum`. Adjacent cavity pressure remains the best of the tested longitudinal pressure assignments for the free-wall ratio.
 
 ```{figure} ../figures/fig_5_2_freewall_ratio_spectrum.png
 :name: fig-freewall-spectrum
@@ -179,9 +179,19 @@ The correlation part of the table is shown as scatter plots in {numref}`fig-sept
 Septal pressure-choice correlations in the primary capped-reference sweep. Each panel compares a longitudinal pressure-strain proxy with finite-element septal stress-strain work density. The solid line is a least-squares regression and colour denotes achieved RV systolic pressure. Transmural pressure is mechanically meaningful for net septal pressure difference, but it is not a good scalar work-density pressure in this analysis.
 ```
 
-The geometric septum mask used here was checked against alternative definitions that erode or grow the mask near the LV/RV junction; the central result is stable across that range, with details in {ref}`sec-app-septum-epi-envelope`.
+The geometric septum mask used here was also stress-tested by shrinking and expanding it near the LV/RV junction. This changes exactly the part of the definition that is hardest to draw: how much junctional tissue belongs to the shared wall. The central result did not depend on the exact cutoff. A very tight septal core can make transmural pressure rank the cases better, but it still gives the worst septum/free-wall magnitude error. This is why the main septal result gives more weight to regional ratios than to correlation alone; details are in {ref}`sec-app-septum-epi-envelope`.
 
-Pairing the same pressure choices with the model-side fibre strain $E_{ff}$ instead of longitudinal strain transforms the picture, shown in {numref}`fig-septum-strain-direction-diagnostic`. Two-sided pressure choices (mean, nearest-side, through-wall weighted) become tightly aligned with septal stress-strain work density (correlations near 0.97, magnitude errors near 0.07), and LV pressure also improves substantially. Transmural pressure remains poor on both tests. Part of the septal difficulty is therefore a strain-direction limitation of longitudinal strain, not only a pressure-assignment limitation.
+(sec-results-septum-strain-direction)=
+### Strain Direction in the Septum
+
+The pressure-assignment failure above explains only part of the septal difficulty. Pairing the same pressure choices with the model-side fibre strain $E_{ff}$ instead of longitudinal strain transforms the picture, shown in {numref}`fig-septum-strain-direction-diagnostic`. Two-sided pressure choices (mean, nearest-side, through-wall weighted) become tightly aligned with septal stress-strain work density (correlations near 0.97, magnitude errors near 0.07), and LV pressure also improves substantially. Transmural pressure remains poor on both tests. Part of the septal difficulty is therefore a strain-direction limitation of longitudinal strain, not only a pressure-assignment limitation.
+
+```{figure} ../figures/fig_5_3b_septum_strain_direction_diagnostic.png
+:name: fig-septum-strain-direction-diagnostic
+:width: 95%
+
+Model-side septal fibre diagnostic in the primary capped-reference sweep. Left: correlations with finite-element septal stress-strain work density. Right: septum/free-wall magnitude preservation. Fibre-aligned strain strongly favours two-sided pressure choices, while transmural pressure still performs poorly.
+```
 
 {numref}`tab-principal-strain-alignment` reports principal-shortening alignment in all three regions. For each cell in the replayed displacement field, the Green-Lagrange strain tensor was diagonalised and its most-compressive eigenvector compared with the fibre, longitudinal, radial, and circumferential directions. Fibre is the best-aligned candidate everywhere: mean angle 30–32 degrees, best-aligned in 60% of regional volume. Longitudinal alignment is markedly weaker — 48° in the LV free wall, 54° in the RV free wall, 50° in the septum.
 
@@ -211,13 +221,6 @@ Substituting the most-compressive principal-shortening direction at each cell �
 
 Principal shortening is the most-compressive direction at each cell by construction, so it also bounds what any other single-direction strain scalar — including a fitted linear combination of anatomical-axis strains with globally fixed weights — could achieve on these cells. Improvements beyond this point require either a spatially-varying strain direction (which the fibre-aligned diagnostic above uses within the model) or a proxy that includes shear strain components. Resolving the septal proxy therefore needs three-dimensional strain information: the full local tensor, or as a clinical compromise a combination of longitudinal, circumferential, and radial strains, rather than a different single scalar component.
 
-```{figure} ../figures/fig_5_3b_septum_strain_direction_diagnostic.png
-:name: fig-septum-strain-direction-diagnostic
-:width: 95%
-
-Model-side septal fibre diagnostic in the primary capped-reference sweep. Left: correlations with finite-element septal stress-strain work density. Right: septum/free-wall magnitude preservation. Fibre-aligned strain strongly favours two-sided pressure choices, while transmural pressure still performs poorly.
-```
-
 (sec-results-pressure-mixtures)=
 ## Pressure Mixtures As A Diagnostic
 
@@ -245,9 +248,12 @@ The primary capped-reference sweep is complete: all 16 cases have solver pressur
 
 In postprocessing-only replay tests, DG1 state storage changed integrated regional stress-strain work by at most about 1.2% relative to Quadrature6, whereas DG0 suppressed high-pressure septal work. The basal support should be read as a stabilizing modelling choice: the production setup fixes only the base-normal/global-x displacement component, tangential sliding remains, and the no-Dirichlet variants did not converge during end-diastolic inflation. Net Robin work was below 0.2% of cavity boundary work in the checked endpoint cases. These checks support the main regional conclusions, with the septum appropriately treated as the numerically more sensitive region.
 
-A final robustness issue is not numerical resolution but the reference configuration. The inverse-unloading step uses the same fixed UKB geometry for all pressure cases. In severe RV loading, this can make the inferred unloaded RV reference too small because the model has no RV hypertrophy, curvature remodelling, or regional material adaptation with which to carry the higher end-diastolic pressure. The primary capped-reference sweep keeps the end-diastolic mesh target unchanged but caps the RV end-diastolic pressure used during inverse unloading at 5 mmHg. This is more constrained than arbitrary passive-stiffness tuning, because it changes only the questionable RV prestress target while keeping the circulation, anatomy, and material law otherwise comparable.
+(sec-results-reference-state)=
+## Reference-State Sensitivity
 
-Regional stiffness checks, fixed-reference acute-loading pilots, and an exploratory healthy/PAH patient-geometry comparison all supported the same central concern: RV and RV-side septal absolute work-density magnitudes are reference-state sensitive, and the direction of the bias is not captured by a simple one-sided correction. The detailed values are given in {ref}`sec-app-reference-remodeling-sensitivity`. The pressure-proxy comparisons remain useful as controlled fixed-geometry tests, but severe-case RV and RV-side septal magnitudes should not be treated as corrected PAH tissue-work estimates.
+Beyond mesh and function-space resolution, the largest caveat on the absolute work-density numbers in this chapter is the unloaded reference configuration. The inverse-unloading step uses the same fixed UKB geometry for all pressure cases. In severe RV loading, this can make the inferred unloaded RV reference too small because the model has no RV hypertrophy, curvature remodelling, or regional material adaptation with which to carry the higher end-diastolic pressure. The primary capped-reference sweep keeps the end-diastolic mesh target unchanged but caps the RV end-diastolic pressure used during inverse unloading at 5 mmHg. This is more constrained than arbitrary passive-stiffness tuning, because it changes only the questionable RV prestress target while keeping the circulation, anatomy, and material law otherwise comparable.
+
+Regional stiffness checks, fixed-reference acute-loading pilots, and an exploratory healthy/PAH patient-geometry comparison all supported the same central concern: RV and RV-side septal absolute work-density magnitudes are reference-state and geometry sensitive, and the direction of the bias is not captured by a simple one-sided correction. The reference-state checks are given in {ref}`sec-app-reference-remodeling-sensitivity`; the patient-geometry direction check is given in {ref}`chap-appendix-patient-geometry`. The pressure-proxy comparisons remain useful as controlled fixed-geometry tests, but severe-case RV and RV-side septal magnitudes should not be treated as corrected PAH tissue-work estimates.
 
 
 The fixed-geometry pressure sweep should therefore be read carefully. It is not a simulation of PAH progression in a patient. Real PAH changes pressure, volume, wall thickness, curvature, stiffness, activation, and contractility together. The sweep isolates one part of that system by changing the circulation while holding the anatomy and material model fixed. That isolation is useful, because it exposes how pressure choices for the longitudinal proxy respond to loading changes. It is not the same as a clinical cohort, and its severe RV and RV-side septal density magnitudes should not be treated as corrected PAH tissue-work estimates.

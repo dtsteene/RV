@@ -18,6 +18,8 @@ $$
 \Omega_\text{sept} \;=\; \{\, x \in \Omega \;:\; \max(d_\text{LV}(x),\, d_\text{RV}(x)) < d_\text{epi}(x) \,\}.
 $$
 
+Equivalently, the septal boundary is the zero level of $\max(d_\text{LV},d_\text{RV})-d_\text{epi}$. This makes the definition easy to perturb: a negative cutoff keeps only a deeper septal core, while a positive cutoff grows the mask into the LV/RV junction. The LV-to-RV Laplace scalar is therefore kept as a smooth coordinate for fibre rules and pressure weights, but not used as the main anatomical septum mask.
+
 The remaining cells are LV free wall (closer to the LV endocardium) or RV free wall (closer to the RV endocardium). The red region in {numref}`fig-mesh-regions` is exactly $\Omega_\text{sept}$.
 
 ```{figure} ../figures/fig_2_1_mesh_regions.png
