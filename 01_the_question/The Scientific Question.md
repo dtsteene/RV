@@ -161,7 +161,7 @@ p_\lambda(t,\mathbf{X})
 + [1-\lambda(\mathbf{X})]p_\text{RV}(t).
 $$
 
-In the reference-tag postprocessing ({ref}`sec-reference-tag-postprocessing`), $\lambda$ is the saved LV-to-RV Laplace scalar — a smooth function from 1 on the LV side to 0 on the RV side, visualized in {numref}`fig-lv-rv-partition`.
+Under shared-mask tagging ({ref}`sec-shared-mask-tagging`), $\lambda$ is the saved LV-to-RV Laplace scalar — a smooth function from 1 on the LV side to 0 on the RV side, visualized in {numref}`fig-lv-rv-partition`.
 
 The model layers that produce these stress and strain estimates — a transversely isotropic Holzapfel-Ogden passive law with rule-based fibres, prescribed Blanco active tension along $\mathbf{f}_0$, epicardial Robin springs and a partial basal Dirichlet support, two-way coupling to a closed-loop 0D circulation, and an inverse-elasticity prestressing step — are developed in {ref}`chap-model` and {ref}`chap-implementation`. Each affects the stress and strain returned to $w_\text{int}[\Omega_j]$. The model is hyperelastic and uses a nearly-incompressible penalty formulation ($\kappa = 1000$ kPa) rather than strict $J=1$ incompressibility. Activation is uniform with no electrophysiology, the base is clipped, and pericardial support is provided by Robin springs without contact or fluid-structure interaction. The thesis therefore tests the pressure-strain proxy in this scope, not in a fully resolved electromechanical heart-thorax model.
 

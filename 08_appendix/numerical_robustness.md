@@ -56,7 +56,7 @@ The external work terms were also matched to the solver formulation. Cavity work
 (sec-app-mesh-convergence)=
 ## Mesh Convergence
 
-All 16 cases in the capped shared-L5 sweep use the same 5 mm reference mesh ($n=8070$ cells) and the same region tag set (see {ref}`sec-reference-tag-postprocessing`). The pressure histories have shape `(4800, 2)`, the per-cell arrays are finite, and the geometric septum is 1269 cells while the tag-3 septum is 1266 cells in every case (a 0.1% volume difference shared across the sweep).
+All 16 cases in the capped shared-L5 sweep use the same 5 mm reference mesh ($n=8070$ cells) and the same region tag set (see {ref}`sec-shared-mask-tagging`). The pressure histories have shape `(4800, 2)`, the per-cell arrays are finite, and the geometric septum is 1269 cells while the tag-3 septum is 1266 cells in every case (a 0.1% volume difference shared across the sweep).
 
 A separate mesh-convergence study repeated three representative pressure cases — sPAP22, sPAP60, and sPAP95 — using characteristic lengths of 10, 7.5, 5, and 3.75 mm. The 3.75 mm runs were used as the finest available reference.
 

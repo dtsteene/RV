@@ -14,7 +14,7 @@ The model state is a vector $\mathbf{y}(t) \in \mathbb{R}^{12}$ consisting of th
 :name: fig-0d-network
 :width: 90%
 
-Closed-loop four-chamber circulation. The four chambers (LA, LV, RA, RV) are time-varying elastances; the four valves (MV, AV, TV, PV, drawn as diamond glyphs along the flow arrows) are ideal diodes with finite forward and large backward resistance; the systemic and pulmonary vasculature are $R$-$C$-$L$ Windkessels with separate arterial and venous compartments. Arrows trace the forward-flow direction across one cardiac cycle.
+Closed-loop four-chamber circulation. The four chambers (LA, LV, RA, RV) are time-varying elastances; the four valves (MV, AV, TV, PV, drawn as diamonds along the flow arrows) are modelled as switching diodes with a small forward resistance $R_\text{min}$ when open and a large backward resistance $R_\text{max}$ when closed; the systemic and pulmonary vasculature are $R$-$C$-$L$ Windkessels with separate arterial and venous compartments. Arrows trace the forward-flow direction across one cardiac cycle.
 ```
 
 In the standalone 0D circulation model, each cardiac chamber has a time-varying elastance $\mathcal{E}(t)$ that determines how cavity pressure responds to volume. The chamber pressure is
@@ -29,7 +29,7 @@ $$
 \mathcal{E}(t) = \mathcal{E}_A\,a(t) + \mathcal{E}_B,
 $$
 
-where $\mathcal{E}_A$ is the active-elastance amplitude (peak elastance is $\mathcal{E}_A + \mathcal{E}_B$), $\mathcal{E}_B$ is the passive diastolic elastance, and $a(t)$ is the piecewise-cosine activation waveform defined in {ref}`sec-total-stress-active`, parametrized by the contraction onset $t_C$, contraction duration $T_C$, and relaxation duration $T_R$. {numref}`fig-elastance` shows the resulting time-varying elastance $\mathcal{E}(t)$ for both ventricles at the healthy calibration over two cardiac cycles. At this calibration the LV systolic pressure reaches approximately 120 mmHg and the RV approximately 25 mmHg over the 0.8 s cardiac cycle; full per-chamber and per-compartment parameter values are tabulated in {ref}`chap-calibration`.
+where $\mathcal{E}_A$ is the active-elastance amplitude (peak elastance is $\mathcal{E}_A + \mathcal{E}_B$), $\mathcal{E}_B$ is the passive diastolic elastance, and $a(t)$ is the piecewise-cosine activation waveform defined in {ref}`sec-total-stress-active`, parametrized by the contraction onset $t_C$, contraction duration $T_C$, and relaxation duration $T_R$. For the LV and RV ventricles in the production calibration, the passive limb is replaced by a Klotz-style exponential pressure-volume extension that recovers the linear form as its curvature parameter $k_E \to 0$; the equation, the motivation, and the per-case audit are in {ref}`chap-calibration` and {ref}`sec-app-calibration-edpvr`. {numref}`fig-elastance` shows the resulting time-varying elastance $\mathcal{E}(t)$ for both ventricles at the healthy calibration over two cardiac cycles. At this calibration the LV systolic pressure reaches approximately 120 mmHg and the RV approximately 30 mmHg over the 0.8 s cardiac cycle; full per-chamber and per-compartment parameter values are tabulated in {ref}`chap-calibration`.
 
 In the coupled 3D--0D run, the elastance law is replaced by the FE-solver Lagrange multipliers for the LV and RV ventricles; the atrial pressures $p_\text{LA}, p_\text{RA}$ (which enter the venous-return flow ODEs below) still come from the elastance relation, as do all chamber pressures during the standalone calibration warm-up.
 
@@ -37,7 +37,7 @@ In the coupled 3D--0D run, the elastance law is replaced by the FE-solver Lagran
 :name: fig-elastance
 :width: 80%
 
-Time-varying elastance $\mathcal{E}(t) = \mathcal{E}_A\,a(t) + \mathcal{E}_B$ for the LV and RV chambers at the healthy calibration over two cardiac cycles. The dotted horizontal lines mark the passive baselines $\mathcal{E}_B$. The LV systolic elastance peak is roughly six times the RV value, reflecting the difference in systemic versus pulmonary afterload.
+Time-varying elastance $\mathcal{E}(t) = \mathcal{E}_A\,a(t) + \mathcal{E}_B$ for the LV and RV chambers at the healthy calibration over two cardiac cycles. The dotted horizontal lines mark the passive baselines $\mathcal{E}_B$. The LV systolic elastance peak is roughly six times the RV value, reflecting the difference in systemic versus pulmonary afterload; the resulting cavity pressures of $\sim$120 and $\sim$30 mmHg follow from $p = \mathcal{E}\,(\mathcal{V} - \mathcal{V}_0)$ with the larger RV operating volume narrowing the pressure ratio to about four-to-one.
 ```
 
 The four cardiac valves are modeled as ideal diodes with finite forward resistance $R_\text{min}$ and a large backward resistance $R_\text{max}$. The flow through a valve between upstream pressure $p_\text{up}$ and downstream pressure $p_\text{down}$ is
@@ -46,7 +46,9 @@ $$
 Q_\text{valve} = \frac{p_\text{up} - p_\text{down}}{R(p_\text{up}, p_\text{down})}, \qquad R = \begin{cases} R_\text{min} & p_\text{up} > p_\text{down}, \\ R_\text{max} & \text{otherwise}. \end{cases}
 $$
 
-In the vascular compartments below, $C$ denotes compliance (distinct from the right Cauchy-Green tensor $\mathbf{C}$ in {ref}`sec-mechanics-notation`). The systemic and pulmonary Windkessel models are each represented by two compartments — arterial and venous — connected by resistive and inductive elements. Each arterial compartment has a scalar compliance $C_\text{AR}$, a resistance $R_\text{AR}$, and an inductance $L_\text{AR}$ that captures the inertia of blood in the large vessels; the venous compartment is analogous with parameters $C_\text{VEN}$, $R_\text{VEN}$, and $L_\text{VEN}$.
+In the vascular compartments below, $C$ denotes compliance. The systemic and pulmonary Windkessel models are each represented by two compartments — arterial and venous — connected by resistive and inductive elements. Each arterial compartment has a scalar compliance $C_\text{AR}$, a resistance $R_\text{AR}$, and an inductance $L_\text{AR}$ that captures the inertia of blood in the large vessels; the venous compartment is analogous with parameters $C_\text{VEN}$, $R_\text{VEN}$, and $L_\text{VEN}$.
+
+All chamber elastances, unstressed volumes, vascular resistances and compliances, the diastolic-curvature parameter $k_E$, and the total blood-volume distribution are case-by-case calibration parameters; {ref}`chap-calibration` describes the optimization procedure and {ref}`chap-appendix-circulation-calibration` tabulates the per-case values and search ranges.
 
 ```{table} Main variables and parameters in the closed-loop 0D circulation model.
 :name: tab-0d-symbols

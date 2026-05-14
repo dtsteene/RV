@@ -10,7 +10,7 @@ file is just the recent state.
 ```
 282d2c0 figures: tikz tooling and split pipeline figure into preparation + coupled-solve
 31d7dd2 build: UiO master-thesis cover via local uiomasterfp template
-4c75f9c polish: thesis content, reference-tag postprocessing section, per-case canonical caveat
+4c75f9c polish: thesis content, shared-mask tagging section (formerly "reference-tag postprocessing"), per-case caveat
 08a46a9 results: update capped sweep figures and preview setup
 acdcd89 methods: clarify ED-zeroed longitudinal strain
 c2bdfe8 appendix: clarify capped and pre-cap sweep evidence
@@ -22,17 +22,18 @@ The earlier four are slurm-side (results agent). The top three are macOS-side
 
 ## The single most important conceptual thing
 
-**`reference-tag postprocessing` vs `per-case canonical postprocessing`.**
+**`shared-mask tagging` vs `per-case tagging`** (renamed from the older
+"reference-tag postprocessing" / "per-case canonical postprocessing").
 
-- *Reference-tag* is the preferred protocol: one fixed reference end-diastolic
+- *Shared-mask tagging* is the preferred protocol: one fixed reference end-diastolic
   mesh, one set of LV/RV/septum cell tags, reused across every sweep case. Only
   the circulation changes from one case to the next. Defined in chapter 3 at
-  `(sec-reference-tag-postprocessing)=` in `03_implementation/implementation.md`.
-- *Per-case canonical* is what the **current** chapter-5 figures and chapter-8
+  `(sec-shared-mask-tagging)=` in `03_implementation/implementation.md`.
+- *Per-case tagging* is what the **current** chapter-5 figures and chapter-8
   appendix tables are produced under: each capped sweep case is independently
   tetrahedralised (cell counts vary 7936--8109), tagged on its own ED mesh, and
   integrated.
-- A **reference-tag rerun is in progress on slurm**. Both chapter 3 and the
+- A **shared-mask rerun is in progress on slurm**. Both chapter 3 and the
   chapter 5 opener already flag this with caveat paragraphs. When the rerun
   lands, update the chapter-5 numbers, the appendix audit row, and lift the
   caveat. Conclusions are not expected to change qualitatively.
@@ -44,7 +45,7 @@ The earlier four are slurm-side (results agent). The top three are macOS-side
 | `intro.md` | Polished. Subtitle split out for the UiO cover. | Yes — don't put chapter-1 content back in. |
 | `01_the_question/` | Polished. Strain-direction story consolidated, energy identity moved to appendix. | Yes — don't re-introduce content from intro. |
 | `02_the_model/*.md` | All six files polished section-by-section. | **Yes — strongly. Recent reductions were deliberate. Don't revert.** |
-| `03_implementation/...` | Has the new `Reference-Tag Postprocessing` section. Per-case-canonical caveat present. | Treat the ref-tag section as canonical for the term. |
+| `03_implementation/...` | Region Definitions section introduces *shared-mask tagging* (anchor `sec-shared-mask-tagging`). Per-case caveat present. | Treat the shared-mask section as canonical for the term. |
 | `04_tuning/...` | Capped-sweep updates done by results agent. | OK to polish. |
 | `05_results/...` | Mostly results-agent's content. Polish edits applied. Opener now flags ref-tag pending. | Coordinate with the rerun results — don't re-edit numbers until the rerun lands. |
 | `06_discussion/...` | Capped-sweep updates done. The cap-justification paragraph runs slightly long; tighten if you want. | OK to polish. |
@@ -106,7 +107,7 @@ Read `THESIS_INSTRUCTIONS.md` for the long version. The short version:
 
 ## Likely next moves
 
-1. When the reference-tag rerun lands: refresh chapter-5 numbers and tables,
+1. When the shared-mask rerun lands: refresh chapter-5 numbers and tables,
    update the chapter-3 / chapter-5 caveats to past-tense ("the rerun is now
    complete"), update the appendix-table row.
 2. Discussion chapter cap-justification paragraph is slightly long.

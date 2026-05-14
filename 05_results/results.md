@@ -5,9 +5,27 @@ The results are easiest to understand if two questions are kept separate. First:
 
 A proxy can rank a pressure sweep well and still give the wrong regional balance within a single patient, so the chapter starts with the regional ratio analysis. The ratio test is the cleaner mechanics check: it does not depend on whether the hemodynamic axis chosen for the sweep is clinically typical. The pressure sweep then comes in as a controlled loading experiment, asking whether the same proxies rank the cases consistently with the finite-element reference.
 
+A note before the visual. The reader should read {numref}`fig-cascade-loops-sweep` and {numref}`fig-septum-pressure-choices` for **loop areas only** — the proxy quantity is signed loop area, and these figures are intended as a qualitative orientation to what the rest of the chapter compares quantitatively. The top row of {numref}`fig-cascade-loops-sweep` is the fiber-direction projection $S_{ff}\,\dot E_{ff}$, which is the dominant component of the full tensor contraction $\mathbf{S}:\dot{\mathbf{E}}$ but not the literal full work; cross-fiber, sheet, and sheet-normal contributions are smaller but not zero. Loop shapes, timing, and other geometric features beyond signed area are not the focus.
+
+{numref}`fig-cascade-loops-sweep` puts the FE reference and the clinical pressure-strain proxy side by side across the sixteen cases: the top row is fiber-direction stress-strain loops $S_{ff}$ vs $E_{ff}$, the bottom row is the proxy $p_\text{cav}$ vs longitudinal strain $\varepsilon_{ll}$. The visible question is whether the bottom-row areas preserve the top-row regional balance, and whether they do so consistently as RV pressure rises. The free-wall proxy uses adjacent cavity pressure; the septum is shown with $p_\text{LV}$ as a default, but which pressure should drive the septal proxy is itself one of the chapter's open questions. {numref}`fig-septum-pressure-choices` shows the same septum loops under four candidate pressures: $p_\text{LV}$, $p_\text{RV}$, mean, and transmural.
+
+```{figure} ../figures/fig_5_0c_cascade_loops_sweep.png
+:name: fig-cascade-loops-sweep
+:width: 100%
+
+Top row: fiber-direction stress-strain loops $S_{ff}$ vs $E_{ff}$ for the LV free wall, RV free wall, and septum across the sixteen capped-reference sweep cases (last simulated beat). Bottom row: clinical pressure-strain proxy ($p_\text{LV}$ for LV and septum, $p_\text{RV}$ for RV) against tangent-longitudinal strain $\varepsilon_{ll}$. Each line is one simulation. Colour: achieved peak RV systolic pressure (mmHg).
+```
+
+```{figure} ../figures/fig_5_0d_septum_pressure_choices.png
+:name: fig-septum-pressure-choices
+:width: 100%
+
+Septum pressure-strain loops across the sixteen cases under four candidate pressures: $p_\text{LV}$, $p_\text{RV}$, mean $(p_\text{LV}+p_\text{RV})/2$, and transmural $p_\text{LV}-p_\text{RV}$. All panels share the same septal longitudinal strain on the x-axis. Each line is one simulation; colour is achieved peak RV systolic pressure (mmHg). Loop area is the proxy work density $w_\text{PS}$ for the chosen pressure; the chapter quantifies the consequences of each choice in {numref}`tab-septum-proxies` and {numref}`fig-septum-ratio-headline`.
+```
+
 Unless stated otherwise, the results use the capped-reference pressure-loading sweep defined in {ref}`chap-calibration`: sixteen cases on a shared biventricular reference mesh ($n=8070$ cells). Geometry, material model, fibre architecture, and end-diastolic mesh target are held fixed; only the 0D circulation varies to raise RV pressure across the cases. The RV end-diastolic pressure used during inverse unloading is capped at 5 mmHg.
 
-The sixteen cases share the same region tag set (1269 geometric septum cells in every case; see {ref}`sec-reference-tag-postprocessing`), so regional integrals are case-comparable cell-by-cell. Reported pressures, correlations, and proxies use the cavity Lagrange-multiplier pressure from the coupled mechanics solve.
+The sixteen cases share the same region tag set (1269 geometric septum cells in every case; see {ref}`sec-shared-mask-tagging`), so regional integrals are case-comparable cell-by-cell. Reported pressures, correlations, and proxies use the cavity Lagrange-multiplier pressure from the coupled mechanics solve.
 
 The comparisons should be read as tests of simplification. The finite-element stress-strain work density is the model-side reference, not patient-level ground truth. The question is how much of that reference survives when regional mechanics are reduced first to a scalar pressure scale and then to one longitudinal strain component.
 
@@ -40,16 +58,11 @@ averaged across both ratios and all sixteen cases. The scale is multiplicative: 
 
 Throughout the chapter, the longitudinal-strain proxy uses the tangent-longitudinal definition from {ref}`sec-work-definitions`. The raw apico-basal direction is projected into the local wall tangent plane before evaluating $\varepsilon_{ll}$, so the proxy does not count the through-wall component of the LDRB apex-gradient field as longitudinal strain. Fibre-aligned diagnostics use the model-side Green-Lagrange fibre strain $E_{ff}=\mathbf{E}:(\mathbf{f}_0\otimes\mathbf{f}_0)$ and are treated as mechanical checks rather than competing clinical proxies.
 
-Before the ratio analyses, {numref}`fig-ps-loops-sweep` shows the regional pressure-strain loops that the proxy actually integrates across the sweep. The LV free-wall loops cluster across cases; the RV free-wall loops grow with achieved RV pressure; the septum loops have a smaller longitudinal-strain swing throughout. The proxy $w_\text{PS}$ is the signed area enclosed by each loop.
-
-```{figure} ../figures/fig_5_0c_ps_loops_sweep.png
-:name: fig-ps-loops-sweep
-:width: 100%
-
-Regional pressure-strain loops across the sixteen capped-reference sweep cases (last simulated beat). Left: LV free wall against $p_\text{LV}$. Middle: RV free wall against $p_\text{RV}$. Right: septum against $p_\text{LV}$ (the best single-pressure choice for septal work-density preservation per {numref}`tab-septum-proxies`). X-axis: regional mean tangent-longitudinal Green-Lagrange strain $\varepsilon_{ll}$. Y-axis: cavity pressure (mmHg). Colour: achieved peak RV systolic pressure (mmHg).
-```
-
 These ratios are tested first in the free walls, where pressure assignment is simple, and then in the septum, where it is not. The conceptual asymmetry between the two cases is the one introduced in {numref}`fig-freewall-septum-schematic`.
+
+## Numerical Reference Quality
+
+The FE stress-strain work density is treated as reliable on three bounded checks. Across the sixteen cases the coupled simulation reaches near-periodic state by beat 5, with beat-to-beat changes between beats 5 and 6 at most 1.5% on peak cavity pressures and 1.8% on stroke volumes ({ref}`sec-app-periodic-convergence`). The per-cell stress-strain work integral matches the boundary work to relative tolerance $10^{-5}$ to $10^{-4}$ ({numref}`fig-energy-balance`). Mesh sensitivities at the production 5 mm resolution stay below about 3% on free-wall work-density ratios and 6% on severe-case septal quantities; the full summary is in {numref}`tab-numerical-robustness-summary` at the end of the chapter and the detailed account in {ref}`chap-appendix-numerical`. These numerical floors are an order of magnitude smaller than the proxy errors reported below.
 
 The central finding is summarised before the detailed analyses below, free walls first, then septum.
 
@@ -87,7 +100,7 @@ Component breakdown of finite-element stress-strain work density across the prim
 (sec-results-freewalls)=
 ## Free Walls
 
-The simplest case is the comparison between the LV free wall and the RV free wall, with the septum excluded from both. Each free wall faces one cavity, so the pressure assignment is mechanically natural: $p_\text{LV}$ for the LV free wall and $p_\text{RV}$ for the RV free wall. This is the cleanest setting for the pressure assignment; failure here would point to a more basic limitation than septal pressure ambiguity.
+The simplest case is the comparison between the LV free wall and the RV free wall, with the septum excluded from both. Each free wall faces one cavity, so the pressure assignment is mechanically natural: $p_\text{LV}$ for the LV free wall and $p_\text{RV}$ for the RV free wall. This is the cleanest setting for the pressure assignment, but whether a single cavity pressure scaled against a single longitudinal strain component recovers the free-wall stress-strain work density is still an empirical question, not an identity; failure here would point to a more basic limitation than septal pressure ambiguity.
 
 For the lowest-pressure UKB baseline case in the primary sweep, the finite-element stress-strain work density in the LV free wall was 3.75 times the RV free-wall value. The tangent-longitudinal proxy using adjacent cavity pressure gave an LV/RV ratio of 3.88, close to the finite-element reference. Assigning the same pressure to both free walls lost the balance: LV pressure everywhere gave a ratio of 1.85, and RV pressure everywhere gave 1.09. Replacing the pressure magnitude with the same pressure trace scaled to unit peak, $\hat p(t)=p(t)/\max_t |p(t)|$, so that the proxy reduces to $\oint \hat p\,d\varepsilon$ — keeping the time shape but dropping the magnitude — also collapsed the LV/RV balance. The same pattern holds across the primary pressure-loading sweep. The mean absolute error in the free-wall LV/RV ratio (raw $|R_\text{proxy}-R_\text{FE}|$) was 0.16 for the adjacent-pressure tangent-longitudinal proxy, compared with 0.68 for LV pressure everywhere and 0.87 for RV pressure everywhere. The sweep result is shown in {numref}`fig-freewall-spectrum`. Adjacent cavity pressure remains the best of the tested longitudinal pressure assignments for the free-wall ratio.
 

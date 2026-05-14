@@ -70,6 +70,8 @@ Each optimizer trial runs the 0D model to periodic steady state and extracts las
 
 The final search used CMA-ES through Optuna {cite}`akiba2019optuna,hansen2001completely`. CMA-ES was chosen because the feasible circulation parameters are strongly correlated: pulmonary resistance, compliance, chamber elastance, and blood-volume distribution must move together at high RV pressure. Neighbouring pressure cases were warm-started from one another, and the final parameter sets were re-solved for fifty beats before being written to disk and coupled to the mechanics model.
 
+Known workflow inconsistency: the optimizer searches over ventricular contraction and relaxation durations $T_C, T_R$ during the standalone calibration, but these are reset to fixed production values $T_C=0.25$ s, $T_R=0.40$ s before the coupled FEM run so that the 3D active-stress waveform and the 0D ventricular elastance share one timing. A cleaner revision would exclude $T_C, T_R$ from the search space rather than searching and overriding; the calibrated standalone values are not used downstream.
+
 (sec-app-coupling-residual)=
 ## Coupling Residual: Per-Case Breakdown
 

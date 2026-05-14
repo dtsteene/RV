@@ -11,6 +11,35 @@ $$
 
 The whole mechanical behaviour of the material — anisotropy, stiffening, energy storage and release — is encoded in the scalar function $\Psi(\mathbf{C})$. Derivations are in {ref}`chap-appendix-energy-identity`.
 
+(sec-inverse-unloaded-reference)=
+## Inverse-Unloaded Reference Configuration
+
+The image-derived biventricular mesh represents end diastole, not a stress-free heart. The finite-strain equations below, however, are written on a reference configuration. Before the beat simulation starts, the imaged end-diastolic mesh is therefore treated as a loaded target configuration $\Omega_\text{ED}$, and an inverse-elastic prestressing problem is solved to infer the reference configuration that would inflate back to it {cite}`gee2010computational,fenicsx_pulse`.
+
+The unknown is an inverse displacement field $\mathbf{u}_\text{pre}(\mathbf{x})$ defined on the imaged end-diastolic coordinates $\mathbf{x}\in\Omega_\text{ED}$. The inferred reference coordinates are
+
+$$
+\mathbf{X} = \mathbf{x} + \mathbf{u}_\text{pre}(\mathbf{x}).
+$$
+
+If $\mathbf{f}=\mathbf{I}+\nabla_{\mathbf{x}}\mathbf{u}_\text{pre}$ is the target-to-reference gradient, then the deformation gradient used to load the inferred reference back to end diastole is
+
+$$
+\mathbf{F}_\text{ED} = \mathbf{f}^{-1}.
+$$
+
+The equilibrium residual is the passive finite-elasticity problem pulled back to the end-diastolic target mesh, with LV and RV end-diastolic pressure tractions and the same basal and epicardial supports used in the cycle solve. In practice, `fenicsx-pulse` solves this inverse problem by ramping the LV and RV end-diastolic pressure targets from zero to their final values over 20 load steps. The resulting $\mathbf{u}_\text{pre}$ is saved, the mesh is moved to the inferred reference coordinates $\mathbf{X}$, and the fibre-sheet-normal directions are mapped to that reference before the coupled 3D--0D beat is run.
+
+The pressure cap enters only through these unloading pressure targets. If the circulation calibration gives raw end-diastolic pressures $p_{\text{LV,ED}}$ and $p_{\text{RV,ED}}^\text{raw}$, the unloading problem uses
+
+$$
+p_{\text{LV,ED}}^\text{unload}=p_{\text{LV,ED}},
+\qquad
+p_{\text{RV,ED}}^\text{unload}=\min(p_{\text{RV,ED}}^\text{raw},\,5~\text{mmHg}).
+$$
+
+The imaged coordinates $\mathbf{x}$ are not changed by the cap. The cap changes the pressure load under which $\mathbf{u}_\text{pre}$ is solved, and therefore changes the inferred reference coordinates $\mathbf{X}=\mathbf{x}+\mathbf{u}_\text{pre}(\mathbf{x})$. The cap is justified and checked in {ref}`chap-implementation`; the subsequent cycle solve still inflates and beats against each case's full coupled loading path.
+
 (sec-holzapfel-ogden)=
 ## The Holzapfel-Ogden Constitutive Model
 
