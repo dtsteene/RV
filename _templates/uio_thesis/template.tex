@@ -51,6 +51,12 @@
 \newdate{articleDate}{[-doc.date.day-]}{[-doc.date.month-]}{[-doc.date.year-]}
 \date{\displaydate{articleDate}}
 
+\hypersetup{
+  pdftitle={[-doc.title-]},
+  pdfauthor={[-doc.authors|join(", ", "name")-]},
+  pdfsubject={Master's thesis, [-options.program | default("") -], University of Oslo}
+}
+
 \begin{document}
 
 \uiomasterfp[
