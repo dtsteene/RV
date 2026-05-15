@@ -110,7 +110,7 @@ The changed reference-state path also changed the septal proxy ranking. {numref}
 
 In the pre-cap path, transmural pressure ranked the sweep well, but it already preserved magnitudes poorly. After the capped unloading correction, transmural pressure is poor by both tests, while LV, mean, nearest-side, and through-wall weighted pressure choices preserve a moderate positive ranking signal of $r \approx 0.53$–$0.55$. The common result across both sweeps is therefore not a universal best septal pressure but the weaker and more defensible claim used in the thesis: septal pressure-strain work is sensitive to loading and reference-state choices, and magnitude preservation is a safer diagnostic than sweep ranking alone.
 
-The shift from a weakly positive transmural ranking ($r=0.222$ under per-case tagging) to a negative one ($r=-0.331$ under shared-mask tagging) had a specific methodological cause, not a change in the underlying simulations. In the per-case analysis the geometric septum varied from 1203 to 1278 cells across the sixteen cases, and that case-to-case mask drift was enough to inject a spurious positive correlation. The shared-mask tagging of {ref}`sec-shared-mask-tagging` fixes the geometric septum at 1269 cells in every case and removes the drift. An independent check confirms the negative correlation is not an artefact of the proxy construction either: the Pearson correlation between achieved peak transmural pressure $p_\text{LV,ES}-p_\text{RV,ES}$ and the FE septal stress-strain work density across the sweep is $r=-0.56$, more negative than the proxy's $-0.331$.
+The shift from a weakly positive transmural ranking ($r=0.222$ when each case was tagged on its own end-diastolic geometry) to a negative one ($r=-0.331$ once the cell tags were fixed on the reference mesh) had a specific methodological cause, not a change in the underlying simulations. In the per-case analysis the geometric septum varied from 1203 to 1278 cells across the sixteen cases, and that case-to-case mask drift was enough to inject a spurious positive correlation. Fixing the tags once on the reference mesh ({ref}`sec-shared-mask-tagging`) holds the geometric septum at 1269 cells in every case and removes the drift. An independent check confirms the negative correlation is not an artefact of the proxy construction either: the Pearson correlation between achieved peak transmural pressure $p_\text{LV,ES}-p_\text{RV,ES}$ and the FE septal stress-strain work density across the sweep is $r=-0.56$, more negative than the proxy's $-0.331$.
 
 Despite the sign flip between sweeps, the qualitative magnitude story is preserved: in both pre-cap and capped sweeps, transmural pressure is the worst single-pressure magnitude candidate and LV pressure the best. The cap choice is load-bearing only for case-ranking correlations and severe-case absolute work magnitudes, not for the central LV-best / transmural-worst septum/free-wall magnitude conclusion.
 
@@ -118,21 +118,51 @@ Despite the sign flip between sweeps, the qualitative magnitude story is preserv
 
 The capping decision can be isolated by holding it constant and varying the rest of the sweep design. Five independently calibrated alternative sweep architectures were therefore compared with the production capped sweep on the same proxy and reference questions. The shared-unloaded sweep uses the same Optuna circulation calibration and Klotz EDPVR as production but replaces per-case inverse unloading with a shared reference inferred from one production case (sPAP30, the case with the lowest final RV end-diastolic pressure). The pre-cap sweep is the Optuna/Klotz production architecture before the cap was introduced, retaining per-case uncapped unloading. The linear-reference sweep is an eight-case Optuna calibration with a linear chamber EDPVR and per-case uncapped unloading. The henrik-simple sweep is the minimal-engineering alternative — Regazzoni defaults with the pulmonary arterial compliance and resistance scaled by a single factor $f\in\{1.00,0.75,0.50,0.25,0.10\}$, no Optuna, no chamber EA scaling, linear EDPVR — uncapped. The henrik-simple CAPPED sweep applies the same 5 mmHg RV-EDP cap to the simple-calibration architecture, isolating the cap from the calibration choice. Taken together, the six designs vary the optimizer, the chamber EDPVR form, the calibration target set, and the reference-state strategy, so any feature shared across them is independent of those design choices.
 
-```{table} Cross-sweep robustness comparison. Free-wall correlations are cross-case Pearson $r$ between the volume-weighted adjacent-pressure proxy and the volume-weighted FE work density. LV/RV ratio mean is $\langle|R_\text{proxy}-R_\text{FE}|\rangle$ across cases for the LV/RV free-wall ratio. Septum correlations are cross-case Pearson $r$ between proxy and FE septum work. Septum $\eta$ values are the mean absolute log-ratio errors of septum/free-wall work-density ratios (averaged over the septum/LV and septum/RV pairs). Production capped values are reproduced from {numref}`tab-septum-proxies`.
-:name: tab-app-cross-sweep-robustness
+The comparison is laid out in three tables. Free-wall correlations and the LV/RV magnitude ratio appear in {numref}`tab-app-cross-sweep-freewall`. Septum cross-case correlations under four pressure choices appear in {numref}`tab-app-cross-sweep-septum-r`. Septum/free-wall magnitude errors $\eta$ under the same four pressure choices appear in {numref}`tab-app-cross-sweep-septum-eta`. Free-wall correlations are cross-case Pearson $r$ between the volume-weighted adjacent-pressure proxy and the volume-weighted FE work density; LV/RV ratio mean is $\langle|R_\text{proxy}-R_\text{FE}|\rangle$ across cases for the LV/RV free-wall ratio. Septum correlations are cross-case Pearson $r$ between proxy and FE septum work. Septum $\eta$ values are the mean absolute log-ratio errors of septum/free-wall work-density ratios (averaged over the septum/LV and septum/RV pairs). Production capped values are reproduced from the main-text septum proxy table.
+
+```{table} Cross-sweep free-wall correlations and LV/RV magnitude ratio fidelity.
+:name: tab-app-cross-sweep-freewall
 :align: left
 
-| Sweep | Reference state | $n$ | FW $r$ LV | FW $r$ RV | LV/RV ratio mean | Sep $r$ PLV | Sep $r$ PRV | Sep $r$ Trans | Sep $r$ Mean | Sep $\eta$ PLV | Sep $\eta$ PRV | Sep $\eta$ Trans | Sep $\eta$ Mean |
-|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| production capped | per-case capped 5 mmHg | 16 | +0.99 | +0.97 | 0.16 | +0.54 | +0.53 | −0.33 | +0.54 | 0.81 | 1.17 | 2.08 | 0.97 |
-| shared-unloaded | shared sPAP30 prestress | 16 | +1.00 | +0.98 | 0.13 | +0.78 | +0.68 | +0.01 | +0.73 | 0.80 | 1.19 | 2.03 | 0.97 |
-| pre-cap | per-case uncapped | 16 | — | — | — | +0.89 | −0.19 | +0.95 | +0.53 | 0.25 | 0.42 | 0.95 | 0.29 |
-| linear-reference | per-case uncapped, linear EDPVR | 8 | +0.98 | +0.99 | 0.27 | +0.83 | −0.02 | +0.94 | +0.57 | 0.29 | 0.35 | 0.68 | 0.23 |
-| henrik-simple | per-case uncapped, simple cal | 5 | +0.90 | +0.98 | 1.00 | +0.47 | −0.21 | +0.34 | +0.23 | 0.05 | 1.08 | 0.47 | 0.42 |
-| henrik-simple CAPPED | per-case capped 5 mmHg, simple cal | 5 | +0.43 | +0.84 | 1.07 | −0.19 | −0.65 | +0.07 | −0.33 | 0.39 | 1.45 | 0.83 | 0.78 |
+| Sweep | Reference state | $n$ | FW $r$ LV | FW $r$ RV | LV/RV ratio mean |
+|---|---|---:|---:|---:|---:|
+| production capped | per-case capped 5 mmHg | 16 | +0.99 | +0.97 | 0.16 |
+| shared-unloaded | shared sPAP30 prestress | 16 | +1.00 | +0.98 | 0.13 |
+| pre-cap | per-case uncapped | 16 | — | — | — |
+| linear-reference | per-case uncapped, linear EDPVR | 8 | +0.98 | +0.99 | 0.27 |
+| henrik-simple | per-case uncapped, simple cal | 5 | +0.90 | +0.98 | 1.00 |
+| henrik-simple CAPPED | per-case capped 5 mmHg, simple cal | 5 | +0.43 | +0.84 | 1.07 |
 ```
 
-One caveat applies to cross-sweep reading. The two henrik-simple rows were built with per-case `tag_at_ed` LDRB tagging, which gives a geometric-septum mask covering roughly 40–57% of the LDRB tag-3 region; the other four rows use the shared-mask postprocessing that fixes the geometric-septum to a stable $\sim$1269 cells. The headline claims below survive because they rest on within-sweep comparisons (cap-induced collapse, magnitude-error growth) rather than on absolute cross-sweep magnitude matching between the henrik and shared-mask groups.
+```{table} Cross-sweep septum cross-case correlations under four pressure choices.
+:name: tab-app-cross-sweep-septum-r
+:align: left
+
+| Sweep | Sep $r$ PLV | Sep $r$ PRV | Sep $r$ Trans | Sep $r$ Mean |
+|---|---:|---:|---:|---:|
+| production capped | +0.54 | +0.53 | −0.33 | +0.54 |
+| shared-unloaded | +0.78 | +0.68 | +0.01 | +0.73 |
+| pre-cap | +0.89 | −0.19 | +0.95 | +0.53 |
+| linear-reference | +0.83 | −0.02 | +0.94 | +0.57 |
+| henrik-simple | +0.47 | −0.21 | +0.34 | +0.23 |
+| henrik-simple CAPPED | −0.19 | −0.65 | +0.07 | −0.33 |
+```
+
+```{table} Cross-sweep septum/free-wall magnitude errors $\eta$ under four pressure choices.
+:name: tab-app-cross-sweep-septum-eta
+:align: left
+
+| Sweep | Sep $\eta$ PLV | Sep $\eta$ PRV | Sep $\eta$ Trans | Sep $\eta$ Mean |
+|---|---:|---:|---:|---:|
+| production capped | 0.81 | 1.17 | 2.08 | 0.97 |
+| shared-unloaded | 0.80 | 1.19 | 2.03 | 0.97 |
+| pre-cap | 0.25 | 0.42 | 0.95 | 0.29 |
+| linear-reference | 0.29 | 0.35 | 0.68 | 0.23 |
+| henrik-simple | 0.05 | 1.08 | 0.47 | 0.42 |
+| henrik-simple CAPPED | 0.39 | 1.45 | 0.83 | 0.78 |
+```
+
+One caveat applies to cross-sweep reading. The two henrik-simple rows were built with per-case `tag_at_ed` LDRB tagging, which gives a geometric-septum mask covering roughly 40–57% of the LDRB tag-3 region; the other four rows fix the cell tags once on the reference mesh, holding the geometric septum at $\sim$1269 cells. The headline claims below survive because they rest on within-sweep comparisons (cap-induced collapse, magnitude-error growth) rather than on absolute cross-sweep magnitude matching between the per-case and fixed-reference groups.
 
 Two sweep-design-independent patterns emerge from this comparison. The free-wall RV-side adjacent-pressure correlation sits at $r \geq 0.84$ across every design and the LV side at $r \geq 0.90$ in all designs except the henrik-simple capped sweep, where the imposed cap holds LV ESP nearly constant ($112.6$–$129.2$ mmHg, range $16.6$ mmHg) and the LV correlation drops to $r = +0.43$ on a range too narrow to support a useful cross-case ranking. The LV/RV magnitude ratio precision varies from a few percent in the multi-target Optuna designs to one full unit in both the uncapped and capped henrik single-knob designs, but the qualitative finding — that adjacent cavity pressure preserves the regional ratio better than any of the tested alternatives — does not change. The free-wall pressure-strain result is therefore robust to the optimizer, the EDPVR form, the calibration targets, and the reference-state strategy.
 

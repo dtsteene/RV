@@ -5,9 +5,11 @@ This appendix collects the numerical checks that support the main pressure-strai
 
 ## Production Configuration
 
-The production simulations use the nearly-incompressible penalty formulation ($\kappa = 1000$ kPa; pulse's `Compressible2`), second-order tetrahedral displacement elements, a characteristic mesh length of 5 mm, and six coupled beats. Regional stress-strain work density is computed offline from the saved displacement checkpoints over the final beat. The current stress is evaluated from the UFL constitutive expression at quadrature points, previous stress and strain states are stored in a degree-six quadrature space, and DG0 test functions are used only to extract cellwise integrals from the quadrature-level work density.
+The production simulations use the nearly-incompressible penalty formulation ($\kappa = 1000$ kPa; pulse's `Compressible2`), second-order tetrahedral displacement elements, a characteristic mesh length $h=5$ mm, and six coupled beats. Regional stress-strain work density is computed offline from the saved displacement checkpoints over the final beat. The current stress is evaluated from the UFL constitutive expression at quadrature points, previous stress and strain states are stored in a degree-six quadrature space (Quadrature6 — values held at the integration points of a sixth-order Gauss rule, not projected to a polynomial basis), and DG0 test functions (piecewise-constant per cell, discontinuous across cell faces) are used only to extract cellwise integrals from the quadrature-level work density. The corresponding piecewise-linear discontinuous space, DG1, appears below as an alternative postprocessing storage.
 
 The basal support combines Robin springs on the epicardium and base with a partial basal Dirichlet condition that fixes only the base-normal/global-x displacement component. It is not a full basal clamp.
+
+Production results are reported on a single 16-case sweep, referred to throughout this appendix as the **capped shared-L5 sweep**: sixteen hemodynamic cases run on a single shared 5 mm reference mesh (L5 = characteristic length $h=5$ mm, 8070 cells), with right-ventricular end-diastolic pressure capped at 5 mmHg during the inverse-unloading reference-configuration step. Individual cases are labelled `sPAP##`, where `##` is the targeted peak systolic pulmonary arterial pressure in mmHg (so sPAP22 is the lowest-pressure case in the sweep and sPAP95 the highest). An earlier **pre-cap** sweep used the same cases without that 5 mmHg cap and is invoked only where explicitly noted.
 
 ```{table} Direct production audits.
 :name: tab-numerical-robustness-summary
@@ -17,7 +19,7 @@ The basal support combines Robin springs on the epicardium and base with a parti
 |---|---|
 | Energy-consistent postprocessing | Quadrature-level stress-strain work closes the whole-heart boundary-work budget to about $10^{-5}$–$10^{-4}$ relative error |
 | Primary capped sweep audit | All 16 capped shared-L5 cases completed strict canonical quadrature-level postprocessing on the same 8070-cell reference mesh, with finite pressure histories and per-cell work arrays |
-| Capped septum envelope sweep | Epi-excluded and epi-inclusive septum envelopes were recomputed from $t=-10$ to $+20$ mm on the capped shared-L5 sweep; the geometric septum cutoff is unchanged, and tight-core transmural ranking does not translate into magnitude preservation |
+| Capped septum envelope sweep | Epi-excluded and epi-inclusive septum envelopes (two alternative outer boundaries for the relaxed septal mask, defined in {ref}`sec-app-septum-epi-envelope`) were recomputed from $t=-10$ to $+20$ mm on the capped shared-L5 sweep; the geometric septum cutoff is unchanged, and tight-core transmural ranking does not translate into magnitude preservation |
 | Principal-strain replay | All 16 capped cases were replayed from displacement checkpoints; fibre direction was closer to septal principal shortening than longitudinal strain, while principal shortening itself did not remove the pressure-choice ambiguity |
 | Mesh convergence | h=5 differs from h=3.75 by less than 0.8% for hemodynamics and less than about 3% for free-wall ratios in the endpoint mesh study; severe septal work differs by about 5–7% |
 | Periodic convergence | Beat-to-beat relative change between beats 5 and 6: mean 0.4% on peak pressures and 0.4% on end-diastolic volumes across the 16 production cases; worst-case 1.5% peak pressure and 1.8% stroke volume in sPAP70 |
@@ -33,13 +35,13 @@ The basal support combines Robin springs on the epicardium and base with a parti
 |---|---|
 | No-Dirichlet variants | Endpoint cases failed during end-diastolic inflation after removing the basal displacement constraint |
 | Robin work budget | Signed net Robin work is below about 0.2% of cavity boundary work in checked endpoint cases |
-| 3D--0D coupling interface | Volume ratio sits within a few percent of unity in most production cases; a controlled pulmonary-compliance sweep shows the interface remains usable at right-ventricular ratios as low as 0.26 |
+| 3D--0D coupling interface | The 0D-to-mesh volume ratio (the coupling factor that reconciles 0D-model and FEM end-diastolic volumes) sits within a few percent of unity in most production cases; a controlled pulmonary-compliance sweep shows the interface remains usable at right-ventricular ratios as low as 0.26 |
 | Historical h=10/h=5 full-sweep rerun | In the 16 paired pre-cap cases, LV/RV pressures shifted by at most 1.8%/1.1% and free-wall ratios by a few percent |
 ```
 
 ## Energy-Consistent Postprocessing
 
-The model-side reference quantity is the stress-strain work density
+This check asks whether the volume-integrated stress-strain work used as the model-side reference actually closes the boundary-work budget — if it does not, the postprocessing fields cannot be trusted as a faithful image of the simulated state, and any proxy comparison built on top of them is suspect. The model-side reference quantity is the stress-strain work density
 
 $$
 w_\mathrm{int}[\Omega_j] =
@@ -47,7 +49,7 @@ w_\mathrm{int}[\Omega_j] =
 \int_0^T\int_{\Omega_{j,0}}\mathbf{S}:\dot{\mathbf{E}}\,dV_0\,dt.
 $$
 
-Early postprocessing attempts projected stress and strain into discontinuous Galerkin spaces before integrating this quantity. During development, these projected-field replays were associated with large energy-budget discrepancies: smooth-looking stress and strain fields could still give work totals far too small compared with the boundary work. Later replay tests showed this was not simply a DG1-versus-quadrature issue. Once the stress evaluation, pressure history, and boundary-work bookkeeping had been corrected, DG1 reproduced integrated regional work closely. DG0, however, still suppressed high-pressure septal work. The final pipeline uses quadrature-level stress evaluation as the conservative production path.
+Early postprocessing attempts projected stress and strain into discontinuous Galerkin spaces before integrating this quantity. During development, these projected-field replays were associated with large energy-budget discrepancies: smooth-looking stress and strain fields could still give work totals far too small compared with the boundary work. Later replay tests showed this was not simply a DG1-versus-quadrature issue. Once the pressure history and boundary-work bookkeeping had been corrected, DG1 reproduced integrated regional work closely. DG0, however, still suppressed high-pressure septal work. The final pipeline uses quadrature-level stress evaluation as the conservative production path.
 
 The final method avoids projecting the current stress before integration. The current stress is evaluated directly from the constitutive law at quadrature points, previous stress and strain are stored in a degree-six quadrature space for the trapezoidal time rule, and the DG0 space is used only as a cellwise partition of unity. As a hard implementation check, the sum of the DG0 per-cell work values is compared with an independent scalar domain integral of the same quadrature-level expression. In the checked runs, this agreement is at machine precision, confirming that the cellwise extraction is not changing the integrated work.
 
@@ -56,7 +58,9 @@ The external work terms were also matched to the solver formulation. Cavity work
 (sec-app-mesh-convergence)=
 ## Mesh Convergence
 
-All 16 cases in the capped shared-L5 sweep use the same 5 mm reference mesh ($n=8070$ cells) and the same region tag set (see {ref}`sec-shared-mask-tagging`). The pressure histories have shape `(4800, 2)`, the per-cell arrays are finite, and the geometric septum is 1269 cells while the tag-3 septum is 1266 cells in every case (a 0.1% volume difference shared across the sweep).
+The aim of this section is to bound how much of the reported regional work could be a mesh-resolution artefact rather than a property of the simulated tissue — particularly for the septum, where the wall is thinnest and a coarse mesh has the fewest cells through-thickness.
+
+All 16 cases in the capped shared-L5 sweep use the same 5 mm reference mesh ($n=8070$ cells) and the same region tag set (see {ref}`sec-shared-mask-tagging`). The pressure histories have shape `(4800, 2)`, the per-cell arrays are finite, and the geometric septum (cells satisfying the transventricular distance criterion in {ref}`sec-shared-mask-tagging`) is 1269 cells while the tag-3 septum (cells carrying LDRB region marker 3) is 1266 cells in every case (a 0.1% volume difference shared across the sweep).
 
 A separate mesh-convergence study repeated three representative pressure cases — sPAP22, sPAP60, and sPAP95 — using characteristic lengths of 10, 7.5, 5, and 3.75 mm. The 3.75 mm runs were used as the finest available reference.
 
@@ -116,7 +120,7 @@ Beat-by-beat trace of peak cavity pressures (left), end-diastolic volumes (middl
 (sec-app-coupling-robustness)=
 ## 3D--0D Coupling Interface
 
-The fixed mesh-to-circulation volume ratio in {ref}`sec-3d-0d-coupling` is the only point at which 0D and 3D end-diastolic volumes are reconciled. The optimizer in {ref}`chap-calibration` includes the mesh end-diastolic volumes as targets, but the cost balances them against pressure, flow, ejection-fraction, and stroke-volume balance, so the optimizer accepts a residual offset rather than enforcing an exact match.
+The point of this check is to verify that the 0D-to-mesh volume coupling is operating in a stable region of parameter space across the sweep, rather than being pushed close to a regime in which the coupled solve would stall or distort the cavity volumes used in the proxy comparison. The fixed mesh-to-circulation volume ratio in {ref}`sec-3d-0d-coupling` is the only point at which 0D and 3D end-diastolic volumes are reconciled. The optimizer in {ref}`chap-calibration` includes the mesh end-diastolic volumes as targets, but the cost balances them against pressure, flow, ejection-fraction, and stroke-volume balance, so the optimizer accepts a residual offset rather than enforcing an exact match.
 
 Across the sixteen production cases the LV ratio sits within 3% of unity in twelve cases; three intermediate-pressure cases (sPAP60 to sPAP70) require LV scalings of 17%, 21%, and 47%. The RV ratio is more uniformly off-unity, with magnitudes between near zero and 16% and a tendency toward larger corrections in the lower-pressure cases. The interface ratio absorbs the small-to-moderate residual mismatch that the joint pressure-and-volume optimization leaves behind.
 
@@ -127,7 +131,7 @@ The volume ratio absorbed this drift transparently, with $s_\text{RV}$ falling f
 (sec-app-septum-epi-envelope)=
 ## Septum Envelope Sensitivity
 
-The boundary-relaxation sweep defines a family of septal masks,
+This check asks whether the reported septal proxy correlations depend on the precise boundary between the septum and the free walls, since the location of that boundary is partly conventional and a marginally different mask could in principle move the proxy result. The boundary-relaxation sweep defines a family of septal masks,
 
 $$
 \Omega_\mathrm{sep}(t)
@@ -183,15 +187,15 @@ Second, positive thresholds increasingly mix the septum with junctional free-wal
 
 ## Basal Boundary Condition
 
-The production basal condition fixes only the base-normal/global-x displacement component. In the completed pressure-sweep cases, the saved displacement fields confirm that the constrained component is zero to saved precision at the checked time points, while the other two basal displacement components retain millimetre-scale sliding motion.
+This check asks whether the partial basal Dirichlet constraint used in production is essential to obtaining a converged solution, or only one of several acceptable supports that could be replaced with the Robin springs alone without changing the reported result. The production basal condition fixes only the base-normal/global-x displacement component. In the completed pressure-sweep cases, the saved displacement fields confirm that the constrained component is zero to saved precision at the checked time points, while the other two basal displacement components retain millimetre-scale sliding motion.
 
-A no-Dirichlet variant was tested by removing the basal displacement constraint while keeping the same Robin springs and the 5 mm production mesh. The sPAP22, sPAP60, and sPAP95 variants all reached the reference-configuration step but failed during end-diastolic inflation with linear solver non-convergence. A previous coarse one-beat Robin-only test had converged, but that result did not carry over to the production mesh and pressure cases. The retained basal condition is a stabilizing constraint needed in this production setup, not a physiological claim about the base being fixed in space.
+A no-Dirichlet variant was tested by removing the basal displacement constraint while keeping the same Robin springs and the 5 mm production mesh. The sPAP22, sPAP60, and sPAP95 variants all reached the reference-configuration step (the inverse-unloading stage that recovers the unloaded geometry from the imaged configuration) but failed during the subsequent end-diastolic forward inflation (the first forward pressurisation, from the unloaded state up to end-diastole) with linear solver non-convergence. A previous coarse one-beat Robin-only test had converged, but that result did not carry over to the production mesh and pressure cases. The retained basal condition is a stabilizing constraint needed in this production setup, not a physiological claim about the base being fixed in space.
 
 The energetic effect of the Robin support was small compared with the cavity work in the cycle-integrated balance. In the checked endpoint cases, the signed net Robin work was below about 0.2% of the cavity boundary work.
 
 ## Postprocessing Space Sensitivity
 
-The final method uses degree-six quadrature storage because it most directly matches the quadrature-level constitutive evaluation and gave the tightest energy closure during development. A defence-oriented check recomputed sPAP22, sPAP60, and sPAP95 at the production 5 mm mesh with DG0 and DG1 state storage, while keeping the same degree-six integration rule. The current stress expression was still evaluated directly from the constitutive law; only the stored previous stress and strain state used the degraded space.
+This check asks whether the reported regional work is a property of the simulated stress and strain fields, or an artefact of the particular discrete space chosen to store them during postprocessing — a coarser storage space could in principle smear or suppress sharp septal structure even when the solver itself is converged. The final method uses degree-six quadrature storage because it most directly matches the quadrature-level constitutive evaluation and gave the tightest energy closure during development. A defence-oriented check recomputed sPAP22, sPAP60, and sPAP95 at the production 5 mm mesh with DG0 and DG1 state storage, while keeping the same degree-six integration rule. The current stress expression was still evaluated directly from the constitutive law; only the stored previous stress and strain state used the degraded space.
 
 DG1 reproduced the Quadrature6 integrated regional stress-strain work closely. Across the three representative cases, the largest regional work-density difference was 1.2%, occurring in the septum. DG0 was less reliable: whole-heart and free-wall totals stayed within a few percent, but septal stress-strain work was underestimated by 7.7% in sPAP60 and 15.4% in sPAP95. The energy-budget residual was also smallest for Quadrature6, at about $10^{-5}$ to $10^{-4}$ relative error, compared with up to $2.7\times10^{-3}$ for DG1 and $1.5\times10^{-2}$ for DG0.
 

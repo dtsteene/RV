@@ -116,7 +116,7 @@ This prestressing step is numerically delicate. The boundary conditions must be 
 
 #### Energy-Consistent Postprocessing
 
-A significant amount of time was spent debugging what appeared to be a catastrophic energy imbalance: the computed internal mechanical work was returning values roughly three times lower than the external work done by the pressure forces. The first-pass explanation blamed DG1 projection of stress and strain for introducing oscillations in the thin septum. That explanation turned out to be wrong, and the real causes were three coincident bugs: the deviatoric-stress evaluation described above, the pressure history used in the boundary-work term, and the boundary-work bookkeeping itself.
+A significant amount of time was spent debugging what appeared to be a catastrophic energy imbalance: the computed internal mechanical work was returning values roughly three times lower than the external work done by the pressure forces. The first-pass explanation blamed DG1 projection of stress and strain for introducing oscillations in the thin septum. That explanation turned out to be wrong, and the real causes were two coincident postprocessing bugs: the pressure history used in the boundary-work term, and the boundary-work bookkeeping itself.
 
 Once those were fixed, replay tests showed that DG1 reproduces Quadrature-6 integrated regional stress-strain work to within about 1.2% in the septum and tighter elsewhere. DG0 is in fact the *less* faithful projection for high-pressure cases: it underestimates septal stress-strain work by 7.7% in sPAP60 and 15.4% in sPAP95. The thesis quantities are projection-independent because the current pipeline (`compute_per_cell.py`) evaluates the current stress directly from the UFL constitutive expression at quadrature, stores previous stress and strain in a degree-six quadrature space matching the integration rule, and uses DG0 only as a cellwise test-function partition of unity. A scalar cross-check enforces that the DG0 per-cell sum equals the independent scalar domain integral to machine precision.
 
@@ -195,7 +195,7 @@ The conclusion should be brief. It restates the main finding in concrete terms, 
 - `02_the_model/3D_mechanics.md`: **WRITTEN.** Full kinematics → HO model → weak form → BCs. Compressible formulation choice explained. Bold definition-list style removed.
 - `02_the_model/active_contraction.md`: **WRITTEN** (file renamed from typo `active_contaction.md`). Active stress decomposition, Blanco activation model, spatially varying peak tension per zone.
 - `02_the_model/0D_circulation.md`: **WRITTEN.** Table removed. Prose description of Regazzoni model, Windkessel, volume ratio coupling, callback structure.
-- `03_implementation/implementation.md`: **WRITTEN.** New file. Covers prestressing, the deviatoric stress bug, energy-consistent postprocessing (Quadrature-6 + DG0 partition; the DG1-oscillation story was retracted — see appendix), heart rate calibration.
+- `03_implementation/implementation.md`: **WRITTEN.** New file. Covers prestressing, stress-magnitude sanity check, energy-consistent postprocessing (Quadrature-6 + DG0 partition; the DG1-oscillation story was retracted — see appendix), heart rate calibration.
 - `myst.yml`: **FIXED.** Removed deleted `meeting.md`, fixed `active_contraction.md` name, fixed bib reference to `refrences.bib`, added `03_implementation/implementation.md`.
 
 ## What Still Needs to Be Created
