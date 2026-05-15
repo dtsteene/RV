@@ -75,13 +75,20 @@ Known workflow inconsistency: the optimizer searches over ventricular contractio
 (sec-app-coupling-residual)=
 ## Coupling Residual: Per-Case Breakdown
 
-The two views of the coupling residual — intra-beat agreement and operating-point shift — are defined in {ref}`chap-calibration`. The per-case PV illustration is {numref}`fig-pv-standalone-vs-coupled`.
+The two views of the coupling residual — intra-beat agreement and operating-point shift — are defined in {ref}`chap-calibration`. The diagnostic worst-case is illustrated in {numref}`fig-pv-standalone-vs-coupled`, and the all-sixteen per-case overlay is in {numref}`fig-app-pv-all-16`.
 
 ```{figure} ../figures/fig_pv_standalone_vs_coupled_sPAP70.png
 :name: fig-pv-standalone-vs-coupled
 :width: 95%
 
 Standalone 0D (grey dashed) versus coupled 3D--0D (solid) pressure-volume loops at the calibrated parameters of the sPAP70 case, last beat of each. The LV loop shifts modestly between standalone and coupled (peak pressure $117 \to 110$ mmHg). The RV loop shifts substantially: peak pressure rises by 17 mmHg ($69 \to 86$ mmHg) and end-diastolic volume by 26 mL ($77 \to 103$ mL). This operating-point shift is the larger of the two coupling residuals; the intra-beat agreement between the elastance prediction and the Lagrange multiplier at the same coupled volume is much smaller (5.76 mmHg for this case).
+```
+
+```{figure} ../figures/fig_4_9_all_16_pre_post.png
+:name: fig-app-pv-all-16
+:width: 100%
+
+Standalone 0D versus FEM-coupled pressure-volume loops across all sixteen sweep cases, ordered by achieved peak RV systolic pressure (FEM, coupled). Standalone loops (light dashed) are the last beat of the standalone 0D pre-run; coupled loops (solid) pair the FEM cavity Lagrange multiplier with the coupled cavity volume. The LV loop stays close to its standalone reference in every case; the RV operating-point shift grows with imposed pressure and is consistently rightward in both peak pressure and end-diastolic volume.
 ```
 
 Two alternatives to standalone calibration were considered and rejected. Running the FEM inside the optimizer loop would replace each cheap 0D evaluation with a full coupled solve, raising the calibration cost by orders of magnitude and adding solver-failure modes to the cost surface. Tuning the Holzapfel-Ogden parameters or active-tension scale to make FEM pressures match the standalone 0D's targets would couple tissue mechanics to circulation calibration, breaking the proxy comparison's premise that material and contraction are independent of loading.
