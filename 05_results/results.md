@@ -3,11 +3,11 @@
 
 The results are easiest to understand if two questions are kept separate. First: within a single simulation, does the pressure-strain proxy get the regional work differences right? Second: when the circulation changes while geometry is held fixed, does the proxy rank the loading cases in the same order as the finite-element stress-strain work density?
 
-A proxy can rank a pressure sweep well and still give the wrong regional balance within a single patient, so the chapter starts with the regional ratio analysis. The ratio test is the cleaner mechanics check: it does not depend on whether the hemodynamic axis chosen for the sweep is clinically typical. The pressure sweep then comes in as a controlled loading experiment, asking whether the same proxies rank the cases consistently with the finite-element reference.
+A proxy can rank a pressure sweep correctly and still get the regional balance wrong within a single case, so the chapter starts with the regional ratio analysis. The ratio test is a within-case mechanics check: each simulation gives an independent answer to whether the proxy preserves the relative magnitude of work across regions, so the conclusion is not tied to which loading axis was swept. The pressure sweep then comes in as a controlled loading experiment, asking whether the same proxies rank the cases consistently with the finite-element reference.
 
-A note before the visual. The reader should read {numref}`fig-cascade-loops-sweep` and {numref}`fig-septum-pressure-choices` for **loop areas only** — the proxy quantity is signed loop area, and these figures are intended as a qualitative orientation to what the rest of the chapter compares quantitatively. The top row of {numref}`fig-cascade-loops-sweep` is the fiber-direction projection $S_{ff}\,\dot E_{ff}$, which is the dominant component of the full tensor contraction $\mathbf{S}:\dot{\mathbf{E}}$ but not the literal full work; cross-fiber, sheet, and sheet-normal contributions are smaller but not zero. Loop shapes, timing, and other geometric features beyond signed area are not the focus.
+A note before the figures. {numref}`fig-cascade-loops-sweep` and {numref}`fig-septum-pressure-choices` should be read for loop areas only — the proxy quantity is signed loop area, and these figures are a qualitative orientation to what the rest of the chapter compares quantitatively. {numref}`fig-cascade-loops-sweep` places the FE reference and the clinical pressure-strain proxy side by side across the sixteen cases: the top row is fiber-direction stress-strain loops $S_{ff}$ vs $E_{ff}$, the bottom row is the proxy $p_\text{cav}$ vs longitudinal strain $\varepsilon_{ll}$. The top-row projection $S_{ff}\,\dot E_{ff}$ is the dominant component of the full tensor contraction $\mathbf{S}:\dot{\mathbf{E}}$ but not the literal full work; cross-fiber, sheet, and sheet-normal contributions are smaller but not zero. Loop shapes, timing, and other geometric features beyond signed area are not the focus.
 
-{numref}`fig-cascade-loops-sweep` puts the FE reference and the clinical pressure-strain proxy side by side across the sixteen cases: the top row is fiber-direction stress-strain loops $S_{ff}$ vs $E_{ff}$, the bottom row is the proxy $p_\text{cav}$ vs longitudinal strain $\varepsilon_{ll}$. The visible question is whether the bottom-row areas preserve the top-row regional balance, and whether they do so consistently as RV pressure rises. The free-wall proxy uses adjacent cavity pressure; the septum is shown with $p_\text{LV}$ as a default, but which pressure should drive the septal proxy is itself one of the chapter's open questions. {numref}`fig-septum-pressure-choices` shows the same septum loops under four candidate pressures: $p_\text{LV}$, $p_\text{RV}$, mean, and transmural.
+The visible question is whether the bottom-row areas preserve the top-row regional balance, and whether they do so consistently as RV pressure rises. The free-wall proxy uses adjacent cavity pressure; the septum is shown with $p_\text{LV}$ as a default, but which pressure should drive the septal proxy is itself one of the chapter's open questions. {numref}`fig-septum-pressure-choices` shows the same septum loops under four candidate pressures: $p_\text{LV}$, $p_\text{RV}$, mean, and transmural.
 
 ```{figure} ../figures/fig_5_0c_cascade_loops_sweep.png
 :name: fig-cascade-loops-sweep
@@ -20,14 +20,12 @@ Top row: fiber-direction stress-strain loops $S_{ff}$ vs $E_{ff}$ for the LV fre
 :name: fig-septum-pressure-choices
 :width: 100%
 
-Septum pressure-strain loops across the sixteen cases under four candidate pressures: $p_\text{LV}$, $p_\text{RV}$, mean $(p_\text{LV}+p_\text{RV})/2$, and transmural $p_\text{LV}-p_\text{RV}$. All panels share the same septal longitudinal strain on the x-axis. Each line is one simulation; colour is achieved peak RV systolic pressure (mmHg). Loop area is the proxy work density $w_\text{PS}$ for the chosen pressure; the chapter quantifies the consequences of each choice in {numref}`tab-septum-proxies` and {numref}`fig-septum-ratio-headline`.
+Septum pressure-strain loops across the sixteen cases under four candidate pressures: $p_\text{LV}$, $p_\text{RV}$, mean $(p_\text{LV}+p_\text{RV})/2$, and transmural $p_\text{LV}-p_\text{RV}$. All panels share the same septal longitudinal strain on the x-axis. Each line is one simulation; colour is achieved peak RV systolic pressure (mmHg).
 ```
 
-Unless stated otherwise, the results use the capped-reference pressure-loading sweep defined in {ref}`chap-calibration`: sixteen cases on a shared biventricular reference mesh ($n=8070$ cells). Geometry, material model, fibre architecture, and end-diastolic mesh target are held fixed; only the 0D circulation varies to raise RV pressure across the cases. The RV end-diastolic pressure used during inverse unloading is capped at 5 mmHg.
+The results use the capped-reference pressure-loading sweep defined in {ref}`chap-calibration`: sixteen cases on a shared biventricular reference mesh ($n=8070$ cells). Geometry, material model, fibre architecture, and end-diastolic mesh target are held fixed; only the 0D circulation varies to raise RV pressure across the cases. The RV end-diastolic pressure used during inverse unloading is capped at 5 mmHg.
 
-The sixteen cases share the same region tag set (1269 geometric septum cells in every case; see {ref}`sec-shared-mask-tagging`), so regional integrals are case-comparable cell-by-cell. Reported pressures, correlations, and proxies use the cavity Lagrange-multiplier pressure from the coupled mechanics solve.
-
-The comparisons should be read as tests of simplification. The finite-element stress-strain work density is the model-side reference, not patient-level ground truth. The question is how much of that reference survives when regional mechanics are reduced first to a scalar pressure scale and then to one longitudinal strain component.
+The sixteen cases share the same region tag set (1269 geometric septum cells in every case; see {ref}`sec-shared-mask-tagging`), so regional integrals are case-comparable cell-by-cell.
 
 The ratio tests use simple formulas. For two regions $A$ and $B$, the finite-element work-density ratio is
 
@@ -43,11 +41,11 @@ $$
 R_\text{proxy}(A,B) = \frac{w_\text{PS}(A)}{w_\text{PS}(B)}.
 $$
 
-Here $W_\text{int}[\Omega_A]$ is the volume-integrated stress-strain work over region $\Omega_A$, and $|\Omega_{A,0}|$ is that region's reference volume. Both $w_\text{int}$ and the pressure-strain loop area $w_\text{PS}$ are density-like quantities with units of pressure: J/m$^3$ = Pa, reported here in kPa. The pressure-strain proxy is already treated as a density-like index, so it has no additional regional volume factor. All pressure-strain proxies are computed cellwise — per-cell loop area against the cell's assigned pressure — and then volume-integrated over the region; for spatially varying septal pressure choices (nearest-side and through-wall weighted), pressure varies cell-by-cell within the septum.
+Here $W_\text{int}[\Omega_A]$ is the volume-integrated stress-strain work over region $\Omega_A$, and $|\Omega_{A,0}|$ is that region's reference volume. Both $w_\text{int}$ and the pressure-strain loop area $w_\text{PS}$ are density-like quantities with units of pressure: J/m$^3$ = Pa, reported here in kPa. $w_\text{PS}$ is already in those units. All pressure-strain proxies are computed cellwise — per-cell loop area against the cell's assigned pressure — and then volume-averaged over the region; for spatially varying septal pressure choices (nearest-side and through-wall weighted), pressure varies cell-by-cell within the septum.
 
 The free-wall ratio $R = w_\text{LV}/w_\text{RV}$ sits above one across the sweep, so we report the absolute error $|R_\text{proxy}-R_\text{FE}|$, averaged over the sixteen cases.
 
-The septum produces two ratios per case — septum/LV-free-wall and septum/RV-free-wall — that straddle unity, since the septum sits below the LV free wall and above the thinner RV free wall. Absolute differences would weigh "twice too high" and "twice too low" unequally, so we use the mean absolute log-ratio
+The septum produces two ratios per case: septum/LV-free-wall (below 1) and septum/RV-free-wall (above 1). Absolute differences would weigh "twice too high" and "twice too low" unequally, so we use the mean absolute log-ratio
 
 $$
 \eta_\text{ratio}
@@ -55,10 +53,6 @@ $$
 $$
 
 averaged across both ratios and all sixteen cases. The scale is multiplicative: $\eta_\text{ratio} = 0$ is exact and $\eta_\text{ratio} = 0.18$ corresponds to a typical ratio error of about $\exp(0.18)-1 \approx 20\%$.
-
-Throughout the chapter, the longitudinal-strain proxy uses the tangent-longitudinal definition from {ref}`sec-work-definitions`. The raw apico-basal direction is projected into the local wall tangent plane before evaluating $\varepsilon_{ll}$, so the proxy does not count the through-wall component of the LDRB apex-gradient field as longitudinal strain. Fibre-aligned diagnostics use the model-side Green-Lagrange fibre strain $E_{ff}=\mathbf{E}:(\mathbf{f}_0\otimes\mathbf{f}_0)$ and are treated as mechanical checks rather than competing clinical proxies.
-
-These ratios are tested first in the free walls, where pressure assignment is simple, and then in the septum, where it is not. The conceptual asymmetry between the two cases is the one introduced in {numref}`fig-freewall-septum-schematic`.
 
 ## Numerical Reference Quality
 
