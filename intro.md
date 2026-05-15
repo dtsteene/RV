@@ -41,6 +41,10 @@ Ten snapshots through one simulated beat at the baseline calibration, sampled mo
 
 The basal clip, basal support, cavity-volume constraints, fibre assignment, and circulation coupling are described in {ref}`chap-model`.
 
+```{raw} latex
+\clearpage
+```
+
 ## Two Views Of Cardiac Work
 
 Returning to the heart as a pump, the basic mechanical calculation is pressure-volume work. The pressure-volume (PV) diagram, originally an engineering indicator diagram introduced by James Watt and John Southern in 1796 to measure steam-engine work, was later brought into cardiac physiology by Otto Frank's volume-pressure description of ventricular work {cite}`cardwell1971fromwatt,frank1899grundform,lohff1999first`.

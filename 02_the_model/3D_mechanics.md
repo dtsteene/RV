@@ -182,7 +182,7 @@ where $\mathbf{n} = J\mathbf{F}^{-\top}\mathbf{N} / |J\mathbf{F}^{-\top}\mathbf{
 :name: fig-bc-schematic
 :width: 80%
 
-Schematic cross-section of the biventricular reference mesh with the four boundary regions and their conditions. The LV and RV endocardia $\Gamma_\text{LV}, \Gamma_\text{RV}$ (blue, pink) carry the cavity-volume constraints; the associated pressures $p_\text{LV}, p_\text{RV}$ are Lagrange multipliers returned by the solve and act as outward pressure tractions on each endocardial surface (arrows). The epicardium $\Gamma_\text{epi}$ (green) carries Robin springs $k_\text{epi} = 10^5$ Pa/m acting along the deformed surface normal, allowing tangential sliding. The basal plane $\Gamma_\text{base}$ (orange) carries the same kind of normal-direction Robin spring at higher stiffness $k_\text{base} = 10^6$ Pa/m, together with a single Dirichlet pin that fixes the base-normal displacement component $u_n = \mathbf{u}\cdot\mathbf{n} = 0$ and removes the corresponding rigid-body mode.
+Schematic cross-section of the biventricular reference mesh and its four boundary regions. LV and RV endocardia $\Gamma_\text{LV}, \Gamma_\text{RV}$ (blue, pink): cavity-volume constraints with Lagrange-multiplier pressures $p_\text{LV}, p_\text{RV}$ acting as outward tractions (arrows). Epicardium $\Gamma_\text{epi}$ (green): Robin springs along the deformed normal. Basal plane $\Gamma_\text{base}$ (orange): stiffer normal-direction Robin spring plus a Dirichlet pin on $u_n$ that removes the rigid-body mode.
 ```
 
 (sec-equilibrium-problem)=

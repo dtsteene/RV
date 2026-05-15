@@ -1,3 +1,7 @@
+```{raw} latex
+\appendix
+```
+
 (chap-appendix-circulation-calibration)=
 # Circulation Calibration Audit
 
